@@ -1,29 +1,36 @@
 /*
-Package input.
-
-It is generated from these files:
-	t.proto
-
-It has these top-level messages:
-	Test
+Package bsn_log.
 */
 package bsn_log
 
-import (
-	"fmt"
+const (
+	ELevel_Must uint32 = 1 << iota
+	ELevel_Debug
+	ELevel_Error
+	ELevel_Max
+	ELevel_All = ELevel_Max - 1
 )
 
-func Print(v ...interface{}) {
-	strInfo := fmt.Sprint(v...)
-	output(strInfo)
+type ILog interface {
+	SetName(strName string)
+	SetOutMask(u32Mask uint32)
+	SetLogMask(u32Mask uint32)
+	Output(ELevel uint32, strInfo string)
+	Must(v ...interface{})
+	Mustln(v ...interface{})
+	Mustf(format string, v ...interface{})
+	Debug(v ...interface{})
+	Debugln(v ...interface{})
+	Debugf(format string, v ...interface{})
+	Error(v ...interface{})
+	Errorln(v ...interface{})
+	Errorf(format string, v ...interface{})
 }
 
-func Println(v ...interface{}) {
-	strInfo := fmt.Sprint(v...) + "\n"
-	output(strInfo)
-}
-
-func Printf(format string, v ...interface{}) {
-	strInfo := fmt.Sprintf(format, v...)
-	output(strInfo)
+func New(strName string) ILog {
+	return &sLog{
+		m_strName:    strName,
+		m_u32OutMask: ELevel_All,
+		m_u32LogMask: ELevel_All,
+	}
 }

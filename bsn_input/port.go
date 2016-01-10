@@ -1,11 +1,5 @@
 /*
-Package input.
-
-It is generated from these files:
-	t.proto
-
-It has these top-level messages:
-	Test
+Package bsn_input.
 */
 package bsn_input
 
