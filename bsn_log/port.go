@@ -3,6 +3,12 @@ Package bsn_log.
 */
 package bsn_log
 
+import (
+	// "fmt"
+	"github.com/bsn069/go/bsn_common"
+	"path"
+)
+
 const (
 	ELevel_Must uint32 = 1 << iota
 	ELevel_Debug
@@ -28,9 +34,17 @@ type ILog interface {
 }
 
 func New(strName string) ILog {
-	return &sLog{
+	if strName == "" {
+		filePath, _ := bsn_common.GetCallerFileLine(2)
+		dir := path.Dir(filePath)
+		pkg := path.Base(dir)
+		strName = pkg
+	}
+
+	log := &sLog{
 		m_strName:    strName,
 		m_u32OutMask: ELevel_All,
 		m_u32LogMask: ELevel_All,
 	}
+	return log
 }

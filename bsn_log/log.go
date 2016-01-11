@@ -27,7 +27,7 @@ func (this *sLog) SetLogMask(u32Mask uint32) {
 
 func (this *sLog) Output(ELevel uint32, strInfo string) {
 	if (this.m_u32OutMask & ELevel) != 0 {
-		fmt.Print(strInfo)
+		fmt.Print(this.m_strName + " " + strInfo)
 	}
 	if (this.m_u32LogMask & ELevel) != 0 {
 	}

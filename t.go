@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/bsn069/go/bsn_common"
+	// "github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_input"
 	"github.com/bsn069/go/bsn_log"
 )
@@ -17,15 +17,14 @@ func procInput(strName string, vInputChan chan []string) {
 }
 
 func main() {
+	GLog := bsn_log.New("main")
+	GLog.Debugln(1)
 	vInputChan1, _ := bsn_input.Instance().Reg("1")
 	go procInput("mod1", vInputChan1)
 
 	vInputChan2, _ := bsn_input.Instance().Reg("2")
 	go procInput("mod2", vInputChan2)
 
-	file, line := bsn_common.GetCallerFileLine(1)
-	fmt.Println(file, line)
-	bsn_log.Println("abc")
 	bsn_input.Run()
 }
 
