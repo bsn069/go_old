@@ -2,7 +2,7 @@ package bsn_common
 
 import (
 	// "bsn/bsn_common"
-	// "errors"
+	"errors"
 	// "bufio"
 	"fmt"
 	// "log"
@@ -33,4 +33,29 @@ func GetCallerFileLine(calldepth int) (file string, line int) {
 		line = 0
 	}
 	return file, line
+}
+
+func GetCallInfo(calldepth int) (pkgName, funcName, filePath string, line int, err error) {
+	pc, filePath, line, ok := runtime.Caller(calldepth)
+	if !ok {
+		err = errors.New("runtime.Caller fail")
+		return
+	}
+	vFunc := runtime.FuncForPC(pc)
+	if vFunc == nil {
+		err = errors.New("runtime.FuncForPC fail")
+		return
+	}
+
+	allFuncName := vFunc.Name()
+	fmt.Println(allFuncName)
+	index := strings.LastIndex(allFuncName, "/")
+	if index != -1 {
+		allFuncName = allFuncName[index+1:]
+	}
+	fmt.Println(allFuncName)
+
+	strArray := strings.SplitN(allFuncName, ".", 2)
+	pkgName, funcName = strArray[0], strArray[1]
+	return
 }
