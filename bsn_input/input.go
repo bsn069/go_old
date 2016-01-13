@@ -45,16 +45,16 @@ func (this *sInput) close() {
 func (this *sInput) runCmd() {
 	defer func() {
 		if err := recover(); err != nil {
-			fmt.Println("func return error ", err)
+			GLog.Errorln("func return error ", err)
 		}
 	}()
 
 	r := bufio.NewReader(os.Stdin)
 
 	if this.m_strUseMod == "" {
-		fmt.Print(">")
+		GLog.Must(">")
 	} else {
-		fmt.Print(this.m_strUseMod + ">")
+		GLog.Must(this.m_strUseMod, ">")
 	}
 
 	b, _, _ := r.ReadLine()
@@ -79,11 +79,11 @@ func (this *sInput) runCmd() {
 		if modChan, ok := this.m_tMod2Chan[strModUpper]; ok {
 			modChan <- tokens[1:]
 		} else {
-			fmt.Println("unknonwn mod", strMod)
+			GLog.Mustln("unknonwn mod", strMod)
 		}
 	}
 
-	fmt.Println("")
+	GLog.Mustln("")
 }
 
 func (this *sInput) setUseMod(strMod string) {
@@ -91,14 +91,14 @@ func (this *sInput) setUseMod(strMod string) {
 	if strModName, ok := this.m_tUpperName2RegName[strModUpper]; ok {
 		this.m_strUseMod = strModName
 	} else {
-		fmt.Println("unknonwn mod", strMod)
+		GLog.Errorln("unknonwn mod", strMod)
 	}
 }
 
 func (this *sInput) Reg(strMod string) (chan []string, error) {
 	strModUpper := strings.ToUpper(strMod)
 	if _, ok := this.m_tUpperName2RegName[strModUpper]; ok {
-		fmt.Println("had reg mod ", strMod)
+		GLog.Errorln("had reg mod ", strMod)
 		return nil, errors.New("had reg mod")
 	}
 

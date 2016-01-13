@@ -3,6 +3,10 @@ Package bsn_log.
 */
 package bsn_log
 
+import (
+	"time"
+)
+
 const (
 	ELevel_Must uint32 = 1 << iota
 	ELevel_Debug
@@ -26,6 +30,8 @@ type ILog interface {
 	Errorln(v ...interface{})
 	Errorf(format string, v ...interface{})
 }
+
+type TTimeFunc func(t *time.Time) string
 
 var New = makeLog
 var GLog = New()

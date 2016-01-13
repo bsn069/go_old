@@ -2,6 +2,7 @@ package bsn_log
 
 import (
 	"fmt"
+	"time"
 )
 
 type sLog struct {
@@ -11,6 +12,8 @@ type sLog struct {
 
 	// write to log file mask
 	m_u32LogMask uint32
+	m_time       time.Time
+	m_timeFunc   TTimeFunc
 }
 
 func (this *sLog) SetName(strName string) {
@@ -26,8 +29,10 @@ func (this *sLog) SetLogMask(u32Mask uint32) {
 }
 
 func (this *sLog) Output(ELevel uint32, strInfo string) {
+	this.m_time = time.Now()
+	strTime := this.m_timeFunc(&this.m_time)
 	if (this.m_u32OutMask & ELevel) != 0 {
-		fmt.Print(this.m_strName + " " + strInfo)
+		fmt.Print(strTime + "[" + this.m_strName + "]" + " " + strInfo)
 	}
 	if (this.m_u32LogMask & ELevel) != 0 {
 	}

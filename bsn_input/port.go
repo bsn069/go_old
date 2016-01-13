@@ -3,15 +3,16 @@ Package bsn_input.
 */
 package bsn_input
 
+import (
+	"github.com/bsn069/go/bsn_log"
+)
+
 type IInput interface {
 	Reg(strMod string) (chan []string, error)
 }
 
-func Instance() IInput {
-	return instance()
-}
+var GLog = bsn_log.New()
+var Instance = instance
 
 // call in bin file, don`t in lib will block
-func Run() {
-	run()
-}
+var Run = run
