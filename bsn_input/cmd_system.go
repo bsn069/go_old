@@ -1,10 +1,10 @@
 package bsn_input
 
 import (
-	"bsn/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	// "errors"
 	// "bufio"
-	"fmt"
+	// "fmt"
 	// "log"
 	// "os"
 	// "strings"
@@ -20,18 +20,18 @@ type SCmd struct {
 
 func (this *SCmd) LS(strArray []string) {
 	if this.m_bShowHelp {
-		fmt.Println("this is ls")
+		GLog.Mustln("this is ls")
 		return
 	}
 
 	for vModName, _ := range gInput.m_tMod2Chan {
-		fmt.Println(vModName)
+		GLog.Mustln(vModName)
 	}
 }
 
 func (this *SCmd) QUIT(strArray []string) {
 	if this.m_bShowHelp {
-		fmt.Println("this is quit")
+		GLog.Mustln("this is quit")
 		return
 	}
 
@@ -40,12 +40,12 @@ func (this *SCmd) QUIT(strArray []string) {
 		if this.m_quitCode < 10000 {
 			this.m_quitCode += 10000
 		}
-		fmt.Printf("input [ quit %d]", this.m_quitCode)
+		GLog.Mustf("input [ quit %d]\n", this.m_quitCode)
 		return
 	}
 	if strconv.Itoa(int(this.m_quitCode)) != strArray[0] {
 		this.m_quitCode = 0
-		fmt.Println("quit cancel")
+		GLog.Mustln("quit cancel")
 		return
 	}
 
@@ -57,7 +57,7 @@ func (this *SCmd) CD(strArray []string) {
 		this.m_bShowHelp = true
 	}
 	if this.m_bShowHelp {
-		fmt.Println("this is cd")
+		GLog.Mustln("this is cd")
 		return
 	}
 
@@ -71,7 +71,7 @@ func (this *SCmd) CD(strArray []string) {
 
 func (this *SCmd) HELP(strArray []string) {
 	if this.m_bShowHelp {
-		fmt.Println("this is help")
+		GLog.Mustln("this is help")
 		return
 	}
 
@@ -79,7 +79,7 @@ func (this *SCmd) HELP(strArray []string) {
 	t := reflect.TypeOf(this)
 	for i := 0; i < t.NumMethod(); i++ {
 		method := t.Method(i)
-		fmt.Println(method.Name)
+		GLog.Mustln(method.Name)
 		bsn_common.CallStructFunc(this, method.Name, strArray)
 	}
 }

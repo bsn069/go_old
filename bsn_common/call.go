@@ -4,7 +4,7 @@ import (
 	// "bsn/bsn_common"
 	"errors"
 	// "bufio"
-	"fmt"
+	// "fmt"
 	// "log"
 	// "os"
 	"reflect"
@@ -17,11 +17,10 @@ func CallStructFunc(sStruct interface{}, strFunc string, strParams []string) err
 	vValue := reflect.ValueOf(sStruct)
 	vFunc := vValue.MethodByName(strFuncUpper)
 	if vFunc.IsValid() {
-		// fmt.Println("run func ", strFunc)
 		vArgs := []reflect.Value{reflect.ValueOf(strParams)}
 		vFunc.Call(vArgs)
 	} else {
-		fmt.Println("unknonwn func ", strFunc)
+		return errors.New("unknonwn func " + strFunc)
 	}
 	return nil
 }
@@ -48,12 +47,10 @@ func GetCallInfo(calldepth int) (pkgName, funcName, filePath string, line int, e
 	}
 
 	allFuncName := vFunc.Name()
-	fmt.Println(allFuncName)
 	index := strings.LastIndex(allFuncName, "/")
 	if index != -1 {
 		allFuncName = allFuncName[index+1:]
 	}
-	fmt.Println(allFuncName)
 
 	strArray := strings.SplitN(allFuncName, ".", 2)
 	pkgName, funcName = strArray[0], strArray[1]

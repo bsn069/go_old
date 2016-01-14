@@ -7,8 +7,10 @@ import (
 	"time"
 )
 
+type TLevel uint32
+
 const (
-	ELevel_Must uint32 = 1 << iota
+	ELevel_Must TLevel = 1 << iota
 	ELevel_Debug
 	ELevel_Error
 	ELevel_Max
@@ -19,7 +21,7 @@ type ILog interface {
 	SetName(strName string)
 	SetOutMask(u32Mask uint32)
 	SetLogMask(u32Mask uint32)
-	Output(ELevel uint32, strInfo string)
+	Output(ELevel TLevel, strInfo string)
 	Must(v ...interface{})
 	Mustln(v ...interface{})
 	Mustf(format string, v ...interface{})

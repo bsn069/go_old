@@ -28,13 +28,13 @@ func (this *sLog) SetLogMask(u32Mask uint32) {
 	this.m_u32LogMask = u32Mask
 }
 
-func (this *sLog) Output(ELevel uint32, strInfo string) {
+func (this *sLog) Output(level TLevel, strInfo string) {
 	this.m_time = time.Now()
 	strTime := this.m_timeFunc(&this.m_time)
-	if (this.m_u32OutMask & ELevel) != 0 {
-		fmt.Print(strTime + "[" + this.m_strName + "]" + " " + strInfo)
+	if (this.m_u32OutMask & uint32(level)) != 0 {
+		fmt.Printf("%v[%v][%v]%v", strTime, this.m_strName, level, strInfo)
 	}
-	if (this.m_u32LogMask & ELevel) != 0 {
+	if (this.m_u32LogMask & uint32(level)) != 0 {
 	}
 }
 

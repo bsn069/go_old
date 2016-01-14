@@ -6,6 +6,20 @@ import (
 	"time"
 )
 
+// String returns the English name of the month ("January", "February", ...).
+func (this TLevel) String() string {
+	switch this {
+	case ELevel_Debug:
+		return "Debug"
+	case ELevel_Must:
+		return "Must"
+	case ELevel_Error:
+		return "Error"
+	default:
+		return "?"
+	}
+}
+
 func makeLog() ILog {
 	pkgName, _, _, _, err := bsn_common.GetCallInfo(2)
 	strName := "?"
@@ -15,8 +29,8 @@ func makeLog() ILog {
 
 	log := &sLog{
 		m_strName:    strName,
-		m_u32OutMask: ELevel_All,
-		m_u32LogMask: ELevel_All,
+		m_u32OutMask: uint32(ELevel_All),
+		m_u32LogMask: uint32(ELevel_All),
 		m_timeFunc:   fmtTime,
 	}
 	return log

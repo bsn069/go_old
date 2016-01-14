@@ -5,7 +5,6 @@ var gInput *sInput
 func instance() *sInput {
 	if gInput == nil {
 		gInput = &sInput{
-			m_strSep:             " ",
 			m_tMod2Chan:          make(tMod2Chan),
 			m_cmd:                new(SCmd),
 			m_quit:               false,

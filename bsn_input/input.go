@@ -3,7 +3,6 @@ package bsn_input
 import (
 	"bufio"
 	"errors"
-	"fmt"
 	"github.com/bsn069/go/bsn_common"
 	// "log"
 	"os"
@@ -14,7 +13,6 @@ import (
 type tMod2Chan map[string]chan []string
 
 type sInput struct {
-	m_strSep             string
 	m_tMod2Chan          tMod2Chan
 	m_strUseMod          string // use mod name
 	m_cmd                *SCmd
@@ -25,7 +23,7 @@ type sInput struct {
 
 func (this *sInput) run() {
 	if this.m_bRuning {
-		fmt.Println("had run")
+		GLog.Mustln("had run")
 		return
 	}
 	this.m_bRuning = true
@@ -37,7 +35,7 @@ func (this *sInput) run() {
 }
 
 func (this *sInput) close() {
-	fmt.Println("input close")
+	GLog.Mustln("input close")
 	this.m_bRuning = false
 	this.m_quit = false
 }
@@ -59,27 +57,36 @@ func (this *sInput) runCmd() {
 
 	b, _, _ := r.ReadLine()
 	line := string(b)
+	if line == "" {
+		return
+	}
 
-	tokens := strings.Split(line, this.m_strSep)
-	// for _, strParam := range tokens {
-	// 	fmt.Println(strParam)
-	// }
+	tokens := strings.Fields(line)
+	if len(tokens) < 1 {
+		return
+	}
 
-	strMod := tokens[0]
-	if strMod == "" {
+	if line[:1] == " " {
 		this.m_cmd.m_bShowHelp = false
-		bsn_common.CallStructFunc(this.m_cmd, tokens[1], tokens[2:])
+		err := bsn_common.CallStructFunc(this.m_cmd, tokens[0], tokens[1:])
+		if err != nil {
+			GLog.Mustln(err)
+		}
 		this.m_cmd.m_bShowHelp = false
 	} else {
-		strModUpper := strings.ToUpper(strMod)
+		strModUpper := strings.ToUpper(tokens[0])
 		if this.m_strUseMod != "" {
 			strModUpper = strings.ToUpper(this.m_strUseMod)
 		}
 
 		if modChan, ok := this.m_tMod2Chan[strModUpper]; ok {
-			modChan <- tokens[1:]
+			select {
+			case modChan <- tokens[1:]:
+			default:
+				GLog.Mustln("send cmd fail")
+			}
 		} else {
-			GLog.Mustln("unknonwn mod", strMod)
+			GLog.Mustln("unknonwn mod ", tokens[0])
 		}
 	}
 
@@ -91,7 +98,7 @@ func (this *sInput) setUseMod(strMod string) {
 	if strModName, ok := this.m_tUpperName2RegName[strModUpper]; ok {
 		this.m_strUseMod = strModName
 	} else {
-		GLog.Errorln("unknonwn mod", strMod)
+		GLog.Errorln("unknonwn mod ", strMod)
 	}
 }
 
