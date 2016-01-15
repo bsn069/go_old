@@ -7,10 +7,10 @@ import (
 	// "fmt"
 	// "log"
 	// "os"
-	// "strings"
 	"math/rand"
 	"reflect"
 	"strconv"
+	"strings"
 )
 
 type SCmd struct {
@@ -20,7 +20,7 @@ type SCmd struct {
 
 func (this *SCmd) LS(strArray []string) {
 	if this.m_bShowHelp {
-		GLog.Mustln("this is ls")
+		GLog.Mustln("    list all mod")
 		return
 	}
 
@@ -31,7 +31,7 @@ func (this *SCmd) LS(strArray []string) {
 
 func (this *SCmd) QUIT(strArray []string) {
 	if this.m_bShowHelp {
-		GLog.Mustln("this is quit")
+		GLog.Mustln("    quit input")
 		return
 	}
 
@@ -40,7 +40,7 @@ func (this *SCmd) QUIT(strArray []string) {
 		if this.m_quitCode < 10000 {
 			this.m_quitCode += 10000
 		}
-		GLog.Mustf("input [ quit %d]\n", this.m_quitCode)
+		GLog.Mustf("input [quit %d]\n", this.m_quitCode)
 		return
 	}
 	if strconv.Itoa(int(this.m_quitCode)) != strArray[0] {
@@ -57,7 +57,7 @@ func (this *SCmd) CD(strArray []string) {
 		this.m_bShowHelp = true
 	}
 	if this.m_bShowHelp {
-		GLog.Mustln("this is cd")
+		GLog.Mustln("    enter mod")
 		return
 	}
 
@@ -71,15 +71,24 @@ func (this *SCmd) CD(strArray []string) {
 
 func (this *SCmd) HELP(strArray []string) {
 	if this.m_bShowHelp {
-		GLog.Mustln("this is help")
+		GLog.Mustln("    show help info")
 		return
 	}
 
 	this.m_bShowHelp = true
-	t := reflect.TypeOf(this)
-	for i := 0; i < t.NumMethod(); i++ {
-		method := t.Method(i)
-		GLog.Mustln(method.Name)
-		bsn_common.CallStructFunc(this, method.Name, strArray)
+	if len(strArray) > 0 {
+		err := bsn_common.CallStructFunc(this, strArray[0], strArray)
+		if err == nil {
+			this.m_bShowHelp = false
+		}
+	}
+	if this.m_bShowHelp {
+		t := reflect.TypeOf(this)
+		for i := 0; i < t.NumMethod(); i++ {
+			method := t.Method(i)
+			lowerName := strings.ToLower(method.Name)
+			GLog.Mustln(lowerName)
+			bsn_common.CallStructFunc(this, method.Name, strArray)
+		}
 	}
 }

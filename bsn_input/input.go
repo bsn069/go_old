@@ -42,6 +42,7 @@ func (this *sInput) close() {
 
 func (this *sInput) runCmd() {
 	defer func() {
+		this.m_cmd.m_bShowHelp = false
 		if err := recover(); err != nil {
 			GLog.Errorln("func return error ", err)
 		}
@@ -66,31 +67,37 @@ func (this *sInput) runCmd() {
 		return
 	}
 
-	if line[:1] == " " {
-		this.m_cmd.m_bShowHelp = false
+	this.m_cmd.m_bShowHelp = false
+	strModUpper := strings.ToUpper(tokens[0])
+	if this.m_strUseMod == "" || strModUpper == "CD" {
 		err := bsn_common.CallStructFunc(this.m_cmd, tokens[0], tokens[1:])
-		if err != nil {
-			GLog.Mustln(err)
-		}
-		this.m_cmd.m_bShowHelp = false
-	} else {
-		strModUpper := strings.ToUpper(tokens[0])
-		if this.m_strUseMod != "" {
-			strModUpper = strings.ToUpper(this.m_strUseMod)
-		}
-
-		if modChan, ok := this.m_tMod2Chan[strModUpper]; ok {
-			select {
-			case modChan <- tokens[1:]:
-			default:
-				GLog.Mustln("send cmd fail")
-			}
-		} else {
-			GLog.Mustln("unknonwn mod ", tokens[0])
+		if err == nil {
+			return
 		}
 	}
 
-	GLog.Mustln("")
+	if modChan, ok := this.m_tMod2Chan[this.m_strUseMod]; ok {
+		select {
+		case modChan <- tokens[1:]:
+		default:
+			GLog.Mustln("send cmd fail")
+		}
+		return
+	}
+
+	if modChan, ok := this.m_tMod2Chan[strModUpper]; ok {
+		select {
+		case modChan <- tokens[1:]:
+		default:
+			GLog.Mustln("send cmd fail")
+		}
+		return
+	}
+
+	err := bsn_common.CallStructFunc(this.m_cmd, "help", tokens[1:])
+	if err == nil {
+		return
+	}
 }
 
 func (this *sInput) setUseMod(strMod string) {

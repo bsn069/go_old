@@ -5,15 +5,18 @@ import (
 	"time"
 )
 
+var fl_u32Id uint32 = 0
+
 type sLog struct {
 	m_strName string
 	// output mask
 	m_u32OutMask uint32
 
 	// write to log file mask
-	m_u32LogMask uint32
-	m_time       time.Time
-	m_timeFunc   TTimeFunc
+	m_u32LogMask  uint32
+	m_time        time.Time
+	m_timeFmtFunc TTimeFmtFunc
+	m_outFmtFunc  TOutFmtFunc
 }
 
 func (this *sLog) SetName(strName string) {
@@ -28,13 +31,24 @@ func (this *sLog) SetLogMask(u32Mask uint32) {
 	this.m_u32LogMask = u32Mask
 }
 
+func (this *sLog) SetTimeFmtFunc(timeFmtFunc TTimeFmtFunc) {
+	this.m_timeFmtFunc = timeFmtFunc
+}
+
+func (this *sLog) SetOutFmtFunc(outFmtFunc TOutFmtFunc) {
+	this.m_outFmtFunc = outFmtFunc
+}
+
 func (this *sLog) Output(level TLevel, strInfo string) {
+	fl_u32Id++
 	this.m_time = time.Now()
-	strTime := this.m_timeFunc(&this.m_time)
+	strTime := this.m_timeFmtFunc(&this.m_time)
 	if (this.m_u32OutMask & uint32(level)) != 0 {
-		fmt.Printf("%v[%v][%v]%v", strTime, this.m_strName, level, strInfo)
+		strOutInfo := this.m_outFmtFunc(level, &strTime, &this.m_strName, &strInfo, fl_u32Id)
+		fmt.Print(strOutInfo)
 	}
 	if (this.m_u32LogMask & uint32(level)) != 0 {
+
 	}
 }
 

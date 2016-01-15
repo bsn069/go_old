@@ -12,11 +12,11 @@ func (this TLevel) String() string {
 	case ELevel_Debug:
 		return "Debug"
 	case ELevel_Must:
-		return "Must"
+		return "Must "
 	case ELevel_Error:
 		return "Error"
 	default:
-		return "?"
+		return "     "
 	}
 }
 
@@ -28,17 +28,22 @@ func makeLog() ILog {
 	}
 
 	log := &sLog{
-		m_strName:    strName,
-		m_u32OutMask: uint32(ELevel_All),
-		m_u32LogMask: uint32(ELevel_All),
-		m_timeFunc:   fmtTime,
+		m_strName:     strName,
+		m_u32OutMask:  uint32(ELevel_All),
+		m_u32LogMask:  uint32(ELevel_All),
+		m_timeFmtFunc: fmtTime,
+		m_outFmtFunc:  fmtOut,
 	}
 	return log
 }
 
 func fmtTime(t *time.Time) string {
-	_, month, day := t.Date()
+	// _, month, day := t.Date()
 	hour, minute, second := t.Clock()
-	nanosecond := int64(t.Nanosecond()) / (int64)(time.Millisecond)
-	return fmt.Sprintf("%02d%02d-%02d:%02d:%02d:%03d", (int)(month), day, hour, minute, second, nanosecond)
+	// nanosecond := int64(t.Nanosecond()) / (int64)(time.Millisecond)
+	return fmt.Sprintf("%02d:%02d:%02d", hour, minute, second)
+}
+
+func fmtOut(level TLevel, strTime, strModName, strInfo *string, id uint32) string {
+	return fmt.Sprintf("[%v][%v][%v][%v]%v", level, *strTime, id, *strModName, *strInfo)
 }

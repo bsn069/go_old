@@ -21,6 +21,8 @@ type ILog interface {
 	SetName(strName string)
 	SetOutMask(u32Mask uint32)
 	SetLogMask(u32Mask uint32)
+	SetTimeFmtFunc(timeFmtFunc TTimeFmtFunc)
+	SetOutFmtFunc(outFmtFunc TOutFmtFunc)
 	Output(ELevel TLevel, strInfo string)
 	Must(v ...interface{})
 	Mustln(v ...interface{})
@@ -33,7 +35,8 @@ type ILog interface {
 	Errorf(format string, v ...interface{})
 }
 
-type TTimeFunc func(t *time.Time) string
+type TTimeFmtFunc func(t *time.Time) string
+type TOutFmtFunc func(level TLevel, strTime, strModName, strInfo *string, id uint32) string
 
 var New = makeLog
 var GLog = New()
