@@ -4,13 +4,19 @@ import (
 	// "bsn/bsn_common"
 	"errors"
 	// "bufio"
-	// "fmt"
+	"fmt"
 	// "log"
 	// "os"
 	"reflect"
 	"runtime"
 	"strings"
 )
+
+func FuncGuard() {
+	if err := recover(); err != nil {
+		fmt.Print(err)
+	}
+}
 
 func CallStructFunc(sStruct interface{}, strFunc string, strParams []string) error {
 	strFuncUpper := strings.ToUpper(strFunc)

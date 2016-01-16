@@ -3,12 +3,14 @@ package bsn_log
 import (
 	"fmt"
 	"github.com/bsn069/go/bsn_common"
+	"path"
+	// "strings"
 	"time"
 )
 
-// String returns the English name of the month ("January", "February", ...).
-func (this TLevel) String() string {
-	switch this {
+// String returns the English name of the level ("Debug", "Must ", ...).
+func (level TLevel) String() string {
+	switch level {
 	case ELevel_Debug:
 		return "Debug"
 	case ELevel_Must:
@@ -28,11 +30,12 @@ func makeLog() ILog {
 	}
 
 	log := &sLog{
-		m_strName:     strName,
-		m_u32OutMask:  uint32(ELevel_All),
-		m_u32LogMask:  uint32(ELevel_All),
-		m_timeFmtFunc: fmtTime,
-		m_outFmtFunc:  fmtOut,
+		m_strName:      strName,
+		m_u32OutMask:   uint32(ELevel_All),
+		m_u32LogMask:   uint32(ELevel_All),
+		m_timeFmtFunc:  fmtTime,
+		m_outFmtFunc:   fmtOut,
+		m_debugFmtFunc: fmtDebug,
 	}
 	return log
 }
@@ -44,6 +47,12 @@ func fmtTime(t *time.Time) string {
 	return fmt.Sprintf("%02d:%02d:%02d", hour, minute, second)
 }
 
-func fmtOut(level TLevel, strTime, strModName, strInfo *string, id uint32) string {
-	return fmt.Sprintf("[%v][%v][%v][%v]%v", level, *strTime, id, *strModName, *strInfo)
+func fmtOut(level TLevel, strTime, strModName, strInfo, strDebugInfo *string, id uint32) string {
+	return fmt.Sprintf("[%v][%v][%v][%v][%v]%v", level, *strTime, id, *strModName, *strDebugInfo, *strInfo)
+}
+
+func fmtDebug(depth int) string {
+	file, line := bsn_common.GetCallerFileLine(depth + 2)
+	file = path.Base(file)
+	return fmt.Sprintf("%v:%v", file, line)
 }

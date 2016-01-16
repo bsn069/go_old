@@ -7,6 +7,9 @@ import (
 	// "log"
 	"os"
 	// "reflect"
+	// "bytes"
+	// "path"
+	// "runtime"
 	"strings"
 )
 
@@ -41,12 +44,7 @@ func (this *sInput) close() {
 }
 
 func (this *sInput) runCmd() {
-	defer func() {
-		this.m_cmd.m_bShowHelp = false
-		if err := recover(); err != nil {
-			GLog.Errorln("func return error ", err)
-		}
-	}()
+	defer GLog.FuncGuard()
 
 	r := bufio.NewReader(os.Stdin)
 

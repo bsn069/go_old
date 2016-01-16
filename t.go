@@ -21,7 +21,6 @@ func main() {
 	GLog.Debugln(1)
 	GLog.Debugln(2)
 	GLog.Debugln(3)
-	bsn_log.GLog.Debugln("...")
 	vInputChan1, _ := bsn_input.Instance().Reg("1")
 	go procInput("mod1", vInputChan1)
 
