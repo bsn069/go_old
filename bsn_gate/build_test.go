@@ -10,5 +10,8 @@ func TestBase(t *testing.T) {
 	clientMgr := gate.GetClientMgr()
 	clientMgr.SetListenPort(50000)
 	clientMgr.Listen()
-	clientMgr.Listen()
+
+	serverMgr := gate.GetServerMgr()
+	serverMgr.SetListenPort(40000)
+	serverMgr.Listen()
 }

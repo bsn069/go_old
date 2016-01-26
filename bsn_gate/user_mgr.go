@@ -6,13 +6,13 @@ import (
 	"net"
 )
 
-type sClientMgr struct {
+type sUserMgr struct {
 	m_Listener bsn_net.IListen
 	m_clientId uint32
 }
 
-func newClientMgr() (*sClientMgr, error) {
-	this := &sClientMgr{}
+func newUserMgr() (*sUserMgr, error) {
+	this := &sUserMgr{}
 	this.m_Listener = bsn_net.NewListen()
 	if this.m_Listener == nil {
 		return nil, errors.New("create listener fail")
@@ -24,22 +24,23 @@ func newClientMgr() (*sClientMgr, error) {
 	return this, nil
 }
 
-func (this *sClientMgr) SetListenPort(u16Port uint16) error {
+func (this *sUserMgr) SetListenPort(u16Port uint16) error {
 	return this.m_Listener.SetListenPort(u16Port)
 }
 
-func (this *sClientMgr) Listen() error {
+func (this *sUserMgr) Listen() error {
 	return this.m_Listener.Listen()
 }
 
-func (this *sClientMgr) StopListen() {
+func (this *sUserMgr) StopListen() {
 	this.m_Listener.StopListen()
 }
 
-func (this *sClientMgr) onListen() bsn_net.TFuncOnListen {
+func (this *sUserMgr) onListen() bsn_net.TFuncOnListen {
 	return func(conn net.Conn) {
 		this.m_clientId++
 		GLog.Debugln("this.m_clientId=", this.m_clientId)
 		conn.Close()
+		iUser := newUser(this.m_clientId, conn)
 	}
 }

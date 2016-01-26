@@ -7,12 +7,6 @@ import (
 	"github.com/bsn069/go/bsn_log"
 )
 
-type IClientMgr interface {
-	SetListenPort(u16Port uint16) error
-	Listen() error
-	StopListen()
-}
-
 type IGate interface {
 	GetClientMgr() IClientMgr
 }
