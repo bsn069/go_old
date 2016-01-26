@@ -61,12 +61,14 @@ func (this *sListen) Listen() (err error) {
 		return
 	}
 
+	// if not call StopListen, clear close chanel
 	select {
 	case <-this.m_chanClose:
 	default:
 	}
 
 	go this.listenFunc()
+	return
 }
 
 // block until close
@@ -74,11 +76,10 @@ func (this *sListen) StopListen() {
 	this.m_Mutex.Lock()
 	defer this.m_Mutex.Unlock()
 
-	iLisnter := this.m_iListener
 	if this.m_iListener == nil {
 		return
 	}
-	iLisnter.Close()
+	this.m_iListener.Close()
 	<-this.m_chanClose
 }
 

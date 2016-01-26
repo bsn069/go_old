@@ -14,10 +14,8 @@ type IListenCallBack interface {
 
 type TCloseChan chan bool
 type TPort uint16
-type TFuncOnListen func(conn net.Conn) error
 type IListen interface {
 	SetListenPort(port TPort) error
-	SetListenFunc(funcOnListen TFuncOnListen) error
 	Listen() (err error)
 	StopListen()
 }
@@ -25,26 +23,28 @@ type IListen interface {
 // (iListenCallBack IListenCallBack) IListen
 var NewListen = newListen
 
-type TUserImp interface{}
 type TUserId uint32
 type IUser interface {
 	GetId() TUserId
 	GetUserMgr() IUserMgr
 	Close()
 }
-type TID2User map[TUserId]TUserImp
+type TID2User map[TUserId]IUser
 
-type TFuncNewUser func(user IUser) (TUserImp, error)
+// (userId TUserId, iConn net.Conn) (IUser, error)
+var NewUser = newUser
+
+type IUserMgrCallBack interface {
+	NewUser(userId TUserId, iConn net.Conn) (IUser, error)
+}
+
 type IUserMgr interface {
-	SetFuncNewUser(funcNewUser TFuncNewUser) error
-	SetListenPort(port TPort) error
-	Listen() error
-	StopListen()
-	GetUser(userId TUserId) TUserImp
+	IListen
+	GetUser(userId TUserId) IUser
 	DelUser(userId TUserId)
 }
 
-// () (IUserMgr, error)
+// (iUserMgrCallBack IUserMgrCallBack) (IUserMgr, error)
 var NewUserMgr = newUserMgr
 
 var GLog = bsn_log.New()
