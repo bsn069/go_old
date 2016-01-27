@@ -10,8 +10,12 @@ type sUser struct {
 	m_iConn    net.Conn
 }
 
-func newUser(userId TUserId, iConn net.Conn) (IUser, error) {
-	this := &sUser{m_userId: userId, m_iConn: iConn}
+func newUser(iUserMgr IUserMgr, userId TUserId, iConn net.Conn) (IUser, error) {
+	this := &sUser{
+		m_iUserMgr: iUserMgr,
+		m_userId:   userId,
+		m_iConn:    iConn,
+	}
 	return this, nil
 }
 

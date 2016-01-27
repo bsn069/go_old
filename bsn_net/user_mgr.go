@@ -11,12 +11,14 @@ type sUserMgr struct {
 	m_userId           TUserId
 	m_id2User          TID2User
 	m_iUserMgrCallBack IUserMgrCallBack
+	m_type             TUserMgrType
 }
 
-func newUserMgr(iUserMgrCallBack IUserMgrCallBack) (IUserMgr, error) {
+func newUserMgr(userMgrType TUserMgrType, iUserMgrCallBack IUserMgrCallBack) (IUserMgr, error) {
 	this := &sUserMgr{
 		m_id2User:          make(TID2User, 0),
 		m_iUserMgrCallBack: iUserMgrCallBack,
+		m_type:             userMgrType,
 	}
 	this.IListen = NewListen(this)
 	if this.IListen == nil {
@@ -24,6 +26,10 @@ func newUserMgr(iUserMgrCallBack IUserMgrCallBack) (IUserMgr, error) {
 	}
 
 	return this, nil
+}
+
+func (this *sUserMgr) GetType() TUserMgrType {
+	return this.m_type
 }
 
 func (this *sUserMgr) GetUser(userId TUserId) IUser {
@@ -34,6 +40,7 @@ func (this *sUserMgr) GetUser(userId TUserId) IUser {
 }
 
 func (this *sUserMgr) DelUser(userId TUserId) {
+	GLog.Debugln("DelUser", userId)
 	delete(this.m_id2User, userId)
 }
 

@@ -31,20 +31,23 @@ type IUser interface {
 }
 type TID2User map[TUserId]IUser
 
-// (userId TUserId, iConn net.Conn) (IUser, error)
+// (iUserMgr IUserMgr, userId TUserId, iConn net.Conn) (IUser, error)
 var NewUser = newUser
 
 type IUserMgrCallBack interface {
 	NewUser(userId TUserId, iConn net.Conn) (IUser, error)
 }
 
+type TUserMgrType uint
 type IUserMgr interface {
 	IListen
 	GetUser(userId TUserId) IUser
 	DelUser(userId TUserId)
+	Close()
+	GetType() TUserMgrType
 }
 
-// (iUserMgrCallBack IUserMgrCallBack) (IUserMgr, error)
+// (userMgrType TUserMgrType, iUserMgrCallBack IUserMgrCallBack) (IUserMgr, error)
 var NewUserMgr = newUserMgr
 
 var GLog = bsn_log.New()
