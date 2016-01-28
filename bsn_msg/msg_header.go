@@ -12,10 +12,6 @@ type sMsgHeader struct {
 	m_u16Len  uint16
 }
 
-const (
-	cMsgHeader_Size uint16 = 4
-)
-
 func newMsgHeader(u16Type, u16Len uint16) IMsgHeader {
 	return &sMsgHeader{m_u16Type: u16Type, m_u16Len: u16Len}
 }
@@ -29,7 +25,7 @@ func (this *sMsgHeader) Type() uint16 {
 }
 
 func (this *sMsgHeader) Serialize() []byte {
-	var byDatas = make([]byte, cMsgHeader_Size)
+	var byDatas = make([]byte, CMsgHeader_Size)
 	this.Serialize2Byte(byDatas)
 	return byDatas
 }

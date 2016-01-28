@@ -8,17 +8,8 @@ import (
 	"net"
 )
 
-type IListenCallBack interface {
-	OnListen(conn net.Conn) error
-}
-
 type TCloseChan chan bool
 type TPort uint16
-type IListen interface {
-	SetListenPort(port TPort) error
-	Listen() (err error)
-	StopListen()
-}
 
 // (iListenCallBack IListenCallBack) IListen
 var NewListen = newListen
@@ -28,6 +19,7 @@ type IUser interface {
 	GetId() TUserId
 	GetUserMgr() IUserMgr
 	Close()
+	GetConn() net.Conn
 }
 type TID2User map[TUserId]IUser
 
@@ -40,7 +32,6 @@ type IUserMgrCallBack interface {
 
 type TUserMgrType uint
 type IUserMgr interface {
-	IListen
 	GetUser(userId TUserId) IUser
 	DelUser(userId TUserId)
 	Close()

@@ -10,7 +10,7 @@ type sUser struct {
 	m_iConn    net.Conn
 }
 
-func newUser(iUserMgr IUserMgr, userId TUserId, iConn net.Conn) (IUser, error) {
+func newUser(iUserMgr IUserMgr, userId TUserId, iConn net.Conn) (*sUser, error) {
 	this := &sUser{
 		m_iUserMgr: iUserMgr,
 		m_userId:   userId,
@@ -30,4 +30,8 @@ func (this *sUser) GetUserMgr() IUserMgr {
 func (this *sUser) Close() {
 	this.m_iConn.Close()
 	this.m_iUserMgr.DelUser(this.GetId())
+}
+
+func (this *sUser) GetConn() net.Conn {
+	return this.m_iConn
 }

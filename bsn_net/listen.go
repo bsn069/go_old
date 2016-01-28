@@ -8,62 +8,64 @@ import (
 	"sync"
 )
 
-type sListen struct {
-	m_port TPort
-
-	m_iListener       net.Listener
-	m_Mutex           sync.Mutex
-	m_chanClose       TCloseChan
-	m_iListenCallBack IListenCallBack
+type IListenVirtual interface {
+	OnListen(conn net.Conn) error
 }
 
-func newListen(iListenCallBack IListenCallBack) IListen {
+type SListen struct {
+	IListenVirtual
+
+	m_TPort TPort
+
+	m_Listener   net.Listener
+	m_Mutex      sync.Mutex
+	m_TCloseChan TCloseChan
+}
+
+func newListen(vIListenVirtual IListenVirtual) *SListen {
 	this := &sListen{
-		m_iListenCallBack: iListenCallBack,
-		m_chanClose:       make(TCloseChan, 1),
+		IListenVirtual: vIListenVirtual,
+		m_chanClose:    make(TCloseChan, 1),
 	}
 	return this
 }
 
-func (this *sListen) SetListenPort(port TPort) error {
+func (this *SListen) SetListenPort(vTPort TPort) error {
 	this.m_Mutex.Lock()
 	defer this.m_Mutex.Unlock()
 
-	if port == 0 {
+	if vTPort == 0 {
 		return errors.New("error tcp port")
 	}
-	if this.m_iListener != nil {
+	if this.m_Listener != nil {
 		return errors.New("had listen")
 	}
-	this.m_port = port
+	this.m_TPort = vTPort
 	return nil
 }
 
-func (this *sListen) Listen() (err error) {
+func (this *SListen) Listen() (err error) {
 	this.m_Mutex.Lock()
 	defer this.m_Mutex.Unlock()
 
-	if this.m_port == 0 {
+	if this.m_TPort == 0 {
 		return errors.New("error tcp port")
 	}
-	if this.m_iListener != nil {
+	if this.m_Listener != nil {
 		return errors.New("had listen")
 	}
-	if this.m_iListenCallBack == nil {
-		return errors.New("not set IListenCallBack")
-	}
 
-	strListenAddr := ":" + strconv.Itoa((int)(this.m_port))
+	strListenAddr := ":" + strconv.Itoa((int)(this.m_TPort))
 	GLog.Mustln("listen strListenAddr", strListenAddr)
 
-	this.m_iListener, err = net.Listen("tcp", strListenAddr)
+	this.m_Listener, err = net.Listen("tcp", strListenAddr)
 	if err != nil {
 		return
 	}
 
 	// if not call StopListen, clear close chanel
 	select {
-	case <-this.m_chanClose:
+	case <-this.m_TCloseChan:
 	default:
 	}
 
@@ -72,36 +74,36 @@ func (this *sListen) Listen() (err error) {
 }
 
 // block until close
-func (this *sListen) StopListen() {
+func (this *SListen) StopListen() {
 	this.m_Mutex.Lock()
 	defer this.m_Mutex.Unlock()
 
-	if this.m_iListener == nil {
+	if this.m_Listener == nil {
 		return
 	}
-	this.m_iListener.Close()
-	<-this.m_chanClose
+	this.m_Listener.Close()
+	<-this.m_TCloseChan
 }
 
-func (this *sListen) listenFunc() {
+func (this *SListen) listenFunc() {
 	defer bsn_common.FuncGuard()
 	defer func() {
-		this.m_iListener.Close()
-		this.m_iListener = nil
-		this.m_chanClose <- true
+		this.m_Listener.Close()
+		this.m_Listener = nil
+		this.m_TCloseChan <- true
 	}()
 
 	for {
-		iConn, err := this.m_iListener.Accept()
+		vConn, err := this.m_Listener.Accept()
 		if err != nil {
 			GLog.Errorln(err)
 			return
 		}
 
-		err = this.m_iListenCallBack.OnListen(iConn)
+		err = this.OnListen(vConn)
 		if err != nil {
 			GLog.Errorln(err)
-			iConn.Close()
+			vConn.Close()
 		}
 	}
 }

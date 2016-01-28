@@ -7,6 +7,11 @@ import (
 	"github.com/bsn069/go/bsn_log"
 )
 
+const (
+	CMsgHeader_Size uint16 = 4
+	CMsgSizeMax     uint16 = 60000
+)
+
 type IMsgHeader interface {
 	Len() uint16
 	Type() uint16

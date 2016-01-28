@@ -6,7 +6,7 @@ import (
 	// "sync"
 )
 
-type sUserMgr struct {
+type SUserMgr struct {
 	IListen
 	m_userId           TUserId
 	m_id2User          TID2User

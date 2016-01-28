@@ -5,34 +5,38 @@ import (
 	"net"
 )
 
+// bsn_net.IUserMgr
+// bsn_net.IUserMgrCallBack
 type sUserMgr struct {
 	bsn_net.IUserMgr
 }
 
-func newUserMgr(userMgrType bsn_net.TUserMgrType) (IUserMgr, error) {
-	this := &sUserMgr{}
-	var err error
-	this.IUserMgr, err = bsn_net.NewUserMgr(userMgrType, this)
+func newUserMgr(vTUserMgrType bsn_net.TUserMgrType) (this *sUserMgr, err error) {
+	GLog.Debugln("newUserMgr", vTUserMgrType)
+	this = &sUserMgr{}
+	this.IUserMgr, err = bsn_net.NewUserMgr(vTUserMgrType, this)
 	if err != nil {
 		return nil, err
 	}
 	return this, nil
 }
 
-func (this *sUserMgr) NewUser(userId bsn_net.TUserId, iConn net.Conn) (bsn_net.IUser, error) {
-	netiUser, err := bsn_net.NewUser(this, userId, iConn)
+// bsn_net.IUserMgrCallBack
+func (this *sUserMgr) NewUser(vTUserId bsn_net.TUserId, vConn net.Conn) (bsn_net.IUser, error) {
+	vnetIUser, err := bsn_net.NewUser(this, vTUserId, vConn)
 	if err != nil {
 		return nil, err
 	}
 
-	var iUser IUser
+	var vsUser *sUser
 	if this.GetType() == CClientMgr {
-		iUser, err = newClientUser(netiUser)
+		vsClientUser, err := newClientUser(vnetIUser)
+		vsUser, _ := vsClientUser.(*sUser)
 	} else {
-		iUser, err = newServerUser(netiUser)
+		vsUser, err = newClientUser(vnetIUser)
 	}
 	if err != nil {
 		return nil, err
 	}
-	return iUser, nil
+	return vsUser, nil
 }

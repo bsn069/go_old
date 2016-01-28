@@ -13,13 +13,8 @@ const (
 	CServerMgr
 )
 
-type IUser interface {
-	bsn_net.IUser
-}
-
 type IUserMgr interface {
 	bsn_net.IUserMgr
-	bsn_net.IUserMgrCallBack
 }
 
 type IGate interface {

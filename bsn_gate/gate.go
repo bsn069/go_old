@@ -2,28 +2,29 @@ package bsn_gate
 
 import ()
 
+// IGate
 type sGate struct {
-	m_serverMgr IUserMgr
-	m_clientMgr IUserMgr
+	m_serverMgr *sUserMgr
+	m_clientMgr *sUserMgr
 }
 
-func newGate() IGate {
-	var err error
+func newGate() (IGate, err error) {
+	GLog.Debugln("newGate()")
 	this := &sGate{}
 
 	this.m_serverMgr, err = newUserMgr(CClientMgr)
 	if err != nil {
 		GLog.Errorln("newUserMgr fail")
-		return nil
+		return nil, err
 	}
 
 	this.m_clientMgr, err = newUserMgr(CServerMgr)
 	if err != nil {
 		GLog.Errorln("newUserMgr fail")
-		return nil
+		return nil, err
 	}
 
-	return this
+	return this, nil
 }
 
 func (this *sGate) GetServerMgr() IUserMgr {
