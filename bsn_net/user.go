@@ -1,37 +1,37 @@
 package bsn_net
 
-import (
-	"net"
-)
+// import (
+// 	"net"
+// )
 
-type sUser struct {
-	m_iUserMgr IUserMgr
-	m_userId   TUserId
-	m_iConn    net.Conn
-}
+// type sUser struct {
+// 	m_iUserMgr IUserMgr
+// 	m_userId   TUserId
+// 	m_iConn    net.Conn
+// }
 
-func newUser(iUserMgr IUserMgr, userId TUserId, iConn net.Conn) (*sUser, error) {
-	this := &sUser{
-		m_iUserMgr: iUserMgr,
-		m_userId:   userId,
-		m_iConn:    iConn,
-	}
-	return this, nil
-}
+// func newUser(iUserMgr IUserMgr, userId TUserId, iConn net.Conn) (*sUser, error) {
+// 	this := &sUser{
+// 		m_iUserMgr: iUserMgr,
+// 		m_userId:   userId,
+// 		m_iConn:    iConn,
+// 	}
+// 	return this, nil
+// }
 
-func (this *sUser) GetId() TUserId {
-	return this.m_userId
-}
+// func (this *sUser) GetId() TUserId {
+// 	return this.m_userId
+// }
 
-func (this *sUser) GetUserMgr() IUserMgr {
-	return this.m_iUserMgr
-}
+// func (this *sUser) GetUserMgr() IUserMgr {
+// 	return this.m_iUserMgr
+// }
 
-func (this *sUser) Close() {
-	this.m_iConn.Close()
-	this.m_iUserMgr.DelUser(this.GetId())
-}
+// func (this *sUser) Close() {
+// 	this.m_iConn.Close()
+// 	this.m_iUserMgr.DelUser(this.GetId())
+// }
 
-func (this *sUser) GetConn() net.Conn {
-	return this.m_iConn
-}
+// func (this *sUser) GetConn() net.Conn {
+// 	return this.m_iConn
+// }
