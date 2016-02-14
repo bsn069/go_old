@@ -7,20 +7,14 @@ import (
 	"github.com/bsn069/go/bsn_log"
 )
 
-const (
-	CMsgHeader_Size uint16 = 4
-	CMsgSizeMax     uint16 = 60000
-)
+type TMsgType uint16
+type TMsgLen uint16
 
-type IMsgHeader interface {
-	Len() uint16
-	Type() uint16
-	DeSerialize(data []byte)
-	Serialize() []byte
-	Serialize2Byte(byDatas []byte)
-}
+const (
+	CSMsgHeader_Size TMsgLen = 4
+)
 
 var GLog = bsn_log.New()
 
-// (u16Type, u16Len uint16) IMsgHeader
+// (vTMsgType TMsgType, vTMsgLen TMsgLen) *SMsgHeader
 var NewMsgHeader = newMsgHeader

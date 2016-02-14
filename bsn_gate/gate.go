@@ -3,49 +3,50 @@ package bsn_gate
 import ()
 
 // IGate
-type sGate struct {
-	m_serverMgr *sUserMgr
-	m_clientMgr *sUserMgr
+type SGate struct {
+	M_SServerUserMgr *SServerUserMgr
+	M_SClientUserMgr *SClientUserMgr
 }
 
-func newGate() (IGate, err error) {
+func newGate() (*SGate, error) {
 	GLog.Debugln("newGate()")
-	this := &sGate{}
+	this := &SGate{}
 
-	this.m_serverMgr, err = newUserMgr(CClientMgr)
+	var err error
+	this.M_SServerUserMgr, err = newServerUserMgr()
 	if err != nil {
-		GLog.Errorln("newUserMgr fail")
+		GLog.Errorln("newServerUserMgr fail")
 		return nil, err
 	}
 
-	this.m_clientMgr, err = newUserMgr(CServerMgr)
+	this.M_SClientUserMgr, err = newClientUserMgr()
 	if err != nil {
-		GLog.Errorln("newUserMgr fail")
+		GLog.Errorln("newClientUserMgr fail")
 		return nil, err
 	}
 
 	return this, nil
 }
 
-func (this *sGate) GetServerMgr() IUserMgr {
-	return this.m_serverMgr
+func (this *SGate) GetServerMgr() *SServerUserMgr {
+	return this.M_SServerUserMgr
 }
 
-func (this *sGate) GetClientMgr() IUserMgr {
-	return this.m_clientMgr
+func (this *SGate) GetClientMgr() *SClientUserMgr {
+	return this.M_SClientUserMgr
 }
 
-func (this *sGate) Listen() {
-	this.GetClientMgr().Listen()
+func (this *SGate) Listen() {
 	this.GetServerMgr().Listen()
+	this.GetClientMgr().Listen()
 }
 
-func (this *sGate) StopListen() {
-	this.GetClientMgr().StopListen()
+func (this *SGate) StopListen() {
 	this.GetServerMgr().StopListen()
+	this.GetClientMgr().StopListen()
 }
 
-func (this *sGate) Close() {
-	this.GetClientMgr().Close()
+func (this *SGate) Close() {
 	this.GetServerMgr().Close()
+	this.GetClientMgr().Close()
 }

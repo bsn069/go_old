@@ -2,13 +2,19 @@ package bsn_gate
 
 import (
 	// "strconv"
-	"net"
+	// "net"
 	"testing"
 	"time"
 )
 
 func TestBase(t *testing.T) {
-	gate := NewGate()
+	gate, err := NewGate()
+	if err != nil {
+		t.Fatal(err)
+	}
+	gate.GetServerMgr().SetListenAddr("localhost:40000")
+	gate.GetClientMgr().SetListenAddr("localhost:50000")
+	gate.Listen()
 	// serverMgr := gate.GetServerMgr()
 	// serverMgr.SetListenPort(40000)
 
@@ -41,7 +47,14 @@ func TestBase(t *testing.T) {
 	// 	gate.Close()
 	// }
 
-	// select {
-	// case <-time.After(10):
-	// }
+	select {
+	case <-time.After(10):
+	}
+	gate.Close()
+	t.Log("close")
+
+	select {
+	case <-time.After(10):
+	}
+	t.Log("end")
 }
