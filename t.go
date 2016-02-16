@@ -1,33 +1,50 @@
 package main
 
 import (
-	"fmt"
+	// "fmt"
 	// "github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_input"
 	"github.com/bsn069/go/bsn_log"
 )
 
 // var _ = mImp1.Main
+var GLog *bsn_log.SLog = bsn_log.New()
 
-func procInput(strName string, vInputChan chan []string) {
-	for {
-		vStringArr := <-vInputChan
-		fmt.Println("this is ", strName, vStringArr)
-	}
+type SCmd1 struct {
 }
 
+func (this *SCmd1) XYZ(strArray []string) {
+	GLog.Debugln("SCmd1 XYZ")
+}
+
+func (this *SCmd1) XYZ_help(strArray []string) {
+	GLog.Debugln("SCmd1 XYZ_help")
+}
+
+type SCmd2 struct {
+}
+
+func (this *SCmd2) XYZ(strArray []string) {
+	GLog.Debugln("SCmd2 XYZ")
+}
+
+func (this *SCmd2) XYZ_help(strArray []string) {
+	GLog.Debugln("SCmd2 XYZ_help")
+}
+
+var GSCmd1 SCmd1
+var GSCmd2 SCmd2
+
 func main() {
-	GLog := bsn_log.New()
+
 	GLog.Debugln(1)
 	GLog.Debugln(2)
 	GLog.Debugln(3)
-	vInputChan1, _ := bsn_input.Instance().Reg("1")
-	go procInput("mod1", vInputChan1)
 
-	vInputChan2, _ := bsn_input.Instance().Reg("2")
-	go procInput("mod2", vInputChan2)
-
-	bsn_input.Run()
+	bsn_input.GInput.Reg("Log", &GLog.M_SCmd)
+	bsn_input.GInput.Reg("Mod1", &GSCmd1)
+	bsn_input.GInput.Reg("Mod2", &GSCmd2)
+	bsn_input.GInput.Run()
 }
 
 /*

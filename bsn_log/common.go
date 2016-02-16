@@ -22,21 +22,23 @@ func (level TLevel) String() string {
 	}
 }
 
-func makeLog() ILog {
+func New() *SLog {
 	pkgName, _, _, _, err := bsn_common.GetCallInfo(2)
 	strName := "?"
 	if err == nil {
 		strName = pkgName
 	}
 
-	log := &sLog{
-		m_strName:      strName,
-		m_u32OutMask:   uint32(ELevel_All),
-		m_u32LogMask:   uint32(ELevel_All),
-		m_timeFmtFunc:  fmtTime,
-		m_outFmtFunc:   fmtOut,
-		m_debugFmtFunc: fmtDebug,
+	log := &SLog{
+		M_strName:      strName,
+		M_u32OutMask:   uint32(ELevel_All),
+		M_u32LogMask:   uint32(ELevel_All),
+		M_timeFmtFunc:  fmtTime,
+		M_outFmtFunc:   fmtOut,
+		M_debugFmtFunc: fmtDebug,
 	}
+	log.M_SCmd.M_SLog = log
+
 	return log
 }
 

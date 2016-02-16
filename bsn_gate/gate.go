@@ -2,15 +2,20 @@ package bsn_gate
 
 import ()
 
+type TGateId uint32
+
 // IGate
 type SGate struct {
 	M_SServerUserMgr *SServerUserMgr
 	M_SClientUserMgr *SClientUserMgr
+	M_TGateId        TGateId
 }
 
-func newGate() (*SGate, error) {
-	GLog.Debugln("newGate()")
-	this := &SGate{}
+func newGate(vTGateId TGateId) (*SGate, error) {
+	GLog.Debugln("newGate() vTGateId=", vTGateId)
+	this := &SGate{
+		M_TGateId: vTGateId,
+	}
 
 	var err error
 	this.M_SServerUserMgr, err = newServerUserMgr()

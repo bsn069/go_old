@@ -18,15 +18,24 @@ func FuncGuard() {
 	}
 }
 
+func Funcs(vICmd interface{}) []string {
+	t := reflect.TypeOf(vICmd)
+	strsRet := make([]string, t.NumMethod())
+	for i := 0; i < t.NumMethod(); i++ {
+		method := t.Method(i)
+		strsRet[i] = method.Name
+	}
+	return strsRet
+}
+
 func CallStructFunc(sStruct interface{}, strFunc string, strParams []string) error {
-	strFuncUpper := strings.ToUpper(strFunc)
 	vValue := reflect.ValueOf(sStruct)
-	vFunc := vValue.MethodByName(strFuncUpper)
+	vFunc := vValue.MethodByName(strFunc)
 	if vFunc.IsValid() {
 		vArgs := []reflect.Value{reflect.ValueOf(strParams)}
 		vFunc.Call(vArgs)
 	} else {
-		return errors.New("unknonwn func " + strFunc)
+		return errors.New("unknown func " + strFunc)
 	}
 	return nil
 }

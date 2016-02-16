@@ -11,47 +11,112 @@ import (
 	// "path"
 	// "runtime"
 	"strings"
+	"sync"
 )
 
-type tMod2Chan map[string]chan []string
+type TParams []string
+type TUpperName2CmdStruct map[string]interface{}
+type TUpperName2RegName map[string]string
 
-type sInput struct {
-	m_tMod2Chan          tMod2Chan
-	m_strUseMod          string // use mod name
-	m_cmd                *SCmd
-	m_quit               bool
-	m_tUpperName2RegName map[string]string
-	m_bRuning            bool
+// [modName][cmdUpper] = help
+type THelp map[string]map[string]string
+
+var (
+	ErrHadRegMod  = errors.New("had reg mod")
+	ErrUnknownMod = errors.New("unknown mod")
+	ErrHadRun     = errors.New("had run")
+)
+
+type SInput struct {
+	M_Mutex                sync.Mutex
+	M_TUpperName2RegName   TUpperName2RegName
+	M_TUpperName2CmdStruct TUpperName2CmdStruct
+
+	M_SCmd      *SCmd
+	M_strUseMod string // use mod name
+
+	M_bQuit   bool
+	M_bRuning bool
+
+	M_THelp THelp
 }
 
-func (this *sInput) run() {
-	if this.m_bRuning {
-		GLog.Mustln("had run")
-		return
-	}
-	this.m_bRuning = true
+// set current mod
+func (this *SInput) SetUseMod(strMod string) error {
+	this.M_Mutex.Lock()
+	defer this.M_Mutex.Unlock()
 
-	defer this.close()
-	for !this.m_quit {
+	strModUpper := strings.ToUpper(strMod)
+	if strModName, ok := this.M_TUpperName2RegName[strModUpper]; ok {
+		this.M_strUseMod = strModName
+	} else {
+		GLog.Errorln(strMod)
+		return ErrUnknownMod
+	}
+	return nil
+}
+
+// reg module
+func (this *SInput) Reg(strMod string, vICmd interface{}) error {
+	this.M_Mutex.Lock()
+	defer this.M_Mutex.Unlock()
+
+	strModUpper := strings.ToUpper(strMod)
+	if _, ok := this.M_TUpperName2RegName[strModUpper]; ok {
+		GLog.Errorln(strMod)
+		return ErrHadRegMod
+	}
+	this.M_TUpperName2RegName[strModUpper] = strMod
+
+	this.M_TUpperName2CmdStruct[strModUpper] = vICmd
+
+	return nil
+}
+
+// call in bin file, don`t in lib will block
+func (this *SInput) Run() error {
+	this.M_Mutex.Lock()
+	if this.M_bRuning {
+		this.M_Mutex.Unlock()
+		return ErrHadRun
+	}
+	this.M_bRuning = true
+	this.M_Mutex.Unlock()
+
+	for !this.M_bQuit {
 		this.runCmd()
 	}
+	this.M_bRuning = false
+	return nil
 }
 
-func (this *sInput) close() {
-	GLog.Mustln("input close")
-	this.m_bRuning = false
-	this.m_quit = false
+// quit
+func (this *SInput) Quit() {
+	GLog.Mustln("input Quit")
+	this.M_bQuit = true
 }
 
-func (this *sInput) runCmd() {
+//
+func (this *SInput) ShowFunc(vICmd interface{}) error {
+	strsFuncs := bsn_common.Funcs(vICmd)
+	for _, strFunc := range strsFuncs {
+		if strings.HasSuffix(strFunc, "_help") {
+			continue
+		}
+		GLog.Mustln(strings.ToLower(strFunc))
+	}
+	return nil
+}
+
+func (this *SInput) runCmd() {
 	defer GLog.FuncGuard()
 
 	r := bufio.NewReader(os.Stdin)
 
-	if this.m_strUseMod == "" {
+	if this.M_strUseMod == "" {
 		GLog.Must(">")
 	} else {
-		GLog.Must(this.m_strUseMod, ">")
+		GLog.Must(this.M_strUseMod, ">")
 	}
 
 	b, _, _ := r.ReadLine()
@@ -65,62 +130,54 @@ func (this *sInput) runCmd() {
 		return
 	}
 
-	this.m_cmd.m_bShowHelp = false
 	strModUpper := strings.ToUpper(tokens[0])
-	if this.m_strUseMod == "" || strModUpper == "CD" {
-		err := bsn_common.CallStructFunc(this.m_cmd, tokens[0], tokens[1:])
-		if err == nil {
+
+	var err error
+	// show help
+	if strModUpper == "?" || strModUpper == "H" || strModUpper == "HELP" {
+		vICmd, ok := this.M_TUpperName2CmdStruct[strings.ToUpper(this.M_strUseMod)]
+		if !ok {
+			vICmd = this.M_SCmd
+		}
+
+		if len(tokens) < 2 {
+			this.ShowFunc(vICmd)
 			return
 		}
-	}
 
-	if modChan, ok := this.m_tMod2Chan[this.m_strUseMod]; ok {
-		select {
-		case modChan <- tokens[1:]:
-		default:
-			GLog.Mustln("send cmd fail")
+		err = bsn_common.CallStructFunc(vICmd, strings.ToUpper(tokens[1])+"_help", tokens[2:])
+		if err != nil {
+			GLog.Errorln("unknown cmd ", tokens[1])
 		}
 		return
 	}
 
-	if modChan, ok := this.m_tMod2Chan[strModUpper]; ok {
-		select {
-		case modChan <- tokens[1:]:
-		default:
-			GLog.Mustln("send cmd fail")
-		}
-		return
-	}
-
-	err := bsn_common.CallStructFunc(this.m_cmd, "help", tokens[1:])
+	// system cmd
+	err = bsn_common.CallStructFunc(this.M_SCmd, strModUpper, tokens[1:])
 	if err == nil {
 		return
 	}
-}
 
-func (this *sInput) setUseMod(strMod string) {
-	strModUpper := strings.ToUpper(strMod)
-	if strModName, ok := this.m_tUpperName2RegName[strModUpper]; ok {
-		this.m_strUseMod = strModName
-	} else {
-		GLog.Errorln("unknonwn mod ", strMod)
-	}
-}
-
-func (this *sInput) Reg(strMod string) (chan []string, error) {
-	strModUpper := strings.ToUpper(strMod)
-	if _, ok := this.m_tUpperName2RegName[strModUpper]; ok {
-		GLog.Errorln("had reg mod ", strMod)
-		return nil, errors.New("had reg mod")
+	// mod cmd
+	vICmd, ok := this.M_TUpperName2CmdStruct[strings.ToUpper(this.M_strUseMod)]
+	if ok {
+		err = bsn_common.CallStructFunc(vICmd, strModUpper, tokens[1:])
+		if err != nil {
+			// GLog.Errorln(err)
+			GLog.Errorln("unknown cmd ", tokens[0])
+		}
+		return
 	}
 
-	this.m_tUpperName2RegName[strModUpper] = strMod
+	vICmd, ok = this.M_TUpperName2CmdStruct[strModUpper]
+	if ok {
+		err = bsn_common.CallStructFunc(vICmd, strings.ToUpper(tokens[1]), tokens[2:])
+		if err != nil {
+			// GLog.Errorln(err)
+			GLog.Errorln("unknown cmd ", tokens[0])
+		}
+		return
+	}
 
-	var vChan chan []string = make(chan []string)
-	this.m_tMod2Chan[strModUpper] = vChan
-	return vChan, nil
-}
-
-func (this *sInput) quit() {
-	this.m_quit = true
+	GLog.Errorln("unknown mod ", tokens[0])
 }
