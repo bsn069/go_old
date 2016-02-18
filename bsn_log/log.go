@@ -34,7 +34,6 @@ type SLog struct {
 	M_outFmtFunc   TOutFmtFunc
 	M_debugFmtFunc TDebugFmtFunc
 	M_depth        int
-	M_SCmd         SCmd
 }
 
 func (this *SLog) SetName(strName string) {

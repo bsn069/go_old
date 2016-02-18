@@ -8,43 +8,48 @@ import (
 )
 
 // var _ = mImp1.Main
-var GLog *bsn_log.SLog = bsn_log.New()
+var GSLog *bsn_log.SLog
+
+func init() {
+	var vSCmd *bsn_log.SCmd
+	GSLog, vSCmd = bsn_log.New()
+	bsn_input.GSInput.Reg("Log", bsn_log.GSCmd)
+	bsn_input.GSInput.Reg("mainLog", vSCmd)
+}
 
 type SCmd1 struct {
 }
 
 func (this *SCmd1) XYZ(strArray []string) {
-	GLog.Debugln("SCmd1 XYZ")
+	GSLog.Debugln("SCmd1 XYZ")
 }
 
 func (this *SCmd1) XYZ_help(strArray []string) {
-	GLog.Debugln("SCmd1 XYZ_help")
+	GSLog.Debugln("SCmd1 XYZ_help")
 }
 
 type SCmd2 struct {
 }
 
 func (this *SCmd2) XYZ(strArray []string) {
-	GLog.Debugln("SCmd2 XYZ")
+	GSLog.Debugln("SCmd2 XYZ")
 }
 
 func (this *SCmd2) XYZ_help(strArray []string) {
-	GLog.Debugln("SCmd2 XYZ_help")
+	GSLog.Debugln("SCmd2 XYZ_help")
 }
 
-var GSCmd1 SCmd1
-var GSCmd2 SCmd2
-
 func main() {
+	var vGSCmd1 SCmd1
+	var vGSCmd2 SCmd2
 
-	GLog.Debugln(1)
-	GLog.Debugln(2)
-	GLog.Debugln(3)
+	GSLog.Debugln(1)
+	GSLog.Debugln(2)
+	GSLog.Debugln(3)
 
-	bsn_input.GInput.Reg("Log", &GLog.M_SCmd)
-	bsn_input.GInput.Reg("Mod1", &GSCmd1)
-	bsn_input.GInput.Reg("Mod2", &GSCmd2)
-	bsn_input.GInput.Run()
+	bsn_input.GSInput.Reg("Mod1", &vGSCmd1)
+	bsn_input.GSInput.Reg("Mod2", &vGSCmd2)
+	bsn_input.GSInput.Run()
 }
 
 /*

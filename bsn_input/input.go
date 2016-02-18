@@ -14,13 +14,6 @@ import (
 	"sync"
 )
 
-type TParams []string
-type TUpperName2CmdStruct map[string]interface{}
-type TUpperName2RegName map[string]string
-
-// [modName][cmdUpper] = help
-type THelp map[string]map[string]string
-
 var (
 	ErrHadRegMod  = errors.New("had reg mod")
 	ErrUnknownMod = errors.New("unknown mod")
@@ -28,17 +21,17 @@ var (
 )
 
 type SInput struct {
-	M_Mutex                sync.Mutex
-	M_TUpperName2RegName   TUpperName2RegName
-	M_TUpperName2CmdStruct TUpperName2CmdStruct
+	M_Mutex                     sync.Mutex
+	M_TInputUpperName2RegName   bsn_common.TInputUpperName2RegName
+	M_TInputUpperName2CmdStruct bsn_common.TInputUpperName2CmdStruct
 
-	M_SCmd      *SCmd
 	M_strUseMod string // use mod name
+	M_SCmd      *SCmd
 
 	M_bQuit   bool
 	M_bRuning bool
 
-	M_THelp THelp
+	M_TInputHelp bsn_common.TInputHelp
 }
 
 // set current mod
@@ -47,10 +40,10 @@ func (this *SInput) SetUseMod(strMod string) error {
 	defer this.M_Mutex.Unlock()
 
 	strModUpper := strings.ToUpper(strMod)
-	if strModName, ok := this.M_TUpperName2RegName[strModUpper]; ok {
+	if strModName, ok := this.M_TInputUpperName2RegName[strModUpper]; ok {
 		this.M_strUseMod = strModName
 	} else {
-		GLog.Errorln(strMod)
+		GSLog.Errorln(strMod)
 		return ErrUnknownMod
 	}
 	return nil
@@ -62,13 +55,13 @@ func (this *SInput) Reg(strMod string, vICmd interface{}) error {
 	defer this.M_Mutex.Unlock()
 
 	strModUpper := strings.ToUpper(strMod)
-	if _, ok := this.M_TUpperName2RegName[strModUpper]; ok {
-		GLog.Errorln(strMod)
+	if _, ok := this.M_TInputUpperName2RegName[strModUpper]; ok {
+		GSLog.Errorln(strMod)
 		return ErrHadRegMod
 	}
-	this.M_TUpperName2RegName[strModUpper] = strMod
+	this.M_TInputUpperName2RegName[strModUpper] = strMod
 
-	this.M_TUpperName2CmdStruct[strModUpper] = vICmd
+	this.M_TInputUpperName2CmdStruct[strModUpper] = vICmd
 
 	return nil
 }
@@ -92,7 +85,7 @@ func (this *SInput) Run() error {
 
 // quit
 func (this *SInput) Quit() {
-	GLog.Mustln("input Quit")
+	GSLog.Mustln("input Quit")
 	this.M_bQuit = true
 }
 
@@ -103,20 +96,20 @@ func (this *SInput) ShowFunc(vICmd interface{}) error {
 		if strings.HasSuffix(strFunc, "_help") {
 			continue
 		}
-		GLog.Mustln(strings.ToLower(strFunc))
+		GSLog.Mustln(strings.ToLower(strFunc))
 	}
 	return nil
 }
 
 func (this *SInput) runCmd() {
-	defer GLog.FuncGuard()
+	defer GSLog.FuncGuard()
 
 	r := bufio.NewReader(os.Stdin)
 
 	if this.M_strUseMod == "" {
-		GLog.Must(">")
+		GSLog.Must(">")
 	} else {
-		GLog.Must(this.M_strUseMod, ">")
+		GSLog.Must(this.M_strUseMod, ">")
 	}
 
 	b, _, _ := r.ReadLine()
@@ -135,7 +128,7 @@ func (this *SInput) runCmd() {
 	var err error
 	// show help
 	if strModUpper == "?" || strModUpper == "H" || strModUpper == "HELP" {
-		vICmd, ok := this.M_TUpperName2CmdStruct[strings.ToUpper(this.M_strUseMod)]
+		vICmd, ok := this.M_TInputUpperName2CmdStruct[strings.ToUpper(this.M_strUseMod)]
 		if !ok {
 			vICmd = this.M_SCmd
 		}
@@ -147,7 +140,7 @@ func (this *SInput) runCmd() {
 
 		err = bsn_common.CallStructFunc(vICmd, strings.ToUpper(tokens[1])+"_help", tokens[2:])
 		if err != nil {
-			GLog.Errorln("unknown cmd ", tokens[1])
+			GSLog.Errorln("unknown cmd ", tokens[1])
 		}
 		return
 	}
@@ -159,25 +152,25 @@ func (this *SInput) runCmd() {
 	}
 
 	// mod cmd
-	vICmd, ok := this.M_TUpperName2CmdStruct[strings.ToUpper(this.M_strUseMod)]
+	vICmd, ok := this.M_TInputUpperName2CmdStruct[strings.ToUpper(this.M_strUseMod)]
 	if ok {
 		err = bsn_common.CallStructFunc(vICmd, strModUpper, tokens[1:])
 		if err != nil {
-			// GLog.Errorln(err)
-			GLog.Errorln("unknown cmd ", tokens[0])
+			// GSLog.Errorln(err)
+			GSLog.Errorln("unknown cmd ", tokens[0])
 		}
 		return
 	}
 
-	vICmd, ok = this.M_TUpperName2CmdStruct[strModUpper]
+	vICmd, ok = this.M_TInputUpperName2CmdStruct[strModUpper]
 	if ok {
 		err = bsn_common.CallStructFunc(vICmd, strings.ToUpper(tokens[1]), tokens[2:])
 		if err != nil {
-			// GLog.Errorln(err)
-			GLog.Errorln("unknown cmd ", tokens[0])
+			// GSLog.Errorln(err)
+			GSLog.Errorln("unknown cmd ", tokens[0])
 		}
 		return
 	}
 
-	GLog.Errorln("unknown mod ", tokens[0])
+	GSLog.Errorln("unknown mod ", tokens[0])
 }

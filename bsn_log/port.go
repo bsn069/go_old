@@ -1,6 +1,8 @@
 /*
 Package bsn_log.
+
 */
 package bsn_log
 
-var GLog = New()
+var GSLog *SLog
+var GSCmd *SCmd

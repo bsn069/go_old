@@ -8,6 +8,10 @@ import (
 	"time"
 )
 
+func init() {
+	GSLog, GSCmd = New()
+}
+
 // String returns the English name of the level ("Debug", "Must ", ...).
 func (level TLevel) String() string {
 	switch level {
@@ -22,14 +26,14 @@ func (level TLevel) String() string {
 	}
 }
 
-func New() *SLog {
+func New() (*SLog, *SCmd) {
 	pkgName, _, _, _, err := bsn_common.GetCallInfo(2)
 	strName := "?"
 	if err == nil {
 		strName = pkgName
 	}
 
-	log := &SLog{
+	vSLog := &SLog{
 		M_strName:      strName,
 		M_u32OutMask:   uint32(ELevel_All),
 		M_u32LogMask:   uint32(ELevel_All),
@@ -37,9 +41,8 @@ func New() *SLog {
 		M_outFmtFunc:   fmtOut,
 		M_debugFmtFunc: fmtDebug,
 	}
-	log.M_SCmd.M_SLog = log
 
-	return log
+	return vSLog, &SCmd{M_SLog: vSLog}
 }
 
 func fmtTime(t *time.Time) string {

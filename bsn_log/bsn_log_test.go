@@ -6,7 +6,7 @@ import (
 )
 
 func TestBase(t *testing.T) {
-	GLog := New()
+	GLog, _ := New()
 
 	GLog.SetOutMask(uint32(ELevel_All))
 	GLog.Must("this is Must")
