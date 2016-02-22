@@ -8,7 +8,7 @@ import (
 )
 
 func TestBase(t *testing.T) {
-	gate, err := NewGate()
+	gate, err := NewGate(1)
 	if err != nil {
 		t.Fatal(err)
 	}

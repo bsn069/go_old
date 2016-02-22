@@ -2,23 +2,15 @@ package bsn_gate
 
 import (
 	"errors"
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_msg"
 	// "github.com/bsn069/go/bsn_net"
 	"net"
 )
 
-type TUserId uint16
-type IUser interface {
-	GetId() TUserId
-	GetConn() net.Conn
-	ReadMsgHeader() error
-	ReadMsgBody() error
-}
-
-// IUser
+// IGateUser
 type SUser struct {
-	M_TUserId     TUserId
+	M_TUserId     bsn_common.TGateUserId
 	M_Conn        net.Conn
 	M_byMsgHeader []byte
 	M_byMsgBody   []byte
@@ -26,16 +18,16 @@ type SUser struct {
 }
 
 func newUser() (*SUser, error) {
-	GLog.Debugln("newUser()")
+	GSLog.Debugln("newUser()")
 	this := &SUser{}
 	return this, nil
 }
 
-func (this *SUser) GetId() TUserId {
+func (this *SUser) GetId() bsn_common.TGateUserId {
 	return this.M_TUserId
 }
 
-func (this *SUser) SetId(vTUserId TUserId) error {
+func (this *SUser) SetId(vTUserId bsn_common.TGateUserId) error {
 	this.M_TUserId = vTUserId
 	return nil
 }

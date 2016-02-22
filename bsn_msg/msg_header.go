@@ -7,27 +7,31 @@ import (
 	// "time"
 )
 
+const (
+	CSMsgHeader_Size bsn_common.TMsgLen = 4
+)
+
 type SMsgHeader struct {
-	M_TMsgType TMsgType
-	M_TMsgLen  TMsgLen
+	M_TMsgType bsn_common.TMsgType
+	M_TMsgLen  bsn_common.TMsgLen
 }
 
-func newMsgHeader(vTMsgType TMsgType, vTMsgLen TMsgLen) *SMsgHeader {
+func NewMsgHeader(vTMsgType bsn_common.TMsgType, vTMsgLen bsn_common.TMsgLen) *SMsgHeader {
 	this := &SMsgHeader{}
 	this.Fill(vTMsgType, vTMsgLen)
 	return this
 }
 
-func (this *SMsgHeader) Fill(vTMsgType TMsgType, vTMsgLen TMsgLen) {
+func (this *SMsgHeader) Fill(vTMsgType bsn_common.TMsgType, vTMsgLen bsn_common.TMsgLen) {
 	this.M_TMsgType = vTMsgType
 	this.M_TMsgLen = vTMsgLen
 }
 
-func (this *SMsgHeader) Len() TMsgLen {
+func (this *SMsgHeader) Len() bsn_common.TMsgLen {
 	return this.M_TMsgLen
 }
 
-func (this *SMsgHeader) Type() TMsgType {
+func (this *SMsgHeader) Type() bsn_common.TMsgType {
 	return this.M_TMsgType
 }
 
@@ -37,14 +41,14 @@ func (this *SMsgHeader) Serialize() []byte {
 	return byDatas
 }
 
-func (this *SMsgHeader) Serialize2Byte(byDatas []byte) TMsgLen {
+func (this *SMsgHeader) Serialize2Byte(byDatas []byte) bsn_common.TMsgLen {
 	bsn_common.WriteUint16(byDatas, uint16(this.Type()))
 	bsn_common.WriteUint16(byDatas[2:], uint16(this.Len()))
-	return TMsgLen(4)
+	return bsn_common.TMsgLen(4)
 }
 
-func (this *SMsgHeader) DeSerialize(byDatas []byte) TMsgLen {
-	this.M_TMsgType = TMsgType(bsn_common.ReadUint16(byDatas))
-	this.M_TMsgLen = TMsgLen(bsn_common.ReadUint16(byDatas[2:]))
-	return TMsgLen(4)
+func (this *SMsgHeader) DeSerialize(byDatas []byte) bsn_common.TMsgLen {
+	this.M_TMsgType = bsn_common.TMsgType(bsn_common.ReadUint16(byDatas))
+	this.M_TMsgLen = bsn_common.TMsgLen(bsn_common.ReadUint16(byDatas[2:]))
+	return bsn_common.TMsgLen(4)
 }

@@ -7,37 +7,19 @@ import (
 	"time"
 )
 
-type TLevel uint32
-type TTimeFmtFunc func(t *time.Time) string
-type TDebugFmtFunc func(depth int) string
-type TOutFmtFunc func(level TLevel, strTime, strModName, strInfo, strDebugInfo *string, id uint32) string
-
-const (
-	ELevel_Must TLevel = 1 << iota
-	ELevel_Debug
-	ELevel_Error
-	ELevel_Max
-	ELevel_All = ELevel_Max - 1
-)
-
 var fl_u32Id uint32 = 0
 
 type SLog struct {
-	M_strName string
 	// output mask
 	M_u32OutMask uint32
 
 	// write to log file mask
 	M_u32LogMask   uint32
 	M_time         time.Time
-	M_timeFmtFunc  TTimeFmtFunc
-	M_outFmtFunc   TOutFmtFunc
-	M_debugFmtFunc TDebugFmtFunc
+	M_timeFmtFunc  bsn_common.TLogTimeFmtFunc
+	M_outFmtFunc   bsn_common.TLogOutFmtFunc
+	M_debugFmtFunc bsn_common.TLogDebugFmtFunc
 	M_depth        int
-}
-
-func (this *SLog) SetName(strName string) {
-	this.M_strName = strName
 }
 
 func (this *SLog) SetOutMask(u32Mask uint32) {
@@ -48,15 +30,15 @@ func (this *SLog) SetLogMask(u32Mask uint32) {
 	this.M_u32LogMask = u32Mask
 }
 
-func (this *SLog) SetTimeFmtFunc(timeFmtFunc TTimeFmtFunc) {
+func (this *SLog) SetTimeFmtFunc(timeFmtFunc bsn_common.TLogTimeFmtFunc) {
 	this.M_timeFmtFunc = timeFmtFunc
 }
 
-func (this *SLog) SetOutFmtFunc(outFmtFunc TOutFmtFunc) {
+func (this *SLog) SetOutFmtFunc(outFmtFunc bsn_common.TLogOutFmtFunc) {
 	this.M_outFmtFunc = outFmtFunc
 }
 
-func (this *SLog) SetDebugFmtFunc(debugFmtFunc TDebugFmtFunc) {
+func (this *SLog) SetDebugFmtFunc(debugFmtFunc bsn_common.TLogDebugFmtFunc) {
 	this.M_debugFmtFunc = debugFmtFunc
 }
 
@@ -68,7 +50,7 @@ func (this *SLog) FuncGuard() {
 	}
 }
 
-func (this *SLog) Output(level TLevel, strInfo string) {
+func (this *SLog) Output(level bsn_common.TLogLevel, strInfo string) {
 	defer bsn_common.FuncGuard()
 	fl_u32Id++
 	this.M_depth++
@@ -76,7 +58,7 @@ func (this *SLog) Output(level TLevel, strInfo string) {
 	strTime := this.M_timeFmtFunc(&this.M_time)
 	strDebugInfo := this.M_debugFmtFunc(this.M_depth)
 	if (this.M_u32OutMask & uint32(level)) != 0 {
-		strOutInfo := this.M_outFmtFunc(level, &strTime, &this.M_strName, &strInfo, &strDebugInfo, fl_u32Id)
+		strOutInfo := this.M_outFmtFunc(level, &strTime, &strInfo, &strDebugInfo, fl_u32Id)
 		fmt.Print(strOutInfo)
 	}
 	if (this.M_u32LogMask & uint32(level)) != 0 {
@@ -89,7 +71,7 @@ func (this *SLog) Debug(v ...interface{}) {
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprint(v...)
-	this.Output(ELevel_Debug, strInfo)
+	this.Output(bsn_common.ELogLevel_Debug, strInfo)
 }
 
 func (this *SLog) Debugln(v ...interface{}) {
@@ -103,14 +85,14 @@ func (this *SLog) Debugf(format string, v ...interface{}) {
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprintf(format, v...)
-	this.Output(ELevel_Debug, strInfo)
+	this.Output(bsn_common.ELogLevel_Debug, strInfo)
 }
 
 func (this *SLog) Error(v ...interface{}) {
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprint(v...)
-	this.Output(ELevel_Error, strInfo)
+	this.Output(bsn_common.ELogLevel_Error, strInfo)
 }
 
 func (this *SLog) Errorln(v ...interface{}) {
@@ -124,14 +106,14 @@ func (this *SLog) Errorf(format string, v ...interface{}) {
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprintf(format, v...)
-	this.Output(ELevel_Error, strInfo)
+	this.Output(bsn_common.ELogLevel_Error, strInfo)
 }
 
 func (this *SLog) Must(v ...interface{}) {
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprint(v...)
-	this.Output(ELevel_Must, strInfo)
+	this.Output(bsn_common.ELogLevel_Must, strInfo)
 }
 
 func (this *SLog) Mustln(v ...interface{}) {
@@ -145,5 +127,5 @@ func (this *SLog) Mustf(format string, v ...interface{}) {
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprintf(format, v...)
-	this.Output(ELevel_Must, strInfo)
+	this.Output(bsn_common.ELogLevel_Must, strInfo)
 }

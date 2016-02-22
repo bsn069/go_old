@@ -6,13 +6,12 @@ import (
 )
 
 func init() {
-	var vSCmd *bsn_log.SCmd
-	GSLog, vSCmd = bsn_log.New()
+	GSLog = bsn_log.GSLog
 	GSInput = &SInput{
 		M_TInputUpperName2RegName:   make(bsn_common.TInputUpperName2RegName),
 		M_TInputUpperName2CmdStruct: make(bsn_common.TInputUpperName2CmdStruct),
 		M_SCmd: new(SCmd),
 	}
 
-	GSInput.Reg("InputLog", vSCmd)
+	GSInput.Reg("Log", bsn_log.GSCmd)
 }

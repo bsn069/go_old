@@ -71,3 +71,15 @@ func GetCallInfo(calldepth int) (pkgName, funcName, filePath string, line int, e
 	pkgName, funcName = strArray[0], strArray[1]
 	return
 }
+
+func GetPkgFileName(path string) (strPkgName, strFileName string, err error) {
+	err = nil
+	// Find the last element
+	if i := strings.LastIndex(path, "/"); i >= 0 {
+		strFileName = path[i+1 : len(path)]
+		if j := strings.LastIndex(path[:i], "/"); j >= 0 {
+			strPkgName = path[j+1 : i]
+		}
+	}
+	return
+}

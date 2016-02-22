@@ -10,7 +10,7 @@ type SClientUserMgr struct {
 }
 
 func newClientUserMgr() (*SClientUserMgr, error) {
-	GLog.Debugln("newClientUserMgr")
+	GSLog.Debugln("newClientUserMgr")
 	this := &SClientUserMgr{}
 
 	var err error
@@ -31,14 +31,14 @@ func (this *SClientUserMgr) Close() error {
 	return nil
 }
 
-func (this *SClientUserMgr) SendToUser(vTUserId TUserId, byData []byte) error {
+func (this *SClientUserMgr) SendToUser(vTUserId bsn_common.TGateUserId, byData []byte) error {
 	vIUser := this.GetUser(vTUserId)
 	vSClientUser, _ := vIUser.(*SClientUser)
 	vSClientUser.Send(byData)
 	return nil
 }
 
-func (this *SClientUserMgr) SendToGroup(vTGroupId TUserId, byData []byte) error {
+func (this *SClientUserMgr) SendToGroup(vTGroupId bsn_common.TGateUserId, byData []byte) error {
 	return nil
 }
 
@@ -60,13 +60,13 @@ func (this *SClientUserMgr) runImp() {
 	for !this.M_bClose {
 		vConn, ok := <-this.SListen.M_chanConn
 		if !ok {
-			GLog.Errorln("!ok")
+			GSLog.Errorln("!ok")
 			return
 		}
 
 		vSUser, err := newClientUser(this)
 		if err != nil {
-			GLog.Errorln(err)
+			GSLog.Errorln(err)
 			vConn.Close()
 			return
 		}

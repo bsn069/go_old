@@ -13,7 +13,7 @@ type SServerUser struct {
 }
 
 func newServerUser(vSServerUserMgr *SServerUserMgr) (*SServerUser, error) {
-	GLog.Debugln("newServerUser")
+	GSLog.Debugln("newServerUser")
 	this := &SServerUser{}
 
 	vSUser, err := newUser()
@@ -57,29 +57,29 @@ func (this *SServerUser) runImp() {
 	for !this.M_bClose {
 		err := this.ReadMsgHeader()
 		if err != nil {
-			GLog.Errorln(err)
+			GSLog.Errorln(err)
 			return
 		}
 		vServerMsg.DeSerialize(this.M_byMsgHeader)
 
 		vLen := vServerMsg.Len()
 		if vLen < bsn_msg.CSMsgHeader_Size {
-			GLog.Errorln("too short")
+			GSLog.Errorln("too short")
 			return
 		}
 
 		this.M_byMsgBody = make([]byte, vLen)
 		err = this.ReadMsgBody()
 		if err != nil {
-			GLog.Errorln(err)
+			GSLog.Errorln(err)
 			return
 		}
 
-		switch TServerMsgType(vServerMsg.Type()) {
+		switch bsn_common.TGateServerMsgType(vServerMsg.Type()) {
 		case CServerMsgType_ToUser:
 			this.M_SServerUserMgr.SendToUser(vServerMsg.UserId(), this.M_byMsgBody)
 		default:
-			GLog.Errorln("unknown msg type ", vServerMsg.Type())
+			GSLog.Errorln("unknown msg type ", vServerMsg.Type())
 			return
 		}
 	}

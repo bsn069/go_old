@@ -15,7 +15,7 @@ func TestBase(t *testing.T) {
 	}
 
 	byDatas := msgHeader.Serialize()
-	GLog.Mustln(byDatas)
+	GSLog.Mustln(byDatas)
 	msgHeader.DeSerialize(byDatas)
 	if msgHeader.Type() != 1 {
 		t.Error(msgHeader.Type())

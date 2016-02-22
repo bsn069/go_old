@@ -1,13 +1,9 @@
 package bsn_net
 
 import (
-	// "fmt"
-	// "github.com/bsn069/go/bsn_common"
-	// "path"
-	// // "strings"
-	// "time"
-	"net"
+	"github.com/bsn069/go/bsn_log"
 )
 
-type TChanClose chan bool
-type TChanConn chan net.Conn
+func init() {
+	GSLog = bsn_log.GSLog
+}

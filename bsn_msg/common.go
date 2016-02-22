@@ -1,9 +1,9 @@
 package bsn_msg
 
 import (
-// "fmt"
-// "github.com/bsn069/go/bsn_common"
-// "path"
-// // "strings"
-// "time"
+	"github.com/bsn069/go/bsn_log"
 )
+
+func init() {
+	GSLog = bsn_log.GSLog
+}

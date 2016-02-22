@@ -11,10 +11,7 @@ import (
 var GSLog *bsn_log.SLog
 
 func init() {
-	var vSCmd *bsn_log.SCmd
-	GSLog, vSCmd = bsn_log.New()
-	bsn_input.GSInput.Reg("Log", bsn_log.GSCmd)
-	bsn_input.GSInput.Reg("mainLog", vSCmd)
+	GSLog = bsn_log.GSLog
 }
 
 type SCmd1 struct {
@@ -28,27 +25,14 @@ func (this *SCmd1) XYZ_help(strArray []string) {
 	GSLog.Debugln("SCmd1 XYZ_help")
 }
 
-type SCmd2 struct {
-}
-
-func (this *SCmd2) XYZ(strArray []string) {
-	GSLog.Debugln("SCmd2 XYZ")
-}
-
-func (this *SCmd2) XYZ_help(strArray []string) {
-	GSLog.Debugln("SCmd2 XYZ_help")
-}
-
 func main() {
 	var vGSCmd1 SCmd1
-	var vGSCmd2 SCmd2
 
 	GSLog.Debugln(1)
 	GSLog.Debugln(2)
 	GSLog.Debugln(3)
 
 	bsn_input.GSInput.Reg("Mod1", &vGSCmd1)
-	bsn_input.GSInput.Reg("Mod2", &vGSCmd2)
 	bsn_input.GSInput.Run()
 }
 
