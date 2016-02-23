@@ -5,6 +5,8 @@ import (
 	"time"
 )
 
+type TVoid interface{}
+
 type TMsgType uint16
 type TMsgLen uint16
 
@@ -12,12 +14,13 @@ type TNetChanClose chan bool
 type TNetChanConn chan net.Conn
 
 type TInputParams []string
-type TInputUpperName2CmdStruct map[string]interface{}
+type TInputUpperName2CmdStruct map[string]TVoid
 type TInputUpperName2RegName map[string]string
 
 // [modName][cmdUpper] = help
 type TInputHelp map[string]map[string]string
 
+type TGateId2Gate map[TGateId]TVoid
 type TGateServerMsgType uint16
 type TGateGroupId uint16
 type TGateId uint32
