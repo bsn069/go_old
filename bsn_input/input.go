@@ -107,9 +107,9 @@ func (this *SInput) runCmd() {
 	r := bufio.NewReader(os.Stdin)
 
 	if this.M_strUseMod == "" {
-		GSLog.Must(">")
+		GSLog.Mustln(">")
 	} else {
-		GSLog.Must(this.M_strUseMod, ">")
+		GSLog.Mustln(this.M_strUseMod, ">")
 	}
 
 	b, _, _ := r.ReadLine()
@@ -118,6 +118,10 @@ func (this *SInput) runCmd() {
 		return
 	}
 
+	go this.doCmd(line)
+}
+
+func (this *SInput) doCmd(line string) {
 	tokens := strings.Fields(line)
 	if len(tokens) < 1 {
 		return

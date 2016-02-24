@@ -4,33 +4,39 @@ import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_gate"
+	"net"
 	"strconv"
 	"sync"
+	// "time"
+	// "os"
 )
 
 type SCmdGate struct {
 	M_TGateId2Gate    bsn_common.TGateId2Gate
 	M_MutexGateCreate sync.Mutex
 	M_TGateId         bsn_common.TGateId
+	M_Listener        net.Listener
 }
 
 func NewCmdGate() *SCmdGate {
 	this := &SCmdGate{
 		M_TGateId2Gate: make(bsn_common.TGateId2Gate),
-		M_TGateId:      1,
+		M_TGateId:      0,
 	}
 	return this
 }
 
 func (this *SCmdGate) Test() {
 	this.M_TGateId++
+
 	vSGate, err := this.CreateGate(this.M_TGateId)
 	if err != nil {
 		GSLog.Errorln(err)
 		return
 	}
 
-	err = vSGate.GetClientMgr().SetListenAddr("localhost:40000")
+	vstrAddr := ":" + strconv.Itoa(40000+int(this.M_TGateId))
+	err = vSGate.GetClientMgr().SetListenAddr(vstrAddr)
 	if err != nil {
 		GSLog.Errorln(err)
 		return
@@ -42,11 +48,14 @@ func (this *SCmdGate) Test() {
 		return
 	}
 
-	err = vSGate.GetClientMgr().StopListen()
-	if err != nil {
-		GSLog.Errorln(err)
-		return
-	}
+	go func() {
+		bsn_common.SleepSec(2)
+		err := vSGate.GetClientMgr().StopListen()
+		if err != nil {
+			GSLog.Errorln(err)
+			return
+		}
+	}()
 }
 
 func (this *SCmdGate) GetGate(vTGateId bsn_common.TGateId) (*bsn_gate.SGate, error) {

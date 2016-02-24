@@ -5,6 +5,7 @@ import (
 	"github.com/bsn069/go/bsn_common"
 	"net"
 	// "strconv"
+	"fmt"
 	"sync"
 )
 
@@ -22,6 +23,20 @@ func NewListen() *SListen {
 		M_chanConn:  make(bsn_common.TNetChanConn, 100),
 	}
 	return this
+}
+
+func (this *SListen) SetListenPort(u16Port uint16) error {
+	this.M_Mutex.Lock()
+	defer this.M_Mutex.Unlock()
+
+	if u16Port < 1024 {
+		return errors.New("error port must > 1024")
+	}
+	if this.M_Listener != nil {
+		return errors.New("had listen")
+	}
+	this.M_strAddr = fmt.Sprintf(":%v", u16Port)
+	return nil
 }
 
 func (this *SListen) SetListenAddr(strAddr string) error {
@@ -79,9 +94,9 @@ func (this *SListen) StopListen() error {
 	GSLog.Debugln("3")
 	err := this.M_Listener.Close()
 	if err != nil {
-
 		GSLog.Debugln("4" + err.Error())
 	}
+
 	// close(this.M_chanConn)
 	GSLog.Debugln("5")
 	<-this.M_chanClose
@@ -92,14 +107,15 @@ func (this *SListen) StopListen() error {
 }
 
 func (this *SListen) listenFunc() {
+	GSLog.Mustln("listenFunc")
+
 	defer bsn_common.FuncGuard()
 	defer func() {
 		GSLog.Debugln("send close before")
 		this.M_chanClose <- true
-		GSLog.Debugln("send close before")
+		GSLog.Debugln("send close after")
 	}()
 
-	GSLog.Mustln("listenFunc")
 	for {
 		GSLog.Debugln("wait accept")
 		vConn, err := this.M_Listener.Accept()
