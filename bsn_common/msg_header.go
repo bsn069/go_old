@@ -14,13 +14,14 @@ func newMsgHeader(u16Type, u16Len uint16) *SMsgHeader {
 }
 
 func newMsgHeaderFromBytes(byData []byte) *SMsgHeader {
-	return newMsgHeader(ReadUint16(byData), ReadUint16(byData[2:]))
+	// return newMsgHeader(ReadUint16(byData), ReadUint16(byData[2:]))
+	return newMsgHeader(1, 2)
 }
 
 func (this *SMsgHeader) bytes() []byte {
 	var byRet = make([]byte, cMsgHeader_Size)
-	WriteUint16(byRet, this.m_u16Type)
-	WriteUint16(byRet[2:], this.m_u16Len)
+	// WriteUint16(byRet, this.m_u16Type)
+	// WriteUint16(byRet[2:], this.m_u16Len)
 	return byRet
 }
 

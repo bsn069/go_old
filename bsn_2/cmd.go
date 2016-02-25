@@ -53,3 +53,52 @@ func (this *SCmd) GATE_CREATE(vTInputParams bsn_common.TInputParams) {
 func (this *SCmd) GATE_CREATE_help(vTInputParams bsn_common.TInputParams) {
 	GSLog.Mustln("    create gate")
 }
+
+func (this *SCmd) GATE(vTInputParams bsn_common.TInputParams) {
+	if len(vTInputParams) != 3 {
+		GSLog.Errorln("gateid clientListenPort serverListenPort")
+		return
+	}
+
+	vuGateId, err := strconv.ParseUint(vTInputParams[0], 10, 32)
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	vuClientListenPort, err := strconv.ParseUint(vTInputParams[1], 10, 32)
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	vuServerListenPort, err := strconv.ParseUint(vTInputParams[2], 10, 32)
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	vSGate, err := this.M_SCmdGate.CreateGate(bsn_common.TGateId(vuGateId))
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	err = vSGate.GetServerMgr().SetListenPort(uint16(vuServerListenPort))
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	err = vSGate.GetClientMgr().SetListenPort(uint16(vuClientListenPort))
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	vSGate.Listen()
+}
+
+func (this *SCmd) GATE_help(vTInputParams bsn_common.TInputParams) {
+	GSLog.Mustln("    gate")
+}

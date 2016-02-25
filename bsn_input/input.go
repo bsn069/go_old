@@ -12,6 +12,7 @@ import (
 	// "runtime"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -118,10 +119,22 @@ func (this *SInput) runCmd() {
 		return
 	}
 
-	go this.doCmd(line)
+	vTInputOK := make(bsn_common.TInputOK, 1)
+
+	go this.doCmd(vTInputOK, line)
+
+	select {
+	case <-vTInputOK:
+	case <-time.After(time.Duration(2 * time.Second)):
+	}
 }
 
-func (this *SInput) doCmd(line string) {
+func (this *SInput) doCmd(vTInputOK bsn_common.TInputOK, line string) {
+	defer func() {
+		vTInputOK <- true
+		// close(vTInputOK)
+	}()
+
 	tokens := strings.Fields(line)
 	if len(tokens) < 1 {
 		return

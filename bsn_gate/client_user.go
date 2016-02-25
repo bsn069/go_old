@@ -6,7 +6,6 @@ import (
 	"github.com/bsn069/go/bsn_msg"
 )
 
-// IUser
 type SClientUser struct {
 	*SUser
 	M_SClientUserMgr *SClientUserMgr

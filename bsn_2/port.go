@@ -16,4 +16,5 @@ var GSCmd *SCmd
 func Run() {
 	// runtime.GOMAXPROCS(runtime.NumCPU()*2 + 2)
 	bsn_input.GSInput.Run()
+	GSLog.Mustln("quit")
 }

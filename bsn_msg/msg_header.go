@@ -5,6 +5,7 @@ import (
 	"github.com/bsn069/go/bsn_common"
 	// "runtime"
 	// "time"
+	"encoding/binary"
 )
 
 const (
@@ -42,13 +43,13 @@ func (this *SMsgHeader) Serialize() []byte {
 }
 
 func (this *SMsgHeader) Serialize2Byte(byDatas []byte) bsn_common.TMsgLen {
-	bsn_common.WriteUint16(byDatas, uint16(this.Type()))
-	bsn_common.WriteUint16(byDatas[2:], uint16(this.Len()))
+	binary.LittleEndian.PutUint16(byDatas, uint16(this.Type()))
+	binary.LittleEndian.PutUint16(byDatas[2:], uint16(this.Len()))
 	return bsn_common.TMsgLen(4)
 }
 
 func (this *SMsgHeader) DeSerialize(byDatas []byte) bsn_common.TMsgLen {
-	this.M_TMsgType = bsn_common.TMsgType(bsn_common.ReadUint16(byDatas))
-	this.M_TMsgLen = bsn_common.TMsgLen(bsn_common.ReadUint16(byDatas[2:]))
+	this.M_TMsgType = bsn_common.TMsgType(binary.LittleEndian.Uint16(byDatas))
+	this.M_TMsgLen = bsn_common.TMsgLen(binary.LittleEndian.Uint16(byDatas[2:]))
 	return bsn_common.TMsgLen(4)
 }

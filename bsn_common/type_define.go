@@ -19,6 +19,7 @@ type TInputUpperName2RegName map[string]string
 
 // [modName][cmdUpper] = help
 type TInputHelp map[string]map[string]string
+type TInputOK chan bool
 
 type TGateId2Gate map[TGateId]TVoid
 type TGateServerMsgType uint16

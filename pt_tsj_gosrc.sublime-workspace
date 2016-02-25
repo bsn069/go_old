@@ -431,6 +431,30 @@
 	},
 	"buffers":
 	[
+		{
+			"file": "/D/Software/Go16/src/encoding/binary/binary.go",
+			"settings":
+			{
+				"buffer_size": 15308,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/D/Software/Go16/src/bytes/reader.go",
+			"settings":
+			{
+				"buffer_size": 3322,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/D/Software/Go16/src/encoding/binary/binary_test.go",
+			"settings":
+			{
+				"buffer_size": 10013,
+				"line_ending": "Unix"
+			}
+		}
 	],
 	"build_system": "",
 	"build_system_choices":
@@ -470,7 +494,10 @@
 	},
 	"expanded_folders":
 	[
-		"/D/Software/Go/src"
+		"/D/Software/Go16/src",
+		"/D/Software/Go16/src/builtin",
+		"/D/Software/Go16/src/encoding",
+		"/D/Software/Go16/src/encoding/binary"
 	],
 	"file_history":
 	[
@@ -605,7 +632,7 @@
 	],
 	"find":
 	{
-		"height": 38.0
+		"height": 30.0
 	},
 	"find_in_files":
 	{
@@ -691,8 +718,99 @@
 	"groups":
 	[
 		{
+			"selected": 2,
 			"sheets":
 			[
+				{
+					"buffer": 0,
+					"file": "/D/Software/Go16/src/encoding/binary/binary.go",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 15308,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1176,
+								1185
+							]
+						],
+						"settings":
+						{
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 2640.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "/D/Software/Go16/src/bytes/reader.go",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3322,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								3303,
+								3309
+							]
+						],
+						"settings":
+						{
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 792.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "/D/Software/Go16/src/encoding/binary/binary_test.go",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 10013,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								5498,
+								5510
+							]
+						],
+						"settings":
+						{
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 5346.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				}
 			]
 		}
 	],
@@ -836,7 +954,7 @@
 		"height": 0.0
 	},
 	"pinned_build_system": "",
-	"project": "go.sublime-project",
+	"project": "pt_tsj_gosrc.sublime-project",
 	"replace":
 	{
 		"height": 56.0
