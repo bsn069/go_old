@@ -9,47 +9,55 @@ import (
 )
 
 const (
-	CSMsgHeader_Size bsn_common.TMsgLen = 4
+	CSMsgHeaderGateClient_Size bsn_common.TMsgLen = CSMsgHeader_Size + 2
 )
 
-type SMsgHeader struct {
-	M_TMsgType bsn_common.TMsgType
-	M_TMsgLen  bsn_common.TMsgLen
+type SMsgHeaderGateClient struct {
+	SMsgHeader
+	M_TGateUserId bsn_common.TGateUserId
 }
 
-func NewMsgHeader(vTMsgType bsn_common.TMsgType, vTMsgLen bsn_common.TMsgLen) *SMsgHeader {
-	this := &SMsgHeader{}
-	this.Fill(vTMsgType, vTMsgLen)
+func NewMsgHeaderGateClient(vu16ServerType uint16, vTGateUserId bsn_common.TGateUserId, byMsg []byte) *SMsgHeaderGateClient {
+	this := &SMsgHeaderGateClient{}
+	this.Fill(vTGateUserId)
+	this.SMsgHeader.Fill(bsn_common.TMsgType(vu16ServerType), bsn_common.TMsgLen(len(byMsg)))
 	return this
 }
 
-func (this *SMsgHeader) Fill(vTMsgType bsn_common.TMsgType, vTMsgLen bsn_common.TMsgLen) {
-	this.M_TMsgType = vTMsgType
-	this.M_TMsgLen = vTMsgLen
+func NewMsgHeaderGateClientFromBytes(byDatas []byte) *SMsgHeaderGateClient {
+	this := &SMsgHeaderGateClient{}
+	this.DeSerialize(byDatas)
+	return this
 }
 
-func (this *SMsgHeader) Len() bsn_common.TMsgLen {
-	return this.M_TMsgLen
+func (this *SMsgHeaderGateClient) Fill(vM_TGateUserId bsn_common.TGateUserId) {
+	this.M_TGateUserId = vM_TGateUserId
 }
 
-func (this *SMsgHeader) Type() bsn_common.TMsgType {
-	return this.M_TMsgType
+func (this *SMsgHeaderGateClient) GetUserId() bsn_common.TGateUserId {
+	return this.M_TGateUserId
 }
 
-func (this *SMsgHeader) Serialize() []byte {
-	var byDatas = make([]byte, CSMsgHeader_Size)
-	this.Serialize2Byte(byDatas)
+func (this *SMsgHeaderGateClient) Serialize() []byte {
+	var byDatas = make([]byte, CSMsgHeaderGateClient_Size)
+	this.SMsgHeader.Serialize2Byte(byDatas)
 	return byDatas
 }
 
-func (this *SMsgHeader) Serialize2Byte(byDatas []byte) bsn_common.TMsgLen {
-	binary.LittleEndian.PutUint16(byDatas, uint16(this.Type()))
-	binary.LittleEndian.PutUint16(byDatas[2:], uint16(this.Len()))
-	return bsn_common.TMsgLen(4)
+func (this *SMsgHeaderGateClient) Serialize2Byte(byDatas []byte) bsn_common.TMsgLen {
+	vTMsgLen := this.SMsgHeader.Serialize2Byte(byDatas)
+
+	binary.LittleEndian.PutUint16(byDatas[vTMsgLen:], uint16(this.GetUserId()))
+	vTMsgLen += 2
+
+	return vTMsgLen
 }
 
-func (this *SMsgHeader) DeSerialize(byDatas []byte) bsn_common.TMsgLen {
-	this.M_TMsgType = bsn_common.TMsgType(binary.LittleEndian.Uint16(byDatas))
-	this.M_TMsgLen = bsn_common.TMsgLen(binary.LittleEndian.Uint16(byDatas[2:]))
-	return bsn_common.TMsgLen(4)
+func (this *SMsgHeaderGateClient) DeSerialize(byDatas []byte) bsn_common.TMsgLen {
+	vTMsgLen := this.SMsgHeader.DeSerialize(byDatas)
+
+	this.M_TGateUserId = bsn_common.TGateUserId(binary.LittleEndian.Uint16(byDatas[vTMsgLen:]))
+	vTMsgLen += 2
+
+	return vTMsgLen
 }

@@ -23,6 +23,12 @@ func NewMsgHeader(vTMsgType bsn_common.TMsgType, vTMsgLen bsn_common.TMsgLen) *S
 	return this
 }
 
+func NewMsgHeaderFromBytes(byDatas []byte) *SMsgHeader {
+	this := &SMsgHeader{}
+	this.DeSerialize(byDatas)
+	return this
+}
+
 func (this *SMsgHeader) Fill(vTMsgType bsn_common.TMsgType, vTMsgLen bsn_common.TMsgLen) {
 	this.M_TMsgType = vTMsgType
 	this.M_TMsgLen = vTMsgLen
@@ -43,13 +49,23 @@ func (this *SMsgHeader) Serialize() []byte {
 }
 
 func (this *SMsgHeader) Serialize2Byte(byDatas []byte) bsn_common.TMsgLen {
-	binary.LittleEndian.PutUint16(byDatas, uint16(this.Type()))
-	binary.LittleEndian.PutUint16(byDatas[2:], uint16(this.Len()))
-	return bsn_common.TMsgLen(4)
+	var vTMsgLen bsn_common.TMsgLen = 0
+
+	binary.LittleEndian.PutUint16(byDatas[vTMsgLen:], uint16(this.Type()))
+	vTMsgLen += 2
+	binary.LittleEndian.PutUint16(byDatas[vTMsgLen:], uint16(this.Len()))
+	vTMsgLen += 2
+
+	return vTMsgLen
 }
 
 func (this *SMsgHeader) DeSerialize(byDatas []byte) bsn_common.TMsgLen {
-	this.M_TMsgType = bsn_common.TMsgType(binary.LittleEndian.Uint16(byDatas))
-	this.M_TMsgLen = bsn_common.TMsgLen(binary.LittleEndian.Uint16(byDatas[2:]))
-	return bsn_common.TMsgLen(4)
+	var vTMsgLen bsn_common.TMsgLen = 0
+
+	this.M_TMsgType = bsn_common.TMsgType(binary.LittleEndian.Uint16(byDatas[vTMsgLen:]))
+	vTMsgLen += 2
+	this.M_TMsgLen = bsn_common.TMsgLen(binary.LittleEndian.Uint16(byDatas[vTMsgLen:]))
+	vTMsgLen += 2
+
+	return vTMsgLen
 }

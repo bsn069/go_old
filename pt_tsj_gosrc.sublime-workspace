@@ -501,6 +501,9 @@
 	],
 	"file_history":
 	[
+		"/E/18+/text/小说 - 阿姨 我要射了.txt",
+		"/D/ptcode/gopath/src/github.com/bsn069/go/bsn_msg/msg_header.go",
+		"/C/Users/Administrator/AppData/Roaming/Sublime Text 3/Packages/Default/Preferences.sublime-settings",
 		"/D/ptcode/gopath/src/github.com/bsn069/go/t.go",
 		"/D/ptcode/gopath/src/github.com/bsn069/go/main.go",
 		"/D/ptcode/gopath/src/github.com/bsn069/go/bsn_gate/server_msg.go",
@@ -533,7 +536,6 @@
 		"/E/18+/text/小说-我女朋友李芳偷人的故事.txt",
 		"/E/18+/text/小说-美 人 赠 我 XX 套.txt",
 		"/E/18+/text/小说 - 古代农村[乱].txt",
-		"/E/18+/text/小说 - 阿姨 我要射了.txt",
 		"/D/ptcode/gopath/src/github.com/bsn069/go/bsn_input/cmd_system.go",
 		"/D/Software/Go/src/time/format_test.go",
 		"/D/Software/Go/src/time/format.go",
@@ -626,9 +628,7 @@
 		"/D/ptcode/gopath/src/bsn/game/common/proto/msg_common.proto",
 		"/D/ptcode/gopath/src/github.com/golang/protobuf/proto/testdata/golden_test.go",
 		"/D/ptcode/gopath/src/github.com/golang/protobuf/proto/testdata/test.proto",
-		"/D/ptcode/gopath/src/bsn/game/common/msg_client2logingate_type.pb.go",
-		"/D/ptcode/gopath/src/bsn/game/common/proto/msg_logingate2client_type.proto",
-		"/D/ptcode/gopath/src/bsn/game/tools/msg/msg_type_.proto"
+		"/D/ptcode/gopath/src/bsn/game/common/msg_client2logingate_type.pb.go"
 	],
 	"find":
 	{
@@ -804,7 +804,7 @@
 							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": -0.0,
+						"translation.x": 0.0,
 						"translation.y": 5346.0,
 						"zoom_level": 1.0
 					},
