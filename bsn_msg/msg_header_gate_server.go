@@ -18,6 +18,7 @@ const (
 	CSMsgHeaderGateServer_Size bsn_common.TMsgLen = CSMsgHeader_Size + 4
 )
 
+// msgHeader from server
 type SMsgHeaderGateServer struct {
 	SMsgHeader
 	M_TGateGroupId bsn_common.TGateGroupId
@@ -40,6 +41,10 @@ func NewMsgHeaderGateServerFromBytes(byDatas []byte) *SMsgHeaderGateServer {
 func (this *SMsgHeaderGateServer) Fill(vTGroupId bsn_common.TGateGroupId, vTGateUserId bsn_common.TGateUserId) {
 	this.M_TGateGroupId = vTGroupId
 	this.M_TGateUserId = vTGateUserId
+}
+
+func (this *SMsgHeaderGateServer) ServerMsgType() bsn_common.TGateServerMsgType {
+	return bsn_common.TGateServerMsgType(this.Type())
 }
 
 func (this *SMsgHeaderGateServer) UserId() bsn_common.TGateUserId {

@@ -12,6 +12,7 @@ const (
 	CSMsgHeaderGateClient_Size bsn_common.TMsgLen = CSMsgHeader_Size + 2
 )
 
+// msgHeader from client
 type SMsgHeaderGateClient struct {
 	SMsgHeader
 	M_TGateUserId bsn_common.TGateUserId
@@ -34,20 +35,24 @@ func (this *SMsgHeaderGateClient) Fill(vM_TGateUserId bsn_common.TGateUserId) {
 	this.M_TGateUserId = vM_TGateUserId
 }
 
-func (this *SMsgHeaderGateClient) GetUserId() bsn_common.TGateUserId {
+func (this *SMsgHeaderGateClient) ServerType() uint16 {
+	return uint16(this.Type())
+}
+
+func (this *SMsgHeaderGateClient) UserId() bsn_common.TGateUserId {
 	return this.M_TGateUserId
 }
 
 func (this *SMsgHeaderGateClient) Serialize() []byte {
 	var byDatas = make([]byte, CSMsgHeaderGateClient_Size)
-	this.SMsgHeader.Serialize2Byte(byDatas)
+	this.Serialize2Byte(byDatas)
 	return byDatas
 }
 
 func (this *SMsgHeaderGateClient) Serialize2Byte(byDatas []byte) bsn_common.TMsgLen {
 	vTMsgLen := this.SMsgHeader.Serialize2Byte(byDatas)
 
-	binary.LittleEndian.PutUint16(byDatas[vTMsgLen:], uint16(this.GetUserId()))
+	binary.LittleEndian.PutUint16(byDatas[vTMsgLen:], uint16(this.UserId()))
 	vTMsgLen += 2
 
 	return vTMsgLen
