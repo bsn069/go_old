@@ -3,18 +3,19 @@ package bsn_gate
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_msg"
 )
 
 type SClientUserMgr struct {
 	*SUserMgr
 }
 
-func newClientUserMgr() (*SClientUserMgr, error) {
+func NewClientUserMgr(vSGate *SGate) (*SClientUserMgr, error) {
 	GSLog.Debugln("newClientUserMgr")
 	this := &SClientUserMgr{}
 
 	var err error
-	this.SUserMgr, err = newUserMgr()
+	this.SUserMgr, err = NewUserMgr(vSGate)
 	if err != nil {
 		return nil, err
 	}
@@ -31,14 +32,26 @@ func (this *SClientUserMgr) Close() error {
 	return nil
 }
 
-func (this *SClientUserMgr) SendToUser(vTUserId bsn_common.TGateUserId, byData []byte) error {
-	vIUser := this.GetUser(vTUserId)
+func (this *SClientUserMgr) SendMsgToUser(vTUserId bsn_common.TGateUserId, byData []byte) error {
+	if len(byData) < int(bsn_msg.CSMsgHeader_Size) {
+		return errors.New("too short")
+	}
+
+	vIUser, err := this.User(vTUserId)
+	if err != nil {
+		GSLog.Errorln(err)
+		return err
+	}
 	vSClientUser, _ := vIUser.(*SClientUser)
 	vSClientUser.Send(byData)
 	return nil
 }
 
-func (this *SClientUserMgr) SendToGroup(vTGroupId bsn_common.TGateUserId, byData []byte) error {
+func (this *SClientUserMgr) SendMsgToGroup(vTGroupId bsn_common.TGateUserId, byData []byte) error {
+	if len(byData) < int(bsn_msg.CSMsgHeader_Size) {
+		return errors.New("too short")
+	}
+
 	return nil
 }
 
@@ -51,7 +64,7 @@ func (this *SClientUserMgr) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {
 		this.Close()
-		for _, vIUser := range this.M_users {
+		for _, vIUser := range this.M_TId2User {
 			vSClientUser, _ := vIUser.(*SClientUser)
 			vSClientUser.Close()
 		}
@@ -64,7 +77,7 @@ func (this *SClientUserMgr) runImp() {
 			return
 		}
 
-		vSUser, err := newClientUser(this)
+		vSUser, err := NewClientUser(this)
 		if err != nil {
 			GSLog.Errorln(err)
 			vConn.Close()
@@ -72,7 +85,7 @@ func (this *SClientUserMgr) runImp() {
 		}
 
 		vSUser.SetConn(vConn)
-		vUserId, _ := this.GenId()
+		vUserId, _ := this.GenUserId()
 		vSUser.SetId(vUserId)
 		this.AddUser(vSUser)
 

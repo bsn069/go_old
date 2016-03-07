@@ -5,7 +5,7 @@ import (
 	"github.com/bsn069/go/bsn_common"
 	// "runtime"
 	// "time"
-	"encoding/binary"
+	// "encoding/binary"
 )
 
 const (
@@ -15,13 +15,12 @@ const (
 // msgHeader from client
 type SMsgHeaderGateClient struct {
 	SMsgHeader
-	M_TGateUserId bsn_common.TGateUserId
 }
 
-func NewMsgHeaderGateClient(vu16ServerType uint16, vTGateUserId bsn_common.TGateUserId, byMsg []byte) *SMsgHeaderGateClient {
+func NewMsgHeaderGateClient(vu8ServerType, vu8ServerId uint8, byMsg []byte) *SMsgHeaderGateClient {
 	this := &SMsgHeaderGateClient{}
-	this.Fill(vTGateUserId)
-	this.SMsgHeader.Fill(bsn_common.TMsgType(vu16ServerType), bsn_common.TMsgLen(len(byMsg)))
+	vUserId := bsn_common.MakeGateUserId(vu8ServerType, vu8ServerId)
+	this.SMsgHeader.Fill(bsn_common.TMsgType(vUserId), bsn_common.TMsgLen(len(byMsg)))
 	return this
 }
 
@@ -31,38 +30,12 @@ func NewMsgHeaderGateClientFromBytes(byDatas []byte) *SMsgHeaderGateClient {
 	return this
 }
 
-func (this *SMsgHeaderGateClient) Fill(vM_TGateUserId bsn_common.TGateUserId) {
-	this.M_TGateUserId = vM_TGateUserId
-}
-
-func (this *SMsgHeaderGateClient) ServerType() uint16 {
-	return uint16(this.Type())
-}
-
 func (this *SMsgHeaderGateClient) UserId() bsn_common.TGateUserId {
-	return this.M_TGateUserId
+	return bsn_common.TGateUserId(this.Type())
 }
 
 func (this *SMsgHeaderGateClient) Serialize() []byte {
 	var byDatas = make([]byte, CSMsgHeaderGateClient_Size)
 	this.Serialize2Byte(byDatas)
 	return byDatas
-}
-
-func (this *SMsgHeaderGateClient) Serialize2Byte(byDatas []byte) bsn_common.TMsgLen {
-	vTMsgLen := this.SMsgHeader.Serialize2Byte(byDatas)
-
-	binary.LittleEndian.PutUint16(byDatas[vTMsgLen:], uint16(this.UserId()))
-	vTMsgLen += 2
-
-	return vTMsgLen
-}
-
-func (this *SMsgHeaderGateClient) DeSerialize(byDatas []byte) bsn_common.TMsgLen {
-	vTMsgLen := this.SMsgHeader.DeSerialize(byDatas)
-
-	this.M_TGateUserId = bsn_common.TGateUserId(binary.LittleEndian.Uint16(byDatas[vTMsgLen:]))
-	vTMsgLen += 2
-
-	return vTMsgLen
 }

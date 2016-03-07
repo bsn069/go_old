@@ -11,20 +11,24 @@ type SClientUser struct {
 	M_SClientUserMgr *SClientUserMgr
 }
 
-func newClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
+func NewClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
 	GSLog.Debugln("newClientUser")
 	this := &SClientUser{}
 
-	vSUser, err := newUser()
+	vSUser, err := NewUser()
 	if err != nil {
 		return nil, err
 	}
 	this.SUser = vSUser
 	this.M_SClientUserMgr = vSClientUserMgr
 
-	this.M_byMsgHeader = make([]byte, CSClientMsg_Size)
+	this.M_byMsgHeader = make([]byte, bsn_msg.CSMsgHeaderGateClient_Size)
 
 	return this, nil
+}
+
+func (this *SClientUser) UserMgr() *SClientUserMgr {
+	return this.M_SClientUserMgr
 }
 
 func (this *SClientUser) Run() {
@@ -36,12 +40,12 @@ func (this *SClientUser) Close() error {
 		return errors.New("had close")
 	}
 	this.M_bClose = true
-	this.M_Conn.Close()
+	this.Conn().Close()
 	return nil
 }
 
 func (this *SClientUser) Send(byData []byte) error {
-	this.M_Conn.Write(byData)
+	this.Conn().Write(byData)
 	return nil
 }
 
@@ -49,37 +53,32 @@ func (this *SClientUser) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {
 		this.Close()
-		this.M_SClientUserMgr.DelUser(this)
+		this.UserMgr().DelUser(this)
 	}()
 
-	var vClientMsg SClientMsg
+	vSServerUserMgr := this.UserMgr().Gate().GetServerMgr()
+	var vMsg bsn_msg.SMsgHeaderGateClient
 	for !this.M_bClose {
 		err := this.ReadMsgHeader()
 		if err != nil {
 			GSLog.Errorln(err)
 			return
 		}
-		vClientMsg.DeSerialize(this.M_byMsgHeader)
+		vMsg.DeSerialize(this.M_byMsgHeader)
 
-		vLen := vClientMsg.Len()
-		if vLen < bsn_msg.CSMsgHeader_Size {
-			GSLog.Errorln("too short")
-			return
-		}
-
+		vLen := vMsg.Len()
 		this.M_byMsgBody = make([]byte, vLen)
-		err = this.ReadMsgBody()
-		if err != nil {
-			GSLog.Errorln(err)
-			return
+		if vLen > 0 {
+			err = this.ReadMsgBody()
+			if err != nil {
+				GSLog.Errorln(err)
+				return
+			}
 		}
 
-		switch TClientMsgType(vClientMsg.Type()) {
-		case CClientMsgType_ToUser:
-			this.M_SClientUserMgr.SendToUser(vClientMsg.UserId(), this.M_byMsgBody)
-		default:
-			GSLog.Errorln("unknown msg type ", vClientMsg.Type())
-			return
+		err = vSServerUserMgr.SendMsgToUser(vMsg.UserId(), this.M_byMsgBody)
+		if err != nil {
+			GSLog.Errorln("process msg err: ", vMsg.Type(), err)
 		}
 	}
 }

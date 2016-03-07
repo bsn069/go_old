@@ -29,16 +29,16 @@ type TGateUserId uint16
 type TGateUserId2User map[TGateUserId]IGateUser
 type TGateUserMgrType uint32
 type IGateUser interface {
-	GetId() TGateUserId
-	GetConn() net.Conn
+	Id() TGateUserId
+	Conn() net.Conn
 	ReadMsgHeader() error
 	ReadMsgBody() error
 }
 type IGateUserMgr interface {
 	AddUser(vIUser IGateUser)
 	DelUser(vIUser IGateUser)
-	GetUser(vTUserId TGateUserId) IGateUser
-	GetType() TGateUserMgrType
+	User(vTUserId TGateUserId) IGateUser
+	Type() TGateUserMgrType
 }
 
 type TLogLevel uint32
@@ -66,4 +66,12 @@ func (level TLogLevel) String() string {
 	default:
 		return "     "
 	}
+}
+
+func MakeGateUserId(vu8ServerType, vu8ServerId uint8) TGateUserId {
+	var vu16UserId uint16
+	vu16UserId = uint16(vu8ServerType)
+	vu16UserId <<= 8
+	vu16UserId += uint16(vu8ServerId)
+	return TGateUserId(vu16UserId)
 }

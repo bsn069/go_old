@@ -3,18 +3,19 @@ package bsn_gate
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_msg"
 )
 
 type SServerUserMgr struct {
 	*SUserMgr
 }
 
-func newServerUserMgr() (*SServerUserMgr, error) {
+func NewServerUserMgr(vSGate *SGate) (*SServerUserMgr, error) {
 	GSLog.Debugln("newServerUserMgr")
 	this := &SServerUserMgr{}
 
 	var err error
-	this.SUserMgr, err = newUserMgr()
+	this.SUserMgr, err = NewUserMgr(vSGate)
 	if err != nil {
 		return nil, err
 	}
@@ -31,14 +32,25 @@ func (this *SServerUserMgr) Close() error {
 	return nil
 }
 
-func (this *SServerUserMgr) SendToUser(vTUserId bsn_common.TGateUserId, byData []byte) error {
-	vIUser := this.GetUser(vTUserId)
+func (this *SServerUserMgr) SendMsgToUser(vTUserId bsn_common.TGateUserId, byData []byte) error {
+	if len(byData) < int(bsn_msg.CSMsgHeader_Size) {
+		return errors.New("too short")
+	}
+
+	vIUser, err := this.User(vTUserId)
+	if err != nil {
+		GSLog.Errorln(err)
+		return err
+	}
 	vSServerUser, _ := vIUser.(*SServerUser)
-	vSServerUser.Send(byData)
-	return nil
+	return vSServerUser.Send(byData)
 }
 
-func (this *SServerUserMgr) SendToGroup(vTGroupId bsn_common.TGateUserId, byData []byte) error {
+func (this *SServerUserMgr) SendMsgToGroup(vTGroupId bsn_common.TGateUserId, byData []byte) error {
+	if len(byData) < int(bsn_msg.CSMsgHeader_Size) {
+		return errors.New("too short")
+	}
+
 	return nil
 }
 
@@ -51,7 +63,7 @@ func (this *SServerUserMgr) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {
 		this.Close()
-		for _, vIUser := range this.M_users {
+		for _, vIUser := range this.M_TId2User {
 			vSServerUser, _ := vIUser.(*SServerUser)
 			vSServerUser.Close()
 		}
@@ -64,7 +76,7 @@ func (this *SServerUserMgr) runImp() {
 			return
 		}
 
-		vSUser, err := newServerUser(this)
+		vSUser, err := NewServerUser(this)
 		if err != nil {
 			GSLog.Errorln(err)
 			vConn.Close()
@@ -72,10 +84,6 @@ func (this *SServerUserMgr) runImp() {
 		}
 
 		vSUser.SetConn(vConn)
-		vUserId, _ := this.GenId()
-		vSUser.SetId(vUserId)
-		this.AddUser(vSUser)
-
 		vSUser.Run()
 	}
 }

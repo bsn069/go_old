@@ -448,19 +448,27 @@
 			}
 		},
 		{
-			"file": "/D/Software/Go16/src/encoding/binary/binary_test.go",
-			"settings":
-			{
-				"buffer_size": 10013,
-				"line_ending": "Unix"
-			}
-		},
-		{
 			"file": "main.go",
 			"settings":
 			{
 				"buffer_size": 85,
 				"line_ending": "Windows"
+			}
+		},
+		{
+			"file": "/D/Software/Go16/src/testing/benchmark_test.go",
+			"settings":
+			{
+				"buffer_size": 2416,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "/D/Software/Go16/src/go/doc/testdata/benchmark.go",
+			"settings":
+			{
+				"buffer_size": 7641,
+				"line_ending": "Unix"
 			}
 		}
 	],
@@ -504,8 +512,8 @@
 	[
 		"/D/Software/Go16/src",
 		"/D/Software/Go16/src/builtin",
-		"/D/Software/Go16/src/encoding",
-		"/D/Software/Go16/src/encoding/binary"
+		"/D/Software/Go16/src/encoding/binary",
+		"/D/Software/Go16/src/testing"
 	],
 	"file_history":
 	[
@@ -756,7 +764,7 @@
 						"translation.y": 2640.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 3,
 					"type": "text"
 				},
 				{
@@ -786,41 +794,11 @@
 						"translation.y": 792.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 3,
+					"stack_index": 4,
 					"type": "text"
 				},
 				{
 					"buffer": 2,
-					"file": "/D/Software/Go16/src/encoding/binary/binary_test.go",
-					"semi_transient": true,
-					"settings":
-					{
-						"buffer_size": 10013,
-						"regions":
-						{
-						},
-						"selection":
-						[
-							[
-								5498,
-								5510
-							]
-						],
-						"settings":
-						{
-							"origin_encoding": "ASCII",
-							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
-							"translate_tabs_to_spaces": false
-						},
-						"translation.x": 0.0,
-						"translation.y": 5346.0,
-						"zoom_level": 1.0
-					},
-					"stack_index": 1,
-					"type": "text"
-				},
-				{
-					"buffer": 3,
 					"file": "main.go",
 					"semi_transient": false,
 					"settings":
@@ -846,7 +824,67 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "/D/Software/Go16/src/testing/benchmark_test.go",
+					"semi_transient": true,
+					"settings":
+					{
+						"buffer_size": 2416,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								2152,
+								2153
+							]
+						],
+						"settings":
+						{
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": -0.0,
+						"translation.y": 1518.0,
+						"zoom_level": 1.0
+					},
 					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "/D/Software/Go16/src/go/doc/testdata/benchmark.go",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 7641,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								7471,
+								7471
+							]
+						],
+						"settings":
+						{
+							"origin_encoding": "ASCII",
+							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 5788.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
 					"type": "text"
 				}
 			]

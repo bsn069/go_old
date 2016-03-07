@@ -2,7 +2,7 @@ package bsn_msg
 
 import (
 	"github.com/bsn069/go/bsn_log"
-	"unsafe"
+	// "unsafe"
 )
 
 func init() {

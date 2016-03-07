@@ -17,13 +17,13 @@ type SUser struct {
 	M_bClose      bool
 }
 
-func newUser() (*SUser, error) {
-	GSLog.Debugln("newUser()")
+func NewUser() (*SUser, error) {
+	GSLog.Debugln("NewUser()")
 	this := &SUser{}
 	return this, nil
 }
 
-func (this *SUser) GetId() bsn_common.TGateUserId {
+func (this *SUser) Id() bsn_common.TGateUserId {
 	return this.M_TUserId
 }
 
@@ -32,7 +32,7 @@ func (this *SUser) SetId(vTUserId bsn_common.TGateUserId) error {
 	return nil
 }
 
-func (this *SUser) GetConn() net.Conn {
+func (this *SUser) Conn() net.Conn {
 	return this.M_Conn
 }
 
@@ -42,7 +42,7 @@ func (this *SUser) SetConn(vConn net.Conn) error {
 }
 
 func (this *SUser) ReadMsgHeader() error {
-	readLen, err := this.M_Conn.Read(this.M_byMsgHeader)
+	readLen, err := this.Conn().Read(this.M_byMsgHeader)
 	if err != nil {
 		return err
 	}
@@ -53,7 +53,7 @@ func (this *SUser) ReadMsgHeader() error {
 }
 
 func (this *SUser) ReadMsgBody() error {
-	readLen, err := this.M_Conn.Read(this.M_byMsgBody)
+	readLen, err := this.Conn().Read(this.M_byMsgBody)
 	if err != nil {
 		return err
 	}

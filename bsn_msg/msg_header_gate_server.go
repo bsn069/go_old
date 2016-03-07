@@ -14,6 +14,7 @@ const (
 	CServerMsgType_AddUserToGroup
 	CServerMsgType_DelUserFromGroup
 	CServerMsgType_DelUser
+	CServerMsgType_Reg
 
 	CSMsgHeaderGateServer_Size bsn_common.TMsgLen = CSMsgHeader_Size + 4
 )

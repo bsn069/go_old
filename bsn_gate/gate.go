@@ -20,13 +20,13 @@ func NewGate(vTGateId bsn_common.TGateId) (*SGate, error) {
 	}
 
 	var err error
-	this.M_SServerUserMgr, err = newServerUserMgr()
+	this.M_SServerUserMgr, err = NewServerUserMgr(this)
 	if err != nil {
 		GSLog.Errorln("newServerUserMgr fail")
 		return nil, err
 	}
 
-	this.M_SClientUserMgr, err = newClientUserMgr()
+	this.M_SClientUserMgr, err = NewClientUserMgr(this)
 	if err != nil {
 		GSLog.Errorln("newClientUserMgr fail")
 		return nil, err

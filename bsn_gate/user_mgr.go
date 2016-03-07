@@ -9,38 +9,46 @@ import (
 type SUserMgr struct {
 	M_TUserMgrType bsn_common.TGateUserMgrType
 	M_TUserId      bsn_common.TGateUserId
-	M_users        bsn_common.TGateUserId2User
+	M_TId2User     bsn_common.TGateUserId2User
 	*bsn_net.SListen
 	M_bClose bool
+	M_SGate  *SGate
 }
 
-func newUserMgr() (this *SUserMgr, err error) {
+func NewUserMgr(vSGate *SGate) (this *SUserMgr, err error) {
 	GSLog.Debugln("newUserMgr")
 	this = &SUserMgr{
-		M_users:   make(bsn_common.TGateUserId2User),
-		M_TUserId: 0,
+		M_TId2User: make(bsn_common.TGateUserId2User),
+		M_TUserId:  0,
+		M_SGate:    vSGate,
 	}
 	this.SListen = bsn_net.NewListen()
 	return this, nil
 }
 
-func (this *SUserMgr) GetType() bsn_common.TGateUserMgrType {
+func (this *SUserMgr) Gate() *SGate {
+	return this.M_SGate
+}
+
+func (this *SUserMgr) Type() bsn_common.TGateUserMgrType {
 	return this.M_TUserMgrType
 }
 
-func (this *SUserMgr) GenId() (bsn_common.TGateUserId, error) {
+func (this *SUserMgr) GenUserId() (bsn_common.TGateUserId, error) {
 	this.M_TUserId++
 	return this.M_TUserId, nil
 }
 
-func (this *SUserMgr) AddUser(vIUser bsn_common.IGateUser) {
-	this.M_users[vIUser.GetId()] = vIUser
+func (this *SUserMgr) AddUser(vIUser bsn_common.IGateUser) error {
+	this.M_TId2User[vIUser.Id()] = vIUser
+	return nil
 }
 
-func (this *SUserMgr) DelUser(vIUser bsn_common.IGateUser) {
-	delete(this.M_users, vIUser.GetId())
+func (this *SUserMgr) DelUser(vIUser bsn_common.IGateUser) error {
+	delete(this.M_TId2User, vIUser.Id())
+	return nil
 }
 
-func (this *SUserMgr) GetUser(vTUserId bsn_common.TGateUserId) bsn_common.IGateUser {
-	return this.M_users[vTUserId]
+func (this *SUserMgr) User(vTUserId bsn_common.TGateUserId) (bsn_common.IGateUser, error) {
+	return this.M_TId2User[vTUserId], nil
 }
