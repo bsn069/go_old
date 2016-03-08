@@ -38,20 +38,6 @@ func (this *SServerUser) Run() {
 	go this.runImp()
 }
 
-func (this *SServerUser) Close() error {
-	if this.M_bClose {
-		return errors.New("had close")
-	}
-	this.M_bClose = true
-	this.Conn().Close()
-	return nil
-}
-
-func (this *SServerUser) Send(byData []byte) error {
-	this.Conn().Write(byData)
-	return nil
-}
-
 func (this *SServerUser) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {

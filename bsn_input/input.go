@@ -94,9 +94,10 @@ func (this *SInput) Quit() {
 func (this *SInput) ShowFunc(vICmd interface{}) error {
 	strsFuncs := bsn_common.Funcs(vICmd)
 	for _, strFunc := range strsFuncs {
-		if strings.HasSuffix(strFunc, "_help") {
+		if !bsn_common.StringIsUpper(&strFunc) {
 			continue
 		}
+
 		GSLog.Mustln(strings.ToLower(strFunc))
 	}
 	return nil

@@ -33,11 +33,13 @@ type IGateUser interface {
 	Conn() net.Conn
 	ReadMsgHeader() error
 	ReadMsgBody() error
+	Send(byData []byte) error
+	Close() error
 }
 type IGateUserMgr interface {
-	AddUser(vIUser IGateUser)
-	DelUser(vIUser IGateUser)
-	User(vTUserId TGateUserId) IGateUser
+	AddUser(vIUser IGateUser) error
+	DelUser(vIUser IGateUser) error
+	User(vTUserId TGateUserId) (IGateUser, error)
 	Type() TGateUserMgrType
 }
 

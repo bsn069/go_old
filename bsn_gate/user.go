@@ -62,3 +62,17 @@ func (this *SUser) ReadMsgBody() error {
 	}
 	return nil
 }
+
+func (this *SUser) Send(byData []byte) error {
+	this.Conn().Write(byData)
+	return nil
+}
+
+func (this *SUser) Close() error {
+	if this.M_bClose {
+		return errors.New("had close")
+	}
+	this.M_bClose = true
+	this.Conn().Close()
+	return nil
+}

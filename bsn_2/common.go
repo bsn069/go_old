@@ -11,5 +11,4 @@ func init() {
 
 	bsn_input.GSInput.Reg("Main", GSCmd)
 	bsn_input.GSInput.SetUseMod("Main")
-	GSCmd.M_SCmdGate.Test()
 }

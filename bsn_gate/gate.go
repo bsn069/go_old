@@ -38,6 +38,13 @@ func NewGate(vTGateId bsn_common.TGateId) (*SGate, error) {
 	return this, nil
 }
 
+func (this *SGate) ShowInfo() {
+	GSLog.Mustln("ClientMgr")
+	this.GetClientMgr().ShowInfo()
+	GSLog.Mustln("ServerMgr")
+	this.GetServerMgr().ShowInfo()
+}
+
 func (this *SGate) GetServerMgr() *SServerUserMgr {
 	return this.M_SServerUserMgr
 }
@@ -59,4 +66,9 @@ func (this *SGate) StopListen() {
 func (this *SGate) Close() {
 	this.GetServerMgr().Close()
 	this.GetClientMgr().Close()
+}
+
+func (this *SGate) Run() {
+	this.GetServerMgr().Run()
+	this.GetClientMgr().Run()
 }

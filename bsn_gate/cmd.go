@@ -17,6 +17,10 @@ type SCmd struct {
 	M_SGate *SGate
 }
 
+func (this *SCmd) SHOW_INFO(vTInputParams bsn_common.TInputParams) {
+	this.M_SGate.ShowInfo()
+}
+
 func (this *SCmd) CLIENT_LISTEN_ADDR(vTInputParams bsn_common.TInputParams) {
 	if len(vTInputParams) != 1 {
 		GSLog.Errorln("param must a string like localhost:40000")
@@ -74,11 +78,15 @@ func (this *SCmd) LISTEN(vTInputParams bsn_common.TInputParams) {
 }
 
 func (this *SCmd) STOP_LISTEN(vTInputParams bsn_common.TInputParams) {
-	this.M_SGate.Listen()
+	this.M_SGate.StopListen()
 }
 
 func (this *SCmd) CLOSE(vTInputParams bsn_common.TInputParams) {
 	this.M_SGate.Close()
+}
+
+func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
+	this.M_SGate.Run()
 }
 
 func (this *SCmd) CLIENT_LISTEN_PORT(vTInputParams bsn_common.TInputParams) {

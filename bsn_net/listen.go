@@ -53,6 +53,10 @@ func (this *SListen) SetListenAddr(strAddr string) error {
 	return nil
 }
 
+func (this *SListen) IsListen() bool {
+	return this.M_Listener != nil
+}
+
 func (this *SListen) Listen() (err error) {
 	this.M_Mutex.Lock()
 	defer this.M_Mutex.Unlock()

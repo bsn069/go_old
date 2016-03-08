@@ -3,7 +3,9 @@ package bsn_gate
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
-	"github.com/bsn069/go/bsn_msg"
+	// "github.com/bsn069/go/bsn_msg"
+	// "time"
+	"net"
 )
 
 type SClientUserMgr struct {
@@ -19,76 +21,31 @@ func NewClientUserMgr(vSGate *SGate) (*SClientUserMgr, error) {
 	if err != nil {
 		return nil, err
 	}
+	this.SUserMgr.M_TGateFuncOnNewUser = OnNewClientrUser
 
 	return this, nil
 }
 
-func (this *SClientUserMgr) Close() error {
-	if this.M_bClose {
-		return errors.New("had close")
+func OnNewClientrUser(vIGateUserMgr bsn_common.IGateUserMgr, vConn net.Conn) error {
+	vSClientUserMgr, ok := vIGateUserMgr.(*SClientUserMgr)
+	if !ok {
+		return errors.New("!ok")
 	}
-	this.M_bClose = true
-	this.StopListen()
-	return nil
+
+	return vSClientUserMgr.OnNewClientrUser(vConn)
 }
 
-func (this *SClientUserMgr) SendMsgToUser(vTUserId bsn_common.TGateUserId, byData []byte) error {
-	if len(byData) < int(bsn_msg.CSMsgHeader_Size) {
-		return errors.New("too short")
-	}
-
-	vIUser, err := this.User(vTUserId)
+func (this *SClientUserMgr) OnNewClientrUser(vConn net.Conn) error {
+	vSUser, err := NewClientUser(this)
 	if err != nil {
-		GSLog.Errorln(err)
 		return err
 	}
-	vSClientUser, _ := vIUser.(*SClientUser)
-	vSClientUser.Send(byData)
+
+	vSUser.SetConn(vConn)
+	vUserId, _ := this.GenUserId()
+	vSUser.SetId(vUserId)
+	this.AddUser(vSUser)
+
+	vSUser.Run()
 	return nil
-}
-
-func (this *SClientUserMgr) SendMsgToGroup(vTGroupId bsn_common.TGateUserId, byData []byte) error {
-	if len(byData) < int(bsn_msg.CSMsgHeader_Size) {
-		return errors.New("too short")
-	}
-
-	return nil
-}
-
-func (this *SClientUserMgr) Run() error {
-	go this.runImp()
-	return nil
-}
-
-func (this *SClientUserMgr) runImp() {
-	defer bsn_common.FuncGuard()
-	defer func() {
-		this.Close()
-		for _, vIUser := range this.M_TId2User {
-			vSClientUser, _ := vIUser.(*SClientUser)
-			vSClientUser.Close()
-		}
-	}()
-
-	for !this.M_bClose {
-		vConn, ok := <-this.SListen.M_chanConn
-		if !ok {
-			GSLog.Errorln("!ok")
-			return
-		}
-
-		vSUser, err := NewClientUser(this)
-		if err != nil {
-			GSLog.Errorln(err)
-			vConn.Close()
-			return
-		}
-
-		vSUser.SetConn(vConn)
-		vUserId, _ := this.GenUserId()
-		vSUser.SetId(vUserId)
-		this.AddUser(vSUser)
-
-		vSUser.Run()
-	}
 }

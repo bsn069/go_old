@@ -456,10 +456,10 @@
 			}
 		},
 		{
-			"file": "/D/Software/Go16/src/testing/benchmark_test.go",
+			"file": "/D/Software/Go16/src/strings/compare_test.go",
 			"settings":
 			{
-				"buffer_size": 2416,
+				"buffer_size": 2185,
 				"line_ending": "Unix"
 			}
 		},
@@ -512,7 +512,7 @@
 	[
 		"/D/Software/Go16/src",
 		"/D/Software/Go16/src/builtin",
-		"/D/Software/Go16/src/encoding/binary",
+		"/D/Software/Go16/src/strings",
 		"/D/Software/Go16/src/testing"
 	],
 	"file_history":
@@ -760,8 +760,8 @@
 							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": -0.0,
-						"translation.y": 2640.0,
+						"translation.x": 0.0,
+						"translation.y": 2760.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 3,
@@ -790,8 +790,8 @@
 							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
-						"translation.x": -0.0,
-						"translation.y": 792.0,
+						"translation.x": 0.0,
+						"translation.y": 828.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 4,
@@ -824,34 +824,33 @@
 						"translation.y": 0.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 2,
+					"stack_index": 1,
 					"type": "text"
 				},
 				{
 					"buffer": 3,
-					"file": "/D/Software/Go16/src/testing/benchmark_test.go",
+					"file": "/D/Software/Go16/src/strings/compare_test.go",
 					"semi_transient": true,
 					"settings":
 					{
-						"buffer_size": 2416,
+						"buffer_size": 2185,
 						"regions":
 						{
 						},
 						"selection":
 						[
 							[
-								2152,
-								2153
+								961,
+								968
 							]
 						],
 						"settings":
 						{
-							"origin_encoding": "ASCII",
 							"syntax": "Packages/GoSublime/syntax/GoSublime-Go.tmLanguage",
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": -0.0,
-						"translation.y": 1518.0,
+						"translation.y": 345.0,
 						"zoom_level": 1.0
 					},
 					"stack_index": 0,
@@ -881,10 +880,10 @@
 							"translate_tabs_to_spaces": false
 						},
 						"translation.x": 0.0,
-						"translation.y": 5788.0,
+						"translation.y": 6051.0,
 						"zoom_level": 1.0
 					},
-					"stack_index": 1,
+					"stack_index": 2,
 					"type": "text"
 				}
 			]

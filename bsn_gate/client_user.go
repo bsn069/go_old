@@ -1,7 +1,7 @@
 package bsn_gate
 
 import (
-	"errors"
+	// "errors"
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
 )
@@ -33,20 +33,6 @@ func (this *SClientUser) UserMgr() *SClientUserMgr {
 
 func (this *SClientUser) Run() {
 	go this.runImp()
-}
-
-func (this *SClientUser) Close() error {
-	if this.M_bClose {
-		return errors.New("had close")
-	}
-	this.M_bClose = true
-	this.Conn().Close()
-	return nil
-}
-
-func (this *SClientUser) Send(byData []byte) error {
-	this.Conn().Write(byData)
-	return nil
 }
 
 func (this *SClientUser) runImp() {

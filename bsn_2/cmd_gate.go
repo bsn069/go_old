@@ -26,10 +26,74 @@ func NewCmdGate() *SCmdGate {
 	return this
 }
 
-func (this *SCmdGate) Test() {
+func (this *SCmd) GATE_CREATE(vTInputParams bsn_common.TInputParams) {
+	if len(vTInputParams) != 1 {
+		GSLog.Errorln("param must a number with gate id")
+		return
+	}
+
+	vuGateId, err := strconv.ParseUint(vTInputParams[0], 10, 32)
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	_, err = this.GateCreate(bsn_common.TGateId(vuGateId))
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+}
+
+func (this *SCmd) GATE_RUN(vTInputParams bsn_common.TInputParams) {
+	if len(vTInputParams) != 3 {
+		GSLog.Errorln("gateid clientListenPort serverListenPort")
+		return
+	}
+
+	vuGateId, err := strconv.ParseUint(vTInputParams[0], 10, 32)
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	vuClientListenPort, err := strconv.ParseUint(vTInputParams[1], 10, 32)
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	vuServerListenPort, err := strconv.ParseUint(vTInputParams[2], 10, 32)
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	vSGate, err := this.GateCreate(bsn_common.TGateId(vuGateId))
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	err = vSGate.GetServerMgr().SetListenPort(uint16(vuServerListenPort))
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	err = vSGate.GetClientMgr().SetListenPort(uint16(vuClientListenPort))
+	if err != nil {
+		GSLog.Errorln(err)
+		return
+	}
+
+	vSGate.Run()
+}
+
+func (this *SCmdGate) GATE_TEST(vTInputParams bsn_common.TInputParams) {
 	this.M_TGateId++
 
-	vSGate, err := this.CreateGate(this.M_TGateId)
+	vSGate, err := this.GateCreate(this.M_TGateId)
 	if err != nil {
 		GSLog.Errorln(err)
 		return
@@ -58,7 +122,7 @@ func (this *SCmdGate) Test() {
 	}()
 }
 
-func (this *SCmdGate) GetGate(vTGateId bsn_common.TGateId) (*bsn_gate.SGate, error) {
+func (this *SCmdGate) GateGet(vTGateId bsn_common.TGateId) (*bsn_gate.SGate, error) {
 	if vTVoid, vbOk := this.M_TGateId2Gate[vTGateId]; vbOk {
 		if vSGate, vbOk := vTVoid.(*bsn_gate.SGate); vbOk {
 			return vSGate, nil
@@ -70,11 +134,11 @@ func (this *SCmdGate) GetGate(vTGateId bsn_common.TGateId) (*bsn_gate.SGate, err
 	}
 }
 
-func (this *SCmdGate) CreateGate(vTGateId bsn_common.TGateId) (*bsn_gate.SGate, error) {
+func (this *SCmdGate) GateCreate(vTGateId bsn_common.TGateId) (*bsn_gate.SGate, error) {
 	this.M_MutexGateCreate.Lock()
 	defer this.M_MutexGateCreate.Unlock()
 
-	vSGate, err := this.GetGate(vTGateId)
+	vSGate, err := this.GateGet(vTGateId)
 	if err == nil {
 		return nil, errors.New("have exist gate id")
 	}
