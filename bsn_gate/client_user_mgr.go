@@ -17,7 +17,7 @@ func NewClientUserMgr(vSGate *SGate) (*SClientUserMgr, error) {
 	this := &SClientUserMgr{}
 
 	var err error
-	this.SUserMgr, err = NewUserMgr(vSGate)
+	this.SUserMgr, err = NewUserMgr(vSGate, this)
 	if err != nil {
 		return nil, err
 	}
@@ -26,10 +26,10 @@ func NewClientUserMgr(vSGate *SGate) (*SClientUserMgr, error) {
 	return this, nil
 }
 
-func OnNewClientrUser(vIGateUserMgr bsn_common.IGateUserMgr, vConn net.Conn) error {
-	vSClientUserMgr, ok := vIGateUserMgr.(*SClientUserMgr)
+func OnNewClientrUser(vImp bsn_common.TVoid, vConn net.Conn) error {
+	vSClientUserMgr, ok := vImp.(*SClientUserMgr)
 	if !ok {
-		return errors.New("!ok")
+		return errors.New("OnNewClientrUser !ok")
 	}
 
 	return vSClientUserMgr.OnNewClientrUser(vConn)

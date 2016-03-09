@@ -10,7 +10,7 @@ import (
 	"sync"
 )
 
-type TGateFuncOnNewUser func(vIGateUserMgr bsn_common.IGateUserMgr, vConn net.Conn) error
+type TGateFuncOnNewUser func(vImp bsn_common.TVoid, vConn net.Conn) error
 type SUserMgr struct {
 	M_TUserMgrType bsn_common.TGateUserMgrType
 	M_TUserId      bsn_common.TGateUserId
@@ -22,9 +22,10 @@ type SUserMgr struct {
 	M_chanWaitClose      chan bool
 	M_Mutex              sync.Mutex
 	M_TGateFuncOnNewUser TGateFuncOnNewUser
+	M_Imp                bsn_common.TVoid
 }
 
-func NewUserMgr(vSGate *SGate) (this *SUserMgr, err error) {
+func NewUserMgr(vSGate *SGate, vImp bsn_common.TVoid) (this *SUserMgr, err error) {
 	GSLog.Debugln("newUserMgr")
 	this = &SUserMgr{
 		M_TId2User:        make(bsn_common.TGateUserId2User),
@@ -33,6 +34,7 @@ func NewUserMgr(vSGate *SGate) (this *SUserMgr, err error) {
 		M_bRun:            false,
 		M_chanNotifyClose: make(chan bool, 1),
 		M_chanWaitClose:   make(chan bool, 1),
+		M_Imp:             vImp,
 	}
 	this.SListen = bsn_net.NewListen()
 	return this, nil
@@ -115,6 +117,9 @@ func (this *SUserMgr) runImp() {
 		GSLog.Debugln("on closing")
 		this.M_bRun = false
 
+		GSLog.Debugln("close listen")
+		this.StopListen()
+
 		GSLog.Debugln("close all not process connect")
 		var vbQuit bool = false
 		for !vbQuit {
@@ -151,7 +156,7 @@ func (this *SUserMgr) runImp() {
 				GSLog.Errorln("!ok")
 				break
 			}
-			err := this.M_TGateFuncOnNewUser(this, vConn)
+			err := this.M_TGateFuncOnNewUser(this.M_Imp, vConn)
 			if err != nil {
 				GSLog.Errorln(err)
 				vConn.Close()

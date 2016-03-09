@@ -17,7 +17,7 @@ func NewServerUserMgr(vSGate *SGate) (*SServerUserMgr, error) {
 	this := &SServerUserMgr{}
 
 	var err error
-	this.SUserMgr, err = NewUserMgr(vSGate)
+	this.SUserMgr, err = NewUserMgr(vSGate, this)
 	if err != nil {
 		return nil, err
 	}
@@ -26,10 +26,10 @@ func NewServerUserMgr(vSGate *SGate) (*SServerUserMgr, error) {
 	return this, nil
 }
 
-func OnNewServerUser(vIGateUserMgr bsn_common.IGateUserMgr, vConn net.Conn) error {
-	vSServerUserMgr, ok := vIGateUserMgr.(*SServerUserMgr)
+func OnNewServerUser(vImp bsn_common.TVoid, vConn net.Conn) error {
+	vSServerUserMgr, ok := vImp.(*SServerUserMgr)
 	if !ok {
-		return errors.New("!ok")
+		return errors.New("OnNewServerUser !ok")
 	}
 	return vSServerUserMgr.OnNewServerUser(vConn)
 }

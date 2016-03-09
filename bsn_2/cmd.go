@@ -6,11 +6,13 @@ import (
 
 type SCmd struct {
 	*SCmdGate
+	*SCmdClient
 }
 
 func NewCmd() *SCmd {
 	this := &SCmd{}
 	this.SCmdGate = NewCmdGate()
+	this.SCmdClient = NewCmdClient()
 
 	return this
 }

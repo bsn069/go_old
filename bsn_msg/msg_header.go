@@ -6,6 +6,7 @@ import (
 	// "runtime"
 	// "time"
 	"encoding/binary"
+	"net"
 )
 
 const (
@@ -27,6 +28,46 @@ func NewMsgHeaderFromBytes(byDatas []byte) *SMsgHeader {
 	this := &SMsgHeader{}
 	this.DeSerialize(byDatas)
 	return this
+}
+
+func ReadMsgWithMsgHeader(conn net.Conn) (err error, u16Type uint16, byData []byte) {
+	byMsgHeader := make([]byte, CSMsgHeader_Size)
+	_, err = conn.Read(byMsgHeader)
+	if err != nil {
+		return
+	}
+	vSMsgHeader := NewMsgHeaderFromBytes(byMsgHeader)
+	u16Type = uint16(vSMsgHeader.Type())
+
+	vu16Len := uint16(vSMsgHeader.Len())
+	if vu16Len > 0 {
+		byData = make([]byte, vu16Len)
+		_, err = conn.Read(byData)
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
+func WriteMsgWithMsgHeader(conn net.Conn, u16Type uint16, byData []byte) (err error) {
+	vTMsgLen := bsn_common.TMsgLen(len(byData))
+	vSMsgHeader := NewMsgHeader(bsn_common.TMsgType(u16Type), vTMsgLen)
+
+	_, err = conn.Write(vSMsgHeader.Serialize())
+	if err != nil {
+		return
+	}
+
+	if vTMsgLen > 0 {
+		_, err = conn.Write(byData)
+		if err != nil {
+			return
+		}
+	}
+
+	return
 }
 
 func (this *SMsgHeader) Fill(vTMsgType bsn_common.TMsgType, vTMsgLen bsn_common.TMsgLen) {

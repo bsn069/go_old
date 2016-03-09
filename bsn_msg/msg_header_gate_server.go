@@ -26,10 +26,10 @@ type SMsgHeaderGateServer struct {
 	M_TGateUserId  bsn_common.TGateUserId
 }
 
-func NewMsgHeaderGateServer(vTGateServerMsgType bsn_common.TGateServerMsgType, vTGroupId bsn_common.TGateGroupId, vTGateUserId bsn_common.TGateUserId, byMsg []byte) *SMsgHeaderGateServer {
+func NewMsgHeaderGateServer(vTGateServerMsgType bsn_common.TGateServerMsgType, vTGroupId bsn_common.TGateGroupId, vTGateUserId bsn_common.TGateUserId, vTMsgLen bsn_common.TMsgLen) *SMsgHeaderGateServer {
 	this := &SMsgHeaderGateServer{}
 	this.Fill(vTGroupId, vTGateUserId)
-	this.SMsgHeader.Fill(bsn_common.TMsgType(vTGateServerMsgType), bsn_common.TMsgLen(len(byMsg)))
+	this.SMsgHeader.Fill(bsn_common.TMsgType(vTGateServerMsgType), vTMsgLen)
 	return this
 }
 

@@ -4,6 +4,7 @@ import (
 	// "errors"
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
+	"unsafe"
 )
 
 type SClientUser struct {
@@ -48,23 +49,35 @@ func (this *SClientUser) runImp() {
 		err := this.ReadMsgHeader()
 		if err != nil {
 			GSLog.Errorln(err)
-			return
+			break
 		}
+		GSLog.Debugln("recv this.M_byMsgHeader= ", this.M_byMsgHeader)
 		vMsg.DeSerialize(this.M_byMsgHeader)
+		GSLog.Debugln("recv vMsg= ", vMsg)
 
 		vLen := vMsg.Len()
-		this.M_byMsgBody = make([]byte, vLen)
-		if vLen > 0 {
-			err = this.ReadMsgBody()
-			if err != nil {
-				GSLog.Errorln(err)
-				return
-			}
+		if vLen < bsn_msg.CSMsgHeader_Size {
+			GSLog.Errorln("error size")
+			break
 		}
 
-		err = vSServerUserMgr.SendMsgToUser(vMsg.UserId(), this.M_byMsgBody)
+		this.M_byMsgBody = make([]byte, vLen)
+		err = this.ReadMsgBody()
 		if err != nil {
-			GSLog.Errorln("process msg err: ", vMsg.Type(), err)
+			GSLog.Errorln(err)
+			return
+		}
+
+		GSLog.Debugln("recv this.M_byMsgBody= ", this.M_byMsgBody)
+		if vMsg.UserId() == 0 {
+			vSMsgHeader := bsn_msg.NewMsgHeaderFromBytes(this.M_byMsgBody)
+			GSLog.Debugln("recv vSMsgHeader= ", vSMsgHeader)
+			GSLog.Debugln("recv msg= ", string(this.M_byMsgBody[int(unsafe.Sizeof(*vSMsgHeader)):]))
+		} else {
+			err = vSServerUserMgr.SendMsgToUser(vMsg.UserId(), this.M_byMsgBody)
+			if err != nil {
+				GSLog.Errorln("process msg err: ", vMsg.Type(), err)
+			}
 		}
 	}
 }

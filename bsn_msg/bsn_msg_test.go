@@ -38,11 +38,10 @@ func TestMsgHeader(t *testing.T) {
 
 func TestMsgHeaderGateClient(t *testing.T) {
 	byMsg := make([]byte, 4)
-	msgHeader := NewMsgHeaderGateClient(1, 2, byMsg)
-	if msgHeader.ServerType() != 1 {
-		t.Error(msgHeader.ServerType())
-	}
-	if msgHeader.UserId() != 2 {
+	msgHeader := NewMsgHeaderGateClient(1, 2, bsn_common.TMsgLen(len(byMsg)))
+
+	vUserId := bsn_common.MakeGateUserId(1, 2)
+	if msgHeader.UserId() != vUserId {
 		t.Error(msgHeader.UserId())
 	}
 	if msgHeader.Len() != 4 {
@@ -57,10 +56,8 @@ func TestMsgHeaderGateClient(t *testing.T) {
 	GSLog.Mustln(byDatas)
 
 	msgHeader = NewMsgHeaderGateClientFromBytes(byDatas)
-	if msgHeader.ServerType() != 1 {
-		t.Error(msgHeader.ServerType())
-	}
-	if msgHeader.UserId() != 2 {
+
+	if msgHeader.UserId() != vUserId {
 		t.Error(msgHeader.UserId())
 	}
 	if msgHeader.Len() != 4 {
@@ -70,7 +67,7 @@ func TestMsgHeaderGateClient(t *testing.T) {
 
 func TestMsgHeaderGateServer(t *testing.T) {
 	byMsg := make([]byte, 4)
-	msgHeader := NewMsgHeaderGateServer(CServerMsgType_ToUser, 1, 2, byMsg)
+	msgHeader := NewMsgHeaderGateServer(CServerMsgType_ToUser, 1, 2, bsn_common.TMsgLen(len(byMsg)))
 	if msgHeader.ServerMsgType() != CServerMsgType_ToUser {
 		t.Error(msgHeader.ServerMsgType())
 	}
