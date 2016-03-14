@@ -26,7 +26,7 @@ func NewCmdGate() *SCmdGate {
 	return this
 }
 
-func (this *SCmd) GATE_CREATE(vTInputParams bsn_common.TInputParams) {
+func (this *SCmdGate) GATE_CREATE(vTInputParams bsn_common.TInputParams) {
 	if len(vTInputParams) != 1 {
 		GSLog.Errorln("param must a number with gate id")
 		return
@@ -45,7 +45,7 @@ func (this *SCmd) GATE_CREATE(vTInputParams bsn_common.TInputParams) {
 	}
 }
 
-func (this *SCmd) GATE_RUN(vTInputParams bsn_common.TInputParams) {
+func (this *SCmdGate) GATE_RUN(vTInputParams bsn_common.TInputParams) {
 	if len(vTInputParams) != 3 {
 		GSLog.Errorln("gateid clientListenPort serverListenPort")
 		return
