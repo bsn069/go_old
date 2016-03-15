@@ -9,6 +9,7 @@ import (
 
 type SGate struct {
 	M_SClientUserMgr *SClientUserMgr
+	M_SServerUserMgr *SServerUserMgr
 	M_TGateId        bsn_common.TGateId
 }
 
@@ -22,7 +23,13 @@ func NewGate(vTGateId bsn_common.TGateId) (*SGate, error) {
 
 	this.M_SClientUserMgr, err = NewSClientUserMgr(this)
 	if err != nil {
-		GSLog.Errorln("newClientUserMgr fail")
+		GSLog.Errorln("NewSClientUserMgr fail")
+		return nil, err
+	}
+
+	this.M_SServerUserMgr, err = NewSServerUserMgr(this)
+	if err != nil {
+		GSLog.Errorln("NewSServerUserMgr fail")
 		return nil, err
 	}
 
@@ -39,6 +46,10 @@ func (this *SGate) ShowInfo() {
 
 func (this *SGate) GetClientMgr() *SClientUserMgr {
 	return this.M_SClientUserMgr
+}
+
+func (this *SGate) GetServerMgr() *SServerUserMgr {
+	return this.M_SServerUserMgr
 }
 
 func (this *SGate) Close() {

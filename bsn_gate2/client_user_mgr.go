@@ -3,6 +3,7 @@ package bsn_gate2
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
+	// "github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
 	// "time"
 	// "math"
@@ -190,6 +191,9 @@ func (this *SClientUserMgr) delClient(vTClientId TClientId) error {
 	return nil
 }
 
+func (this *SClientUserMgr) Gate() *SGate {
+	return this.M_SGate
+}
 func (this *SClientUserMgr) getClient(vTClientId TClientId) *SClientUser {
 	this.M_MutexUser.Lock()
 	defer this.M_MutexUser.Unlock()
