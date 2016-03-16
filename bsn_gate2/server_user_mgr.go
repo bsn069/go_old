@@ -9,15 +9,40 @@ import (
 )
 
 type SServerUserMgr struct {
+	M_SGate *SGate
+	M_Users []*SServerUser
 }
 
 func NewSServerUserMgr(vSGate *SGate) (*SServerUserMgr, error) {
 	GSLog.Debugln("NewSServerUserMgr")
-	this := &SServerUserMgr{}
+	this := &SServerUserMgr{
+		M_SGate: vSGate,
+		M_Users: make([]*SServerUser),
+	}
 
 	return this, nil
 }
 
 func (this *SServerUserMgr) Send(vSClientUser *SClientUser, vSMsgHeader *bsn_msg.SMsgHeader, vbyMsgBody []byte) error {
+	return nil
+}
+
+func (this *SServerUserMgr) Gate() *SGate {
+	return this.M_SGate
+}
+
+func (this *SServerUserMgr) Run() error {
+	// connect config server
+	vUser, err := NewSServerUser(this, "localhost:50001")
+	if err != nil {
+		return err
+	}
+
+	err = vUser.Run()
+	if err != nil {
+		return err
+	}
+	append(this.M_Users, vUser)
+
 	return nil
 }

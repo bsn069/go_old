@@ -50,6 +50,10 @@ func (this *SClientUserMgr) ShowInfo() {
 	GSLog.Mustln("is listen  : ", this.IsListen())
 }
 
+func (this *SClientUserMgr) Send(vTClientId TClientId, vbyMsg []byte) error {
+	return nil
+}
+
 func (this *SClientUserMgr) Run() error {
 	this.M_Mutex.Lock()
 	defer this.M_Mutex.Unlock()
