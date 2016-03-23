@@ -34,8 +34,8 @@ func NewSServerUser(vSServerUserMgr *SServerUserMgr, strAddr string) (*SServerUs
 		M_SServerUserMgr:          vSServerUserMgr,
 		M_SClientUserMgr:          vSServerUserMgr.Gate().GetClientMgr(),
 		M_strAddr:                 strAddr,
-		M_chanNotifyClose:         make(chan bool, 1),
-		M_chanWaitClose:           make(chan bool, 1),
+		M_chanNotifyClose:         make(chan bool, 0),
+		M_chanWaitClose:           make(chan bool, 0),
 		M_bySMsgHeaderServer2Gate: make([]byte, bsn_msg.CSMsgHeaderServe2Gater_Size),
 		M_byRecvBuff:              make([]byte, 4),
 	}

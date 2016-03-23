@@ -10,6 +10,10 @@ type TVoid interface{}
 type TMsgType uint16
 type TMsgLen uint16
 
+type IMsgSender interface {
+	Send(byData []byte) error
+}
+
 type TNetChanClose chan bool
 type TNetChanConn chan net.Conn
 

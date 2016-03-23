@@ -26,18 +26,12 @@ func NewCmdGate2() *SCmdGate2 {
 }
 
 func (this *SCmdGate2) GATE2_RUN(vTInputParams bsn_common.TInputParams) {
-	if len(vTInputParams) != 3 {
-		GSLog.Errorln("gateid clientListenPort")
+	if len(vTInputParams) != 1 {
+		GSLog.Errorln("gateid")
 		return
 	}
 
 	vuGateId, err := strconv.ParseUint(vTInputParams[0], 10, 32)
-	if err != nil {
-		GSLog.Errorln(err)
-		return
-	}
-
-	vuClientListenPort, err := strconv.ParseUint(vTInputParams[1], 10, 32)
 	if err != nil {
 		GSLog.Errorln(err)
 		return
@@ -49,11 +43,19 @@ func (this *SCmdGate2) GATE2_RUN(vTInputParams bsn_common.TInputParams) {
 		return
 	}
 
+	vuClientListenPort := 40000 + vuGateId
 	err = vSGate.GetClientMgr().SetListenPort(uint16(vuClientListenPort))
 	if err != nil {
 		GSLog.Errorln(err)
 		return
 	}
+
+	// vuServerListenPort := 50000 + vuGateId
+	// err = vSGate.GetServerMgr().SetListenPort(uint16(vuServerListenPort))
+	// if err != nil {
+	// 	GSLog.Errorln(err)
+	// 	return
+	// }
 
 	vSGate.Run()
 }

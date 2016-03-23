@@ -27,10 +27,9 @@ func NewSClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
 	this := &SClientUser{
 		M_SClientUserMgr:  vSClientUserMgr,
 		M_TClientId:       0,
-		M_Conn:            nil,
 		M_byRecvBuff:      make([]byte, 4),
-		M_chanNotifyClose: make(chan bool, 1),
-		M_chanWaitClose:   make(chan bool, 1),
+		M_chanNotifyClose: make(chan bool, 0),
+		M_chanWaitClose:   make(chan bool, 0),
 	}
 
 	return this, nil

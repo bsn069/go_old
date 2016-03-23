@@ -23,11 +23,11 @@ func NewCmdClient() *SCmdClient {
 
 func (this *SCmd) CLIENT_RUN(vTInputParams bsn_common.TInputParams) {
 	if len(vTInputParams) != 1 {
-		GSLog.Errorln("gateport")
+		GSLog.Errorln("gateid")
 		return
 	}
 
-	vuGatePort, err := strconv.ParseUint(vTInputParams[0], 10, 32)
+	vuGateId, err := strconv.ParseUint(vTInputParams[0], 10, 32)
 	if err != nil {
 		GSLog.Errorln(err)
 		return
@@ -39,8 +39,8 @@ func (this *SCmd) CLIENT_RUN(vTInputParams bsn_common.TInputParams) {
 		return
 	}
 
-	strAddr := fmt.Sprintf("localhost:%v", vuGatePort)
-	vSClient.SetGateAddr(strAddr)
+	strAddr := fmt.Sprintf("localhost:%v", 40000+vuGateId)
+	vSClient.SetAddr(strAddr)
 
 	err = vSClient.Run()
 	if err != nil {

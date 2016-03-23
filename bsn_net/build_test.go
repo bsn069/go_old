@@ -10,6 +10,10 @@ import (
 )
 
 func TestBase(t *testing.T) {
+
+}
+
+func TestListen(t *testing.T) {
 	runtime.GOMAXPROCS(2)
 	vIListen := NewListen()
 	vIListen.SetListenAddr("localhost:50000")

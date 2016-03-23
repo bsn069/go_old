@@ -17,13 +17,18 @@ func NewSServerUserMgr(vSGate *SGate) (*SServerUserMgr, error) {
 	GSLog.Debugln("NewSServerUserMgr")
 	this := &SServerUserMgr{
 		M_SGate: vSGate,
-		M_Users: make([]*SServerUser),
+		M_Users: make([]*SServerUser, 1),
 	}
 
 	return this, nil
 }
 
 func (this *SServerUserMgr) Send(vSClientUser *SClientUser, vSMsgHeader *bsn_msg.SMsgHeader, vbyMsgBody []byte) error {
+	GSLog.Debugln("Send")
+	GSLog.Mustln(vSClientUser)
+	GSLog.Mustln(vSMsgHeader)
+	GSLog.Mustln(vbyMsgBody)
+	GSLog.Mustln(string(vbyMsgBody))
 	return nil
 }
 
@@ -42,7 +47,7 @@ func (this *SServerUserMgr) Run() error {
 	if err != nil {
 		return err
 	}
-	append(this.M_Users, vUser)
+	this.M_Users = append(this.M_Users, vUser)
 
 	return nil
 }

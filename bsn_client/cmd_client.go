@@ -10,7 +10,7 @@ import (
 	// "math/rand"
 	// "reflect"
 	// "strconv"
-	// "strings"
+	"strings"
 )
 
 type SCmdClient struct {
@@ -27,10 +27,7 @@ func (this *SCmdClient) SEND_STRING(vTInputParams bsn_common.TInputParams) {
 		return
 	}
 
-	strMsg := ""
-	for i := 0; i < len(vTInputParams); i++ {
-		strMsg = strMsg + vTInputParams[i]
-	}
+	strMsg := strings.Join([]string(vTInputParams), " ")
 
 	err := this.M_SClient.SendString(strMsg)
 	if err != nil {

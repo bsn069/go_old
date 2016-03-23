@@ -34,8 +34,8 @@ func NewSClientUserMgr(vSGate *SGate) (*SClientUserMgr, error) {
 		M_TClientId:       0,
 		M_TId2User:        make(TId2ClientUser, 100),
 		M_bRun:            false,
-		M_chanNotifyClose: make(chan bool, 1),
-		M_chanWaitClose:   make(chan bool, 1),
+		M_chanNotifyClose: make(chan bool, 0),
+		M_chanWaitClose:   make(chan bool, 0),
 	}
 	this.SListen = bsn_net.NewListen()
 
