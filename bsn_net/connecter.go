@@ -98,7 +98,6 @@ func (this *SNetConnecter) runImp() {
 		this.M_chanWaitClose <- true
 
 		this.M_INetConnecterImp.NetConnecterImpOnClose()
-		this.Uninit()
 
 		GSLog.Debugln("close ok")
 	}()

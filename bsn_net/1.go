@@ -19,7 +19,7 @@ type SListen struct {
 
 func NewListen() *SListen {
 	this := &SListen{
-		M_chanClose: make(bsn_common.TNetChanClose, 1),
+		M_chanClose: make(bsn_common.TNetChanClose, 0),
 		M_chanConn:  make(bsn_common.TNetChanConn, 100),
 	}
 	return this

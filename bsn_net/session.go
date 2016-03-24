@@ -1,6 +1,7 @@
 package bsn_net
 
 import (
+	"errors"
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
 	"net"
@@ -31,7 +32,9 @@ func (this *SSession) SendMsgWithSMsgHeader(vTMsgType bsn_common.TMsgType, byMsg
 }
 
 func (this *SSession) Recv(byData []byte) error {
-	_, err := this.Conn().Read(byData)
+	vReadLen := len(byData)
+
+	vReadLen, err := this.Conn().Read(byData)
 	if err != nil {
 		if err.Error() == "EOF" {
 			GSLog.Errorln("connect disconnect")
@@ -39,6 +42,9 @@ func (this *SSession) Recv(byData []byte) error {
 			GSLog.Errorln("ReadMsg error: ", err)
 		}
 		return err
+	}
+	if vReadLen != len(byData) {
+		return errors.New("not read all data")
 	}
 	return nil
 }
