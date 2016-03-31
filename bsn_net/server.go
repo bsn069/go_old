@@ -7,33 +7,44 @@ import (
 	// "github.com/bsn069/go/bsn_net"
 	// "time"
 	// "math"
-	// "net"
-	"sync/atomic"
+	"net"
+	// "sync/atomic"
 )
+
+type INetServerImp interface {
+	NetServerImpAccept(vConn net.Conn) error
+	NetServerImpOnClose() error
+}
 
 type SNetServer struct {
 	SNetListener
 
 	M_chanNotifyClose chan bool
-	M_i32Run          int32
+	M_SState          *bsn_common.SState
+
+	M_INetServerImp INetServerImp
 }
 
 func NewSNetServer() (*SNetServer, error) {
 	GSLog.Debugln("NewSNetServer")
 	this := &SNetServer{
 		M_chanNotifyClose: make(chan bool, 1),
-		M_i32Run:          0,
+		M_SState:          bsn_common.NewSState(),
 	}
 
 	return this, nil
 }
 
+func (this *SNetServer) Uninit() {
+	this.M_INetServerImp = nil
+}
+
 func (this *SNetServer) ShowInfo() {
-	GSLog.Mustln("is running : ", this.M_i32Run == 1)
+	GSLog.Mustln("ServerState : ", this.M_SState.M_TState.String())
 }
 
 func (this *SNetServer) Run() error {
-	if !atomic.CompareAndSwapInt32(&this.M_i32Run, 0, 1) {
+	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Runing) {
 		return errors.New("had listen")
 	}
 
@@ -43,7 +54,7 @@ func (this *SNetServer) Run() error {
 }
 
 func (this *SNetServer) Close() error {
-	if !atomic.CompareAndSwapInt32(&this.M_i32Run, 1, 2) {
+	if !this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Stoping) {
 		return errors.New("not listen")
 	}
 	GSLog.Debugln("close")
@@ -61,27 +72,30 @@ func (this *SNetServer) Close() error {
 func (this *SNetServer) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {
-		if atomic.CompareAndSwapInt32(&this.M_i32Run, 2, 0) {
+		this.StopListen()
+
+		if this.M_SState.Change(bsn_common.CState_Stoping, bsn_common.CState_Idle) {
 			GSLog.Debugln("close complete")
+			this.M_INetServerImp.NetServerImpOnClose()
 		}
 	}()
 
 	GSLog.Debugln("run imp")
-	var vbQuit bool = false
+	vbQuit := false
 	for !vbQuit {
 		vbQuit = true
 		select {
 		case vConn, ok := <-this.M_chanConn:
 			if !ok {
-				if atomic.CompareAndSwapInt32(&this.M_i32Run, 1, 2) {
+				if this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Stoping) {
 					GSLog.Debugln("close from listen fail")
 				}
 				GSLog.Errorln("!ok")
 				break
 			}
-			err := this.newConn()
+			err := this.M_INetServerImp.NetServerImpAccept(vConn)
 			if err != nil {
-				if atomic.CompareAndSwapInt32(&this.M_i32Run, 1, 2) {
+				if this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Stoping) {
 					GSLog.Debugln("close from new user fail")
 				}
 				GSLog.Errorln(err)
@@ -94,8 +108,4 @@ func (this *SNetServer) runImp() {
 			GSLog.Mustln("receive a notify to close")
 		}
 	}
-}
-
-func (this *SNetServer) newConn() error {
-	return nil
 }

@@ -12,15 +12,18 @@ import (
 )
 
 type SNetListener struct {
-	M_Listener net.Listener
-	M_strAddr  string
-	M_chanConn bsn_common.TNetChanConn
+	M_Listener        net.Listener
+	M_strAddr         string
+	M_chanConn        bsn_common.TNetChanConn
+	M_chanNotifyClose chan bool
+	M_SState          *bsn_common.SState
 }
 
 func NewSNetListener() (*SNetListener, error) {
 	GSLog.Debugln("NewSNetListener")
 	this := &SNetListener{
-		M_chanConn: make(bsn_common.TNetChanConn, 100),
+		M_chanConn:        make(bsn_common.TNetChanConn, 100),
+		M_chanNotifyClose: make(chan bool, 1),
 	}
 
 	return this, nil
@@ -32,11 +35,13 @@ func (this *SNetListener) ShowInfo() {
 }
 
 func (this *SNetListener) SetAddr(strAddr string) error {
+	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
+		return errors.New("had listen")
+	}
+	defer this.M_SState.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
+
 	if strAddr == "" {
 		return errors.New("error addres")
-	}
-	if this.IsListen() {
-		return errors.New("had listen")
 	}
 	this.M_strAddr = strAddr
 	return nil
@@ -47,18 +52,17 @@ func (this *SNetListener) Addr() string {
 }
 
 func (this *SNetListener) IsListen() bool {
-	return this.M_Listener != nil
+	return this.M_SState.IsState(bsn_common.CState_Runing)
 }
 
 func (this *SNetListener) Listen() (err error) {
-	// this.M_Mutex.Lock()
-	// defer this.M_Mutex.Unlock()
+	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
+		return errors.New("had listen")
+	}
+	defer this.M_SState.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
 
 	if this.Addr() == "" {
 		return errors.New("no address")
-	}
-	if this.IsListen() {
-		return errors.New("had listen")
 	}
 
 	GSLog.Mustln("listen strListenAddr ", this.Addr())
@@ -68,15 +72,12 @@ func (this *SNetListener) Listen() (err error) {
 		return
 	}
 
+	this.M_SState.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	go this.listenFunc()
 	return
 }
 
 func (this *SNetListener) StopListen() error {
-	// this.M_Mutex.Lock()
-	// defer this.M_Mutex.Unlock()
-	// GSLog.Debugln("1")
-
 	if !this.IsListen() {
 		return errors.New("not listen")
 	}
@@ -86,6 +87,12 @@ func (this *SNetListener) StopListen() error {
 		GSLog.Debugln("4" + err.Error())
 	}
 	this.M_Listener = nil
+
+	select {
+	case <-this.M_chanNotifyClose:
+	default:
+	}
+	this.M_chanNotifyClose <- true
 
 	return nil
 }
@@ -104,17 +111,23 @@ func (this *SNetListener) listenFunc() {
 		// GSLog.Debugln("send close after")
 	}()
 
-	for {
+	vbQuit := false
+	for !vbQuit {
 		// GSLog.Debugln("wait accept")
 		vConn, err := vListener.Accept()
 		// GSLog.Debugln("have accept")
 		if err != nil {
 			GSLog.Errorln(err)
-			return
+			vbQuit = true
+			continue
 		}
 
 		// GSLog.Debugln("send conn before")
-		this.M_chanConn <- vConn
+		select {
+		case this.M_chanConn <- vConn:
+		case <-this.M_chanNotifyClose:
+			vbQuit = true
+		}
 		// GSLog.Debugln("send conn after")
 	}
 }
