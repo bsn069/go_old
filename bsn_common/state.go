@@ -11,6 +11,8 @@ const (
 	CState_PrepareRuning
 	CState_Runing
 	CState_Stoping
+	CState_StopFromStopListen
+	CState_StopFromAcceptClose
 	CState_Op
 )
 
@@ -41,6 +43,10 @@ func (this *SState) Change(from, to TState) bool {
 	return atomic.CompareAndSwapInt32((*int32)(&this.M_TState), int32(from), int32(to))
 }
 
-func (this *SState) IsState(vTState TState) bool {
-	return atomic.LoadUint32((*int32)(&this.M_TState)) == int32(vTState)
+func (this *SState) Is(vTState TState) bool {
+	return atomic.LoadInt32((*int32)(&this.M_TState)) == int32(vTState)
+}
+
+func (this *SState) Set(vTState TState) {
+	atomic.StoreInt32((*int32)(&this.M_TState), int32(vTState))
 }

@@ -16,7 +16,7 @@ type SNetListener struct {
 	M_strAddr         string
 	M_chanConn        bsn_common.TNetChanConn
 	M_chanNotifyClose chan bool
-	M_SState          *bsn_common.SState
+	*bsn_common.SState
 }
 
 func NewSNetListener() (*SNetListener, error) {
@@ -25,6 +25,7 @@ func NewSNetListener() (*SNetListener, error) {
 		M_chanConn:        make(bsn_common.TNetChanConn, 100),
 		M_chanNotifyClose: make(chan bool, 1),
 	}
+	this.SState = bsn_common.NewSState()
 
 	return this, nil
 }
@@ -35,10 +36,10 @@ func (this *SNetListener) ShowInfo() {
 }
 
 func (this *SNetListener) SetAddr(strAddr string) error {
-	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
+	if !this.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
 		return errors.New("had listen")
 	}
-	defer this.M_SState.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
+	defer this.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
 
 	if strAddr == "" {
 		return errors.New("error addres")
@@ -52,17 +53,24 @@ func (this *SNetListener) Addr() string {
 }
 
 func (this *SNetListener) IsListen() bool {
-	return this.M_SState.IsState(bsn_common.CState_Runing)
+	return this.Is(bsn_common.CState_Runing)
 }
 
 func (this *SNetListener) Listen() (err error) {
-	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
+	if !this.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
 		return errors.New("had listen")
 	}
-	defer this.M_SState.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
+
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
+	}()
 
 	if this.Addr() == "" {
-		return errors.New("no address")
+		err = errors.New("no address")
+		return
 	}
 
 	GSLog.Mustln("listen strListenAddr ", this.Addr())
@@ -72,26 +80,38 @@ func (this *SNetListener) Listen() (err error) {
 		return
 	}
 
-	this.M_SState.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
+	select {
+	case <-this.M_chanNotifyClose:
+	default:
+	}
+
+	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	go this.listenFunc()
 	return
 }
 
-func (this *SNetListener) StopListen() error {
+func (this *SNetListener) StopListen() (err error) {
+	if !this.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
+		return errors.New("not listen")
+	}
+
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
+	}()
+
 	if !this.IsListen() {
 		return errors.New("not listen")
 	}
 	// GSLog.Debugln("3")
-	err := this.M_Listener.Close()
+	err = this.M_Listener.Close()
 	if err != nil {
 		GSLog.Debugln("4" + err.Error())
 	}
 	this.M_Listener = nil
 
-	select {
-	case <-this.M_chanNotifyClose:
-	default:
-	}
 	this.M_chanNotifyClose <- true
 
 	return nil
@@ -109,25 +129,23 @@ func (this *SNetListener) listenFunc() {
 			vConn.Close()
 		}
 		// GSLog.Debugln("send close after")
+
+		this.Set(bsn_common.CState_Idle)
 	}()
 
 	vbQuit := false
 	for !vbQuit {
-		// GSLog.Debugln("wait accept")
 		vConn, err := vListener.Accept()
-		// GSLog.Debugln("have accept")
 		if err != nil {
 			GSLog.Errorln(err)
 			vbQuit = true
 			continue
 		}
 
-		// GSLog.Debugln("send conn before")
 		select {
 		case this.M_chanConn <- vConn:
 		case <-this.M_chanNotifyClose:
 			vbQuit = true
 		}
-		// GSLog.Debugln("send conn after")
 	}
 }
