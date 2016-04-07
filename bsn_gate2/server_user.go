@@ -13,7 +13,7 @@ import (
 )
 
 type SServerUser struct {
-	bsn_net.SNetConnecter
+	*bsn_net.SNetConnecter
 	M_SServerUserMgr *SServerUserMgr
 	M_SClientUserMgr *SClientUserMgr
 
@@ -33,7 +33,7 @@ func NewSServerUser(vSServerUserMgr *SServerUserMgr, strAddr string) (*SServerUs
 		M_bySMsgHeaderServer2Gate: make([]byte, bsn_msg.CSMsgHeaderServe2Gater_Size),
 		M_byRecvBuff:              make([]byte, 4),
 	}
-	this.SNetConnecter.M_INetConnecterImp = this
+	this.SNetConnecter, _ = bsn_net.NewNetConnecter(this)
 	this.SetAddr(strAddr)
 
 	return this, nil

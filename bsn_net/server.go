@@ -17,21 +17,20 @@ type INetServerImp interface {
 }
 
 type SNetServer struct {
-	SNetListener
-
-	M_chanNotifyClose chan bool
-	M_SState          *bsn_common.SState
+	*SNetListener
+	*bsn_common.SState
+	*bsn_common.SNotifyClose
 
 	M_INetServerImp INetServerImp
 }
 
-func NewSNetServer() (*SNetServer, error) {
+func NewSNetServer(vINetServerImp INetServerImp) (*SNetServer, error) {
 	GSLog.Debugln("NewSNetServer")
-	this := &SNetServer{
-		M_chanNotifyClose: make(chan bool, 1),
-		M_SState:          bsn_common.NewSState(),
-	}
-
+	this := &SNetServer{}
+	this.M_INetServerImp = vINetServerImp
+	this.SNetListener, _ = NewSNetListener()
+	this.SState = bsn_common.NewSState()
+	this.SNotifyClose = bsn_common.NewSNotifyClose()
 	return this, nil
 }
 
@@ -40,31 +39,43 @@ func (this *SNetServer) Uninit() {
 }
 
 func (this *SNetServer) ShowInfo() {
-	GSLog.Mustln("ServerState : ", this.M_SState.M_TState.String())
+	GSLog.Mustln("ServerState : ", this.SState.M_TState.String())
 }
 
-func (this *SNetServer) Run() error {
-	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Runing) {
+func (this *SNetServer) Run() (err error) {
+	if !this.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
 		return errors.New("had listen")
 	}
+
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
+	}()
+
+	this.SNotifyClose.Clear()
 
 	this.Listen()
 	go this.runImp()
 	return nil
 }
 
-func (this *SNetServer) Close() error {
-	if !this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Stoping) {
+func (this *SNetServer) Close() (err error) {
+	if !this.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
 		return errors.New("not listen")
 	}
 	GSLog.Debugln("close")
 
-	// clear chan
-	select {
-	case <-this.M_chanNotifyClose:
-	default:
-	}
-	this.M_chanNotifyClose <- true
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
+	}()
+
+	this.SNotifyClose.NotifyClose()
+	this.SNotifyClose.WaitClose()
 
 	return nil
 }
@@ -74,12 +85,12 @@ func (this *SNetServer) runImp() {
 	defer func() {
 		this.StopListen()
 
-		if this.M_SState.Change(bsn_common.CState_Stoping, bsn_common.CState_Idle) {
-			GSLog.Debugln("close complete")
-			this.M_INetServerImp.NetServerImpOnClose()
-		}
+		this.M_INetServerImp.NetServerImpOnClose()
+		this.SNotifyClose.Close()
+		this.Set(bsn_common.CState_Idle)
 	}()
 
+	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	GSLog.Debugln("run imp")
 	vbQuit := false
 	for !vbQuit {
@@ -87,24 +98,18 @@ func (this *SNetServer) runImp() {
 		select {
 		case vConn, ok := <-this.M_chanConn:
 			if !ok {
-				if this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Stoping) {
-					GSLog.Debugln("close from listen fail")
-				}
 				GSLog.Errorln("!ok")
 				break
 			}
 			err := this.M_INetServerImp.NetServerImpAccept(vConn)
 			if err != nil {
-				if this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Stoping) {
-					GSLog.Debugln("close from new user fail")
-				}
 				GSLog.Errorln(err)
 				vConn.Close()
 				break
 			}
 
 			vbQuit = false
-		case <-this.M_chanNotifyClose:
+		case <-this.SNotifyClose.M_chanNotifyClose:
 			GSLog.Mustln("receive a notify to close")
 		}
 	}

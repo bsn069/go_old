@@ -12,20 +12,20 @@ import (
 )
 
 type SNetListener struct {
-	M_Listener        net.Listener
-	M_strAddr         string
-	M_chanConn        bsn_common.TNetChanConn
-	M_chanNotifyClose chan bool
 	*bsn_common.SState
+	*bsn_common.SNotifyClose
+	M_Listener net.Listener
+	M_strAddr  string
+	M_chanConn bsn_common.TNetChanConn
 }
 
 func NewSNetListener() (*SNetListener, error) {
 	GSLog.Debugln("NewSNetListener")
 	this := &SNetListener{
-		M_chanConn:        make(bsn_common.TNetChanConn, 100),
-		M_chanNotifyClose: make(chan bool, 1),
+		M_chanConn: make(bsn_common.TNetChanConn, 100),
 	}
 	this.SState = bsn_common.NewSState()
+	this.SNotifyClose = bsn_common.NewSNotifyClose()
 
 	return this, nil
 }
@@ -80,12 +80,8 @@ func (this *SNetListener) Listen() (err error) {
 		return
 	}
 
-	select {
-	case <-this.M_chanNotifyClose:
-	default:
-	}
+	this.SNotifyClose.Clear()
 
-	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	go this.listenFunc()
 	return
 }
@@ -102,9 +98,6 @@ func (this *SNetListener) StopListen() (err error) {
 		this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	}()
 
-	if !this.IsListen() {
-		return errors.New("not listen")
-	}
 	// GSLog.Debugln("3")
 	err = this.M_Listener.Close()
 	if err != nil {
@@ -112,7 +105,8 @@ func (this *SNetListener) StopListen() (err error) {
 	}
 	this.M_Listener = nil
 
-	this.M_chanNotifyClose <- true
+	this.SNotifyClose.NotifyClose()
+	this.SNotifyClose.WaitClose()
 
 	return nil
 }
@@ -130,8 +124,11 @@ func (this *SNetListener) listenFunc() {
 		}
 		// GSLog.Debugln("send close after")
 
+		this.SNotifyClose.Close()
 		this.Set(bsn_common.CState_Idle)
 	}()
+
+	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 
 	vbQuit := false
 	for !vbQuit {
@@ -144,7 +141,7 @@ func (this *SNetListener) listenFunc() {
 
 		select {
 		case this.M_chanConn <- vConn:
-		case <-this.M_chanNotifyClose:
+		case <-this.SNotifyClose.M_chanNotifyClose:
 			vbQuit = true
 		}
 	}

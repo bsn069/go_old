@@ -11,6 +11,14 @@ type SSession struct {
 	M_Conn net.Conn
 }
 
+func NewSSession() (*SSession, error) {
+	GSLog.Debugln("NewSSession")
+
+	this := &SSession{}
+
+	return this, nil
+}
+
 func (this *SSession) Conn() net.Conn {
 	return this.M_Conn
 }

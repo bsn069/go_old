@@ -13,13 +13,11 @@ type SGate struct {
 	M_TGateId        bsn_common.TGateId
 }
 
-func NewGate(vTGateId bsn_common.TGateId) (*SGate, error) {
+func NewGate(vTGateId bsn_common.TGateId) (this *SGate, err error) {
 	GSLog.Debugln("newGate() vTGateId=", vTGateId)
-	this := &SGate{
+	this = &SGate{
 		M_TGateId: vTGateId,
 	}
-
-	var err error
 
 	this.M_SClientUserMgr, err = NewSClientUserMgr(this)
 	if err != nil {
@@ -42,6 +40,7 @@ func NewGate(vTGateId bsn_common.TGateId) (*SGate, error) {
 func (this *SGate) ShowInfo() {
 	GSLog.Mustln("ClientMgr")
 	this.GetClientMgr().ShowInfo()
+	this.GetServerMgr().ShowInfo()
 }
 
 func (this *SGate) GetClientMgr() *SClientUserMgr {
@@ -54,8 +53,10 @@ func (this *SGate) GetServerMgr() *SServerUserMgr {
 
 func (this *SGate) Close() {
 	this.GetClientMgr().Close()
+	this.GetServerMgr().Close()
 }
 
 func (this *SGate) Run() {
+	this.GetServerMgr().Run()
 	this.GetClientMgr().Run()
 }

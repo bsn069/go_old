@@ -3,7 +3,7 @@ package bsn_net
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
-	"sync"
+	// "sync"
 )
 
 type INetConnecterImp interface {
@@ -12,27 +12,26 @@ type INetConnecterImp interface {
 }
 
 type SNetConnecter struct {
-	SSessionAddrConnect
-	M_bRun             bool
-	M_Mutex            sync.Mutex
-	M_chanNotifyClose  chan bool
-	M_chanWaitClose    chan bool
+	*SSessionAddrConnect
+	*bsn_common.SState
+	*bsn_common.SNotifyClose
+
 	M_INetConnecterImp INetConnecterImp
 }
 
-func NewNetConnecter() (*SNetConnecter, error) {
+func NewNetConnecter(vINetConnecterImp INetConnecterImp) (*SNetConnecter, error) {
 	GSLog.Debugln("NewNetConnecter")
 
-	this := &SNetConnecter{
-		M_chanNotifyClose: make(chan bool, 0),
-		M_chanWaitClose:   make(chan bool, 0),
-	}
+	this := &SNetConnecter{}
+	this.M_INetConnecterImp = vINetConnecterImp
+	this.SSessionAddrConnect, _ = NewSSessionAddrConnect()
+	this.SState = bsn_common.NewSState()
+	this.SNotifyClose = bsn_common.NewSNotifyClose()
 
 	return this, nil
 }
 
 func (this *SNetConnecter) Uninit() {
-	this.SetConn(nil)
 	this.M_INetConnecterImp = nil
 }
 
@@ -40,73 +39,77 @@ func (this *SNetConnecter) ShowInfo() {
 	GSLog.Mustln("ShowInfo")
 }
 
-func (this *SNetConnecter) Run() error {
-	this.M_Mutex.Lock()
-	defer this.M_Mutex.Unlock()
-
-	if this.M_bRun {
-		return errors.New("running")
+func (this *SNetConnecter) Run() (err error) {
+	if !this.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
+		return errors.New("had listen")
 	}
 
-	err := this.Connect()
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
+	}()
+
+	this.SNotifyClose.Clear()
+
+	err = this.Connect()
 	if err != nil {
 		return err
 	}
 
 	go this.runImp()
-	this.M_bRun = true
 	return nil
 }
 
-func (this *SNetConnecter) Close() error {
-	this.M_Mutex.Lock()
-	defer this.M_Mutex.Unlock()
-
-	if !this.M_bRun {
-		return errors.New("not running")
+func (this *SNetConnecter) Close() (err error) {
+	if !this.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
+		return errors.New("not listen")
 	}
-	GSLog.Mustln("Close begin")
+	GSLog.Debugln("close")
+
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
+	}()
 
 	this.Conn().Close()
-	// clear close chanel
-	select {
-	case <-this.M_chanNotifyClose:
-	default:
-	}
-	this.M_chanNotifyClose <- true
-	// wait close complete
-	<-this.M_chanWaitClose
+	this.SNotifyClose.NotifyClose()
+	this.SNotifyClose.WaitClose()
 
-	GSLog.Mustln("Close end")
 	return nil
 }
 
 func (this *SNetConnecter) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {
-		GSLog.Debugln("on closing")
-		this.M_bRun = false
-
 		GSLog.Debugln("close connect")
 		this.Conn().Close()
 
-		GSLog.Debugln("send notify to wait close chan")
-		select {
-		case <-this.M_chanWaitClose:
-		default:
-		}
-		this.M_chanWaitClose <- true
-
 		this.M_INetConnecterImp.NetConnecterImpOnClose()
-
+		this.SNotifyClose.Close()
+		this.Set(bsn_common.CState_Idle)
 		GSLog.Debugln("close ok")
 	}()
 
-	for {
+	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
+	GSLog.Debugln("run imp")
+	vbQuit := false
+	for !vbQuit {
 		err := this.M_INetConnecterImp.NetConnecterImpRun()
 		if err != nil {
 			GSLog.Errorln(err)
+			vbQuit = true
 			break
+		}
+
+		select {
+		case <-this.SNotifyClose.M_chanNotifyClose:
+			GSLog.Mustln("receive a notify to close")
+			vbQuit = true
+		default:
 		}
 	}
 }

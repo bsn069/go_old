@@ -4,33 +4,34 @@ import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
+	"github.com/bsn069/go/bsn_net"
 	// "unsafe"
-	"net"
-	"sync"
+	// "net"
+	// "sync"
 )
 
 type TClientId uint16
 
 type SClientUser struct {
-	M_SClientUserMgr  *SClientUserMgr
-	M_TClientId       TClientId
-	M_Conn            net.Conn
-	M_byRecvBuff      []byte
-	M_Mutex           sync.Mutex
-	M_bRun            bool
-	M_chanWaitClose   chan bool
-	M_chanNotifyClose chan bool
+	*bsn_net.SSession
+	*bsn_common.SState
+	*bsn_common.SNotifyClose
+
+	M_SClientUserMgr *SClientUserMgr
+	M_TClientId      TClientId
+	M_byRecvBuff     []byte
 }
 
 func NewSClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
 	GSLog.Debugln("NewSClientUser")
 	this := &SClientUser{
-		M_SClientUserMgr:  vSClientUserMgr,
-		M_TClientId:       0,
-		M_byRecvBuff:      make([]byte, 4),
-		M_chanNotifyClose: make(chan bool, 0),
-		M_chanWaitClose:   make(chan bool, 0),
+		M_SClientUserMgr: vSClientUserMgr,
+		M_TClientId:      0,
+		M_byRecvBuff:     make([]byte, 4),
 	}
+	this.SSession, _ = bsn_net.NewSSession()
+	this.SState = bsn_common.NewSState()
+	this.SNotifyClose = bsn_common.NewSNotifyClose()
 
 	return this, nil
 }
@@ -48,46 +49,40 @@ func (this *SClientUser) Id() TClientId {
 	return this.M_TClientId
 }
 
-func (this *SClientUser) SetConn(vConn net.Conn) error {
-	this.M_Conn = vConn
-	return nil
-}
-
-func (this *SClientUser) Conn() net.Conn {
-	return this.M_Conn
-}
-
-func (this *SClientUser) Run() error {
-	this.M_Mutex.Lock()
-	defer this.M_Mutex.Unlock()
-
-	if this.M_bRun {
-		return errors.New("running")
+func (this *SClientUser) Run() (err error) {
+	if !this.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
+		return errors.New("had listen")
 	}
+
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
+	}()
+
+	this.SNotifyClose.Clear()
 
 	go this.runImp()
-	this.M_bRun = true
 	return nil
 }
 
-func (this *SClientUser) Close() error {
-	this.M_Mutex.Lock()
-	defer this.M_Mutex.Unlock()
-
-	if !this.M_bRun {
-		return errors.New("not running")
+func (this *SClientUser) Close() (err error) {
+	if !this.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
+		return errors.New("not listen")
 	}
-	GSLog.Mustln("Close begin")
+	GSLog.Debugln("close")
+
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
+	}()
 
 	this.Conn().Close()
-	// clear close chanel
-	select {
-	case <-this.M_chanNotifyClose:
-	default:
-	}
-	this.M_chanNotifyClose <- true
-	// wait close complete
-	<-this.M_chanWaitClose
+	// this.SNotifyClose.NotifyClose()
+	this.SNotifyClose.WaitClose()
 
 	return nil
 }
@@ -96,32 +91,25 @@ func (this *SClientUser) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {
 		GSLog.Debugln("on closing")
-		this.M_bRun = false
 
 		GSLog.Debugln("close connect")
 		this.Conn().Close()
-		this.SetConn(nil)
 
 		GSLog.Debugln("close from user mgr")
 		this.M_SClientUserMgr.delClient(this.Id())
-		this.M_SClientUserMgr = nil
 
-		GSLog.Debugln("send notify to wait close chan")
-		select {
-		case <-this.M_chanWaitClose:
-		default:
-		}
-		this.M_chanWaitClose <- true
-
+		this.SNotifyClose.Close()
+		this.Set(bsn_common.CState_Idle)
 		GSLog.Debugln("close ok")
 	}()
 
+	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	vSServerUserMgr := this.UserMgr().Gate().GetServerMgr()
 	vMsg := new(bsn_msg.SMsgHeader)
 	for {
 		GSLog.Debugln("read msg header")
 		byMsgHeader := this.M_byRecvBuff[0:bsn_msg.CSMsgHeader_Size]
-		err := this.readMsg(byMsgHeader)
+		err := this.Recv(byMsgHeader)
 		if err != nil {
 			GSLog.Errorln(err)
 			break
@@ -140,7 +128,7 @@ func (this *SClientUser) runImp() {
 
 		GSLog.Debugln("read byMsgBody")
 		byMsgBody := this.M_byRecvBuff[bsn_msg.CSMsgHeader_Size:vTotalLen]
-		err = this.readMsg(byMsgBody)
+		err = this.Recv(byMsgBody)
 		if err != nil {
 			GSLog.Errorln(err)
 			break
@@ -155,20 +143,4 @@ func (this *SClientUser) runImp() {
 			break
 		}
 	}
-}
-
-func (this *SClientUser) readMsg(byMsg []byte) error {
-	vLen := len(byMsg)
-	if vLen <= 0 {
-		return nil
-	}
-
-	readLen, err := this.Conn().Read(byMsg)
-	if err != nil {
-		return err
-	}
-	if readLen != vLen {
-		return errors.New("not read all data")
-	}
-	return nil
 }

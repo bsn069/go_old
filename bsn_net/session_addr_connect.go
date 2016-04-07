@@ -9,6 +9,14 @@ type SSessionAddrConnect struct {
 	SSessionAddr
 }
 
+func NewSSessionAddrConnect() (*SSessionAddrConnect, error) {
+	GSLog.Debugln("NewNetConnecter")
+
+	this := &SSessionAddrConnect{}
+
+	return this, nil
+}
+
 func (this *SSessionAddr) Connect() (err error) {
 	if "" == this.Addr() {
 		return errors.New("no addr")
