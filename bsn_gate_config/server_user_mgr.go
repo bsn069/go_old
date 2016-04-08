@@ -1,4 +1,4 @@
-package bsn_gate2
+package bsn_gate_config
 
 import (
 	"errors"
@@ -11,19 +11,23 @@ import (
 type SServerUserMgr struct {
 	*bsn_common.SState
 
-	M_SGate *SGate
+	M_SApp  *SApp
 	M_Users []*SServerUser
 }
 
-func NewSServerUserMgr(vSGate *SGate) (*SServerUserMgr, error) {
+func NewSServerUserMgr(vSApp *SApp) (*SServerUserMgr, error) {
 	GSLog.Debugln("NewSServerUserMgr")
 	this := &SServerUserMgr{
-		M_SGate: vSGate,
+		M_SApp:  vSApp,
 		M_Users: make([]*SServerUser, 1),
 	}
 	this.SState = bsn_common.NewSState()
 
 	return this, nil
+}
+
+func (this *SServerUserMgr) App() *SApp {
+	return this.M_SApp
 }
 
 func (this *SServerUserMgr) Run() (err error) {
@@ -37,8 +41,6 @@ func (this *SServerUserMgr) Run() (err error) {
 		}
 		this.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
 	}()
-
-	this.connectConfigServer()
 
 	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	return nil
@@ -61,22 +63,6 @@ func (this *SServerUserMgr) Close() (err error) {
 	return nil
 }
 
-func (this *SServerUserMgr) connectConfigServer() error {
-	// connect config server
-	vUser, err := NewSServerUser(this, "localhost:50001")
-	if err != nil {
-		return err
-	}
-
-	err = vUser.Run()
-	if err != nil {
-		return err
-	}
-	this.M_Users = append(this.M_Users, vUser)
-
-	return nil
-}
-
 func (this *SServerUserMgr) ShowInfo() {
 }
 
@@ -87,8 +73,4 @@ func (this *SServerUserMgr) Send(vSClientUser *SClientUser, vSMsgHeader *bsn_msg
 	GSLog.Mustln(vbyMsgBody)
 	GSLog.Mustln(string(vbyMsgBody))
 	return nil
-}
-
-func (this *SServerUserMgr) Gate() *SGate {
-	return this.M_SGate
 }
