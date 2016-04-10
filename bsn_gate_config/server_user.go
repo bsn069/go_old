@@ -29,7 +29,7 @@ func NewSServerUser(vSServerUserMgr *SServerUserMgr, strAddr string) (*SServerUs
 
 	this := &SServerUser{
 		M_SServerUserMgr:          vSServerUserMgr,
-		M_SClientUserMgr:          vSServerUserMgr.Gate().GetClientMgr(),
+		M_SClientUserMgr:          vSServerUserMgr.App().GetClientMgr(),
 		M_bySMsgHeaderServer2Gate: make([]byte, bsn_msg.CSMsgHeaderServe2Gater_Size),
 		M_byRecvBuff:              make([]byte, 4),
 	}

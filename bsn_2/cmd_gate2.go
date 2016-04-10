@@ -44,7 +44,7 @@ func (this *SCmdGate2) GATE2_RUN(vTInputParams bsn_common.TInputParams) {
 	}
 
 	vuClientListenPort := 40000 + vuGateId
-	err = vSGate.GetClientMgr().SetListenPort(uint16(vuClientListenPort))
+	err = vSGate.GetClientMgr().SetAddr(":" + strconv.Itoa(int(vuClientListenPort)))
 	if err != nil {
 		GSLog.Errorln(err)
 		return

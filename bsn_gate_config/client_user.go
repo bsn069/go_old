@@ -20,6 +20,8 @@ type SClientUser struct {
 	M_SClientUserMgr *SClientUserMgr
 	M_TClientId      TClientId
 	M_byRecvBuff     []byte
+	M_SMsgHeader     *bsn_msg.SMsgHeader
+	M_by2MsgBody     []byte
 }
 
 func NewSClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
@@ -28,6 +30,7 @@ func NewSClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
 		M_SClientUserMgr: vSClientUserMgr,
 		M_TClientId:      0,
 		M_byRecvBuff:     make([]byte, 4),
+		M_SMsgHeader:     new(bsn_msg.SMsgHeader),
 	}
 	this.SSession, _ = bsn_net.NewSSession()
 	this.SState = bsn_common.NewSState()
@@ -104,8 +107,6 @@ func (this *SClientUser) runImp() {
 	}()
 
 	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
-	vSServerUserMgr := this.UserMgr().Gate().GetServerMgr()
-	vMsg := new(bsn_msg.SMsgHeader)
 	for {
 		GSLog.Debugln("read msg header")
 		byMsgHeader := this.M_byRecvBuff[0:bsn_msg.CSMsgHeader_Size]
@@ -116,31 +117,34 @@ func (this *SClientUser) runImp() {
 		}
 		GSLog.Debugln("recv byMsgHeader= ", byMsgHeader)
 
-		vMsg.DeSerialize(byMsgHeader)
-		GSLog.Debugln("recv vMsg= ", vMsg)
+		this.M_SMsgHeader.DeSerialize(byMsgHeader)
+		GSLog.Debugln("recv this.M_SMsgHeader= ", this.M_SMsgHeader)
 
-		vTotalLen := int(vMsg.Len() + bsn_msg.CSMsgHeader_Size)
+		vTotalLen := int(this.M_SMsgHeader.Len())
 		if vTotalLen > cap(this.M_byRecvBuff) {
 			// realloc recv buffer
 			this.M_byRecvBuff = make([]byte, vTotalLen)
-			copy(this.M_byRecvBuff, byMsgHeader)
 		}
 
-		GSLog.Debugln("read byMsgBody")
-		byMsgBody := this.M_byRecvBuff[bsn_msg.CSMsgHeader_Size:vTotalLen]
-		err = this.Recv(byMsgBody)
+		GSLog.Debugln("read this.M_by2MsgBody")
+		this.M_by2MsgBody = this.M_byRecvBuff[0:vTotalLen]
+		err = this.Recv(this.M_by2MsgBody)
 		if err != nil {
 			GSLog.Errorln(err)
 			break
 		}
-		GSLog.Debugln("recv byMsgBody= ", byMsgBody)
+		GSLog.Debugln("recv this.M_by2MsgBody= ", this.M_by2MsgBody)
 
-		byMsg := this.M_byRecvBuff[0:vTotalLen]
-		GSLog.Debugln("recv byMsg= ", byMsg)
-		err = vSServerUserMgr.Send(this, vMsg, byMsg)
+		err = this.procMsg()
 		if err != nil {
 			GSLog.Errorln(err)
 			break
 		}
 	}
+}
+
+func (this *SClientUser) procMsg() error {
+	GSLog.Debugln(this.M_SMsgHeader)
+	GSLog.Debugln(this.M_by2MsgBody)
+	return nil
 }

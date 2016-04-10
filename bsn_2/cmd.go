@@ -5,16 +5,18 @@ import (
 )
 
 type SCmd struct {
-	*SCmdGate
+	// *SCmdGate
 	*SCmdGate2
 	*SCmdClient
+	*SCmdGateConfig
 }
 
 func NewCmd() *SCmd {
 	this := &SCmd{}
-	this.SCmdGate = NewCmdGate()
+	// this.SCmdGate = NewCmdGate()
 	this.SCmdGate2 = NewCmdGate2()
 	this.SCmdClient = NewCmdClient()
+	this.SCmdGateConfig = NewSCmdGateConfig()
 
 	return this
 }

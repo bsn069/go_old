@@ -3,7 +3,7 @@ package bsn_gate_config
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
-	"github.com/bsn069/go/bsn_msg"
+	// "github.com/bsn069/go/bsn_msg"
 	// "time""
 	// "net"
 )
@@ -64,13 +64,4 @@ func (this *SServerUserMgr) Close() (err error) {
 }
 
 func (this *SServerUserMgr) ShowInfo() {
-}
-
-func (this *SServerUserMgr) Send(vSClientUser *SClientUser, vSMsgHeader *bsn_msg.SMsgHeader, vbyMsgBody []byte) error {
-	GSLog.Debugln("Send")
-	GSLog.Mustln(vSClientUser)
-	GSLog.Mustln(vSMsgHeader)
-	GSLog.Mustln(vbyMsgBody)
-	GSLog.Mustln(string(vbyMsgBody))
-	return nil
 }

@@ -63,7 +63,7 @@ func (this *SServerUserMgr) Close() (err error) {
 
 func (this *SServerUserMgr) connectConfigServer() error {
 	// connect config server
-	vUser, err := NewSServerUser(this, "localhost:50001")
+	vUser, err := NewSServerUser(this, "localhost:51001")
 	if err != nil {
 		return err
 	}

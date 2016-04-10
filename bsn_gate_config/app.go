@@ -38,7 +38,7 @@ func NewSApp(vId uint32) (this *SApp, err error) {
 }
 
 func (this *SApp) ShowInfo() {
-	GSLog.Mustln("ClientMgr")
+	GSLog.Mustln("GAppName=", GAppName)
 	this.GetClientMgr().ShowInfo()
 	this.GetServerMgr().ShowInfo()
 }
