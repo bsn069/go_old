@@ -8,15 +8,24 @@ import (
 )
 
 type SGate struct {
-	M_SClientUserMgr *SClientUserMgr
-	M_SServerUserMgr *SServerUserMgr
-	M_TGateId        bsn_common.TGateId
+	M_SClientUserMgr     *SClientUserMgr
+	M_SServerUserMgr     *SServerUserMgr
+	M_TGateId            bsn_common.TGateId
+	M_SServerGateConfig  *SServerGateConfig
+	M_chanWaitGateConfig chan bool
 }
 
 func NewGate(vTGateId bsn_common.TGateId) (this *SGate, err error) {
 	GSLog.Debugln("newGate() vTGateId=", vTGateId)
 	this = &SGate{
-		M_TGateId: vTGateId,
+		M_TGateId:            vTGateId,
+		M_chanWaitGateConfig: make(chan bool, 1),
+	}
+
+	this.M_SServerGateConfig, err = NewSServerGateConfig(this, "localhost:51001")
+	if err != nil {
+		GSLog.Errorln("NewSServerGateConfig fail")
+		return nil, err
 	}
 
 	this.M_SClientUserMgr, err = NewSClientUserMgr(this)
@@ -57,6 +66,9 @@ func (this *SGate) Close() {
 }
 
 func (this *SGate) Run() {
+	this.M_SServerGateConfig.Run()
+	<-this.M_chanWaitGateConfig
+
 	this.GetServerMgr().Run()
 	this.GetClientMgr().Run()
 }

@@ -29,15 +29,13 @@ func SendString(vnetConn net.Conn, strMsg string) error {
 
 func SendMsgWithSMsgHeader(vnetConn net.Conn, vTMsgType bsn_common.TMsgType, byMsg []byte) error {
 	vLen := len(byMsg)
-	if vLen <= 0 {
-		return nil
-	}
-
 	vMsg := bsn_msg.NewMsgHeader(vTMsgType, bsn_common.TMsgLen(vLen))
 
 	byData := make([]byte, vLen+int(bsn_msg.CSMsgHeader_Size))
 	vLen = int(vMsg.Serialize2Byte(byData))
-	copy(byData[vLen:], byMsg)
+	if byMsg != nil {
+		copy(byData[vLen:], byMsg)
+	}
 
 	err := Send(vnetConn, byData)
 	if err != nil {

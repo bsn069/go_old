@@ -31,10 +31,6 @@ func NewNetConnecter(vINetConnecterImp INetConnecterImp) (*SNetConnecter, error)
 	return this, nil
 }
 
-func (this *SNetConnecter) Uninit() {
-	this.M_INetConnecterImp = nil
-}
-
 func (this *SNetConnecter) ShowInfo() {
 	GSLog.Mustln("ShowInfo")
 }

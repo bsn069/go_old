@@ -77,7 +77,6 @@ func (this *SServerUser) NetConnecterImpRun() error {
 
 func (this *SServerUser) NetConnecterImpOnClose() error {
 	GSLog.Debugln("NetConnecterImpOnClose")
-	this.SNetConnecter.Uninit()
 	return nil
 }
 

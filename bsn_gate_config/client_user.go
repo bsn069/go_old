@@ -128,12 +128,14 @@ func (this *SClientUser) runImp() {
 
 		GSLog.Debugln("read this.M_by2MsgBody")
 		this.M_by2MsgBody = this.M_byRecvBuff[0:vTotalLen]
-		err = this.Recv(this.M_by2MsgBody)
-		if err != nil {
-			GSLog.Errorln(err)
-			break
+		if vTotalLen > 0 {
+			err = this.Recv(this.M_by2MsgBody)
+			if err != nil {
+				GSLog.Errorln(err)
+				break
+			}
+			GSLog.Debugln("recv this.M_by2MsgBody= ", this.M_by2MsgBody)
 		}
-		GSLog.Debugln("recv this.M_by2MsgBody= ", this.M_by2MsgBody)
 
 		err = this.procMsg()
 		if err != nil {
@@ -141,10 +143,4 @@ func (this *SClientUser) runImp() {
 			break
 		}
 	}
-}
-
-func (this *SClientUser) procMsg() error {
-	GSLog.Debugln(this.M_SMsgHeader)
-	GSLog.Debugln(this.M_by2MsgBody)
-	return nil
 }
