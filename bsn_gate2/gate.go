@@ -61,6 +61,7 @@ func (this *SGate) GetServerMgr() *SServerUserMgr {
 }
 
 func (this *SGate) Close() {
+	this.M_SServerGateConfig.Close()
 	this.GetClientMgr().Close()
 	this.GetServerMgr().Close()
 }

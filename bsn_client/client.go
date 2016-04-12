@@ -5,10 +5,11 @@ import (
 	"github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
 	// "github.com/bsn069/go/bsn_log"
-	// "errors"
+	"errors"
 	// "net"
 	"strconv"
 	// "sync"
+	"fmt"
 )
 
 type TClientId uint16
@@ -16,19 +17,19 @@ type TClientId uint16
 var GClientId TClientId = 0
 
 type SClient struct {
-	bsn_net.SNetConnecter
-	M_TClientId  TClientId
-	M_SMsgHeader bsn_msg.SMsgHeader
+	*bsn_net.SConnecterWithMsgHeader
+	M_TClientId TClientId
 }
 
-func NewClient() (*SClient, error) {
+func NewClient(strAddr string) (*SClient, error) {
 	GClientId++
 	GSLog.Debugln("NewClient() GClientId=", GClientId)
 
 	this := &SClient{
 		M_TClientId: GClientId,
 	}
-	this.SNetConnecter.M_INetConnecterImp = this
+	this.SConnecterWithMsgHeader, _ = bsn_net.NewSConnecterWithMsgHeader(this)
+	this.SetAddr(strAddr)
 
 	vSCmdClient := &SCmdClient{M_SClient: this}
 	bsn_input.GSInput.Reg("Client"+strconv.Itoa(int(GClientId)), vSCmdClient)
@@ -40,28 +41,29 @@ func (this *SClient) ShowInfo() {
 	GSLog.Mustln("id :", this.M_TClientId)
 }
 
-func (this *SClient) NetConnecterImpRun() error {
-	GSLog.Debugln("NetConnecterImpRun")
-	vTMsgType, byData, err := this.RecvMsgWithSMsgHeader()
-	if err != nil {
-		if err.Error() == "EOF" {
-			GSLog.Errorln("connect disconnect")
-		} else {
-			GSLog.Errorln("ReadMsg error: ", err)
-		}
-		return err
-	}
-	GSLog.Debugln("recv msg: ", vTMsgType, byData)
-
-	return err
+func (this *SClient) NetConnecterWithMsgHeaderImpOnClose() error {
+	GSLog.Debugln("NetConnecterWithMsgHeaderImpOnClose")
+	return nil
 }
 
-func (this *SClient) NetConnecterImpOnClose() error {
-	GSLog.Debugln("NetConnecterImpOnClose")
+func (this *SClient) NetConnecterWithMsgHeaderImpProcMsg() error {
+	GSLog.Debugln("NetConnecterWithMsgHeaderImpProcMsg")
+
+	switch this.M_SMsgHeader.Type() {
+	case bsn_msg.GMsgDefine_Echo2Client_Test:
+		return this.ProcMsg_Test()
+	}
+
+	strInfo := fmt.Sprintf("nuknown msg type=%u", this.M_SMsgHeader.Type())
+	return errors.New(strInfo)
+}
+
+func (this *SClient) ProcMsg_Test() error {
+	GSLog.Debugln("ProcMsg_Test")
 	return nil
 }
 
 func (this *SClient) SendString(strInfo string) error {
-	this.SendMsgWithSMsgHeader(0, []byte(strInfo))
+	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Client2Echo_Test, []byte(strInfo))
 	return nil
 }

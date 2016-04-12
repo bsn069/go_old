@@ -47,6 +47,10 @@ func (this *SServerGateConfig) Run() {
 	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2GateConfig_GateReg, nil)
 }
 
+func (this *SServerGateConfig) Close() {
+	this.SConnecterWithMsgHeader.Close()
+}
+
 func (this *SServerGateConfig) NetConnecterWithMsgHeaderImpProcMsg() error {
 	GSLog.Debugln("NetConnecterWithMsgHeaderImpProcMsg")
 

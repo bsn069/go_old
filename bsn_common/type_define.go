@@ -21,6 +21,10 @@ type TInputParams []string
 type TInputUpperName2CmdStruct map[string]TVoid
 type TInputUpperName2RegName map[string]string
 
+func MakeInputParam(param ...string) TInputParams {
+	return param
+}
+
 // [modName][cmdUpper] = help
 type TInputHelp map[string]map[string]string
 type TInputOK chan bool

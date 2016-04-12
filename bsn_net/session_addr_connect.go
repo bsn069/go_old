@@ -10,7 +10,7 @@ type SSessionAddrConnect struct {
 }
 
 func NewSSessionAddrConnect() (*SSessionAddrConnect, error) {
-	GSLog.Debugln("NewNetConnecter")
+	GSLog.Debugln("NewSSessionAddrConnect")
 
 	this := &SSessionAddrConnect{}
 
