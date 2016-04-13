@@ -3,25 +3,20 @@ package bsn_echo
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
-	"github.com/bsn069/go/bsn_msg"
+	// "github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
 	// "unsafe"
 	// "net"
 	// "sync"
 )
 
-type TClientId uint16
-
 type SClientUser struct {
-	*bsn_net.SSession
+	*bsn_net.SSessionWithMsgHeader
 	*bsn_common.SState
 	*bsn_common.SNotifyClose
 
 	M_SClientUserMgr *SClientUserMgr
 	M_TClientId      TClientId
-	M_byRecvBuff     []byte
-	M_SMsgHeader     *bsn_msg.SMsgHeader
-	M_by2MsgBody     []byte
 }
 
 func NewSClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
@@ -29,10 +24,8 @@ func NewSClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
 	this := &SClientUser{
 		M_SClientUserMgr: vSClientUserMgr,
 		M_TClientId:      0,
-		M_byRecvBuff:     make([]byte, 4),
-		M_SMsgHeader:     new(bsn_msg.SMsgHeader),
 	}
-	this.SSession, _ = bsn_net.NewSSession()
+	this.SSessionWithMsgHeader, _ = bsn_net.NewSSessionWithMsgHeader()
 	this.SState = bsn_common.NewSState()
 	this.SNotifyClose = bsn_common.NewSNotifyClose()
 
@@ -93,12 +86,10 @@ func (this *SClientUser) Close() (err error) {
 func (this *SClientUser) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {
-		GSLog.Debugln("on closing")
-
 		GSLog.Debugln("close connect")
 		this.Conn().Close()
 
-		GSLog.Debugln("close from user mgr")
+		GSLog.Debugln("delete from user mgr")
 		this.M_SClientUserMgr.delClient(this.Id())
 
 		this.SNotifyClose.Close()
@@ -108,33 +99,10 @@ func (this *SClientUser) runImp() {
 
 	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	for {
-		GSLog.Debugln("read msg header")
-		byMsgHeader := this.M_byRecvBuff[0:bsn_msg.CSMsgHeader_Size]
-		err := this.Recv(byMsgHeader)
+		err := this.RecvMsg()
 		if err != nil {
 			GSLog.Errorln(err)
 			break
-		}
-		GSLog.Debugln("recv byMsgHeader= ", byMsgHeader)
-
-		this.M_SMsgHeader.DeSerialize(byMsgHeader)
-		GSLog.Debugln("recv this.M_SMsgHeader= ", this.M_SMsgHeader)
-
-		vTotalLen := int(this.M_SMsgHeader.Len())
-		if vTotalLen > cap(this.M_byRecvBuff) {
-			// realloc recv buffer
-			this.M_byRecvBuff = make([]byte, vTotalLen)
-		}
-
-		GSLog.Debugln("read this.M_by2MsgBody")
-		this.M_by2MsgBody = this.M_byRecvBuff[0:vTotalLen]
-		if vTotalLen > 0 {
-			err = this.Recv(this.M_by2MsgBody)
-			if err != nil {
-				GSLog.Errorln(err)
-				break
-			}
-			GSLog.Debugln("recv this.M_by2MsgBody= ", this.M_by2MsgBody)
 		}
 
 		err = this.procMsg()

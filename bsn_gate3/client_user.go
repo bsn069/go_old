@@ -1,4 +1,4 @@
-package bsn_gate2
+package bsn_gate3
 
 import (
 	"errors"
@@ -9,8 +9,6 @@ import (
 	// "net"
 	// "sync"
 )
-
-type TClientId uint16
 
 type SClientUser struct {
 	*bsn_net.SSessionWithMsgHeader
@@ -88,12 +86,10 @@ func (this *SClientUser) Close() (err error) {
 func (this *SClientUser) runImp() {
 	defer bsn_common.FuncGuard()
 	defer func() {
-		GSLog.Debugln("on closing")
-
 		GSLog.Debugln("close connect")
 		this.Conn().Close()
 
-		GSLog.Debugln("close from user mgr")
+		GSLog.Debugln("delete from user mgr")
 		this.M_SClientUserMgr.delClient(this.Id())
 
 		this.SNotifyClose.Close()
