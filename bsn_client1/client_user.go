@@ -1,4 +1,4 @@
-package bsn_gate3
+package bsn_client1
 
 import (
 	"errors"

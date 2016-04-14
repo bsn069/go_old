@@ -1,4 +1,4 @@
-package bsn_gate3
+package bsn_client1
 
 import (
 	"github.com/bsn069/go/bsn_common"
@@ -10,7 +10,7 @@ import (
 	// "math/rand"
 	// "reflect"
 	// "strconv"
-	// "strings"
+	"strings"
 )
 
 type SCmd struct {
@@ -39,4 +39,25 @@ func (this *SCmd) CLOSE(vTInputParams bsn_common.TInputParams) {
 
 func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 	this.M_SApp.Run()
+}
+
+func (this *SCmd) PING(vTInputParams bsn_common.TInputParams) {
+	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.Ping()
+	if err != nil {
+		GSLog.Errorln(err)
+	}
+}
+
+func (this *SCmd) ECHO(vTInputParams bsn_common.TInputParams) {
+	if len(vTInputParams) < 1 {
+		GSLog.Errorln("msg strings")
+		return
+	}
+
+	strMsg := strings.Join([]string(vTInputParams), " ")
+
+	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.Echo(strMsg)
+	if err != nil {
+		GSLog.Errorln(err)
+	}
 }

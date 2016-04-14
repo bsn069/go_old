@@ -1,7 +1,7 @@
 package bsn_gate3
 
 import (
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_input"
 	"github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
@@ -14,14 +14,18 @@ import (
 
 type SServerUser struct {
 	*bsn_net.SNetConnecter
+
 	M_SServerUserMgr *SServerUserMgr
-	M_SClientUserMgr *SClientUserMgr
 
 	M_byRecvBuff              []byte
 	M_bySMsgHeaderServer2Gate []byte
 	M_by2GateMsg              []byte
 	M_by2ClientMsg            []byte
 	M_SMsgHeaderServer2Gate   bsn_msg.SMsgHeaderServer2Gate
+
+	M_ServerType uint8
+	M_MsgTypeMin bsn_common.TMsgType
+	M_MsgTypeMax bsn_common.TMsgType
 }
 
 func NewSServerUser(vSServerUserMgr *SServerUserMgr, strAddr string) (*SServerUser, error) {
@@ -29,7 +33,6 @@ func NewSServerUser(vSServerUserMgr *SServerUserMgr, strAddr string) (*SServerUs
 
 	this := &SServerUser{
 		M_SServerUserMgr:          vSServerUserMgr,
-		M_SClientUserMgr:          vSServerUserMgr.App().GetClientMgr(),
 		M_bySMsgHeaderServer2Gate: make([]byte, bsn_msg.CSMsgHeaderServe2Gater_Size),
 		M_byRecvBuff:              make([]byte, 4),
 	}
@@ -37,6 +40,22 @@ func NewSServerUser(vSServerUserMgr *SServerUserMgr, strAddr string) (*SServerUs
 	this.SetAddr(strAddr)
 
 	return this, nil
+}
+
+func (this *SServerUser) UserMgr() *SServerUserMgr {
+	return this.M_SServerUserMgr
+}
+
+func (this *SServerUser) ServerType() uint8 {
+	return this.M_ServerType
+}
+
+func (this *SServerUser) OnClientMsg(vSClientUser *SClientUser) bool {
+	if vSClientUser.MsgType() < this.M_MsgTypeMin || vSClientUser.MsgType() > this.M_MsgTypeMax {
+		return false
+	}
+
+	return true
 }
 
 func (this *SServerUser) NetConnecterImpRun() error {
@@ -78,10 +97,6 @@ func (this *SServerUser) NetConnecterImpRun() error {
 func (this *SServerUser) NetConnecterImpOnClose() error {
 	GSLog.Debugln("NetConnecterImpOnClose")
 	return nil
-}
-
-func (this *SServerUser) UserMgr() *SServerUserMgr {
-	return this.M_SServerUserMgr
 }
 
 func (this *SServerUser) ShowInfo() {

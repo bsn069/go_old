@@ -2,7 +2,7 @@ package bsn_net
 
 import (
 	// "errors"
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
 	// "net"
 )
@@ -25,6 +25,10 @@ func NewSSessionWithMsgHeader() (*SSessionWithMsgHeader, error) {
 	this.SSession, _ = NewSSession()
 
 	return this, nil
+}
+
+func (this *SSessionWithMsgHeader) MsgType() bsn_common.TMsgType {
+	return this.M_SMsgHeader.Type()
 }
 
 func (this *SSessionWithMsgHeader) RecvMsg() error {

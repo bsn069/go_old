@@ -1,4 +1,4 @@
-package bsn_gate3
+package bsn_client1
 
 import (
 	"errors"
@@ -12,16 +12,17 @@ type SServerUserMgr struct {
 	*bsn_common.SState
 
 	M_SUserMgr *SUserMgr
-	M_Users    []*SServerUser
+
+	M_SServerUserGate *SServerUserGate
 }
 
 func NewSServerUserMgr(vSUserMgr *SUserMgr) (*SServerUserMgr, error) {
 	GSLog.Debugln("NewSServerUserMgr")
 	this := &SServerUserMgr{
 		M_SUserMgr: vSUserMgr,
-		M_Users:    make([]*SServerUser, 1),
 	}
 	this.SState = bsn_common.NewSState()
+	this.M_SServerUserGate, _ = NewSServerUserGate(this, "localhost:40001")
 
 	return this, nil
 }
@@ -42,7 +43,9 @@ func (this *SServerUserMgr) Run() (err error) {
 		this.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
 	}()
 
+	this.M_SServerUserGate.Run()
 	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
+
 	return nil
 }
 
@@ -59,23 +62,12 @@ func (this *SServerUserMgr) Close() (err error) {
 		this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	}()
 
+	this.M_SServerUserGate.Close()
 	this.Set(bsn_common.CState_Idle)
+
 	return nil
 }
 
 func (this *SServerUserMgr) ShowInfo() {
-}
-
-func (this *SServerUserMgr) OnClientMsg(vSClientUser *SClientUser) error {
-	for _, vServerUser := range this.M_Users {
-		if vServerUser == nil {
-			continue
-		}
-		if vServerUser.OnClientMsg(vSClientUser) {
-			GSLog.Debugln(vServerUser.ServerType(), "proc msg")
-			return nil
-		}
-	}
-
-	return errors.New("unknown msg")
+	this.M_SServerUserGate.ShowInfo()
 }

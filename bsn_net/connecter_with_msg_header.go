@@ -1,7 +1,7 @@
 package bsn_net
 
 import (
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_input"
 	"github.com/bsn069/go/bsn_msg"
 	// "github.com/bsn069/go/bsn_net"
@@ -86,4 +86,8 @@ func (this *SConnecterWithMsgHeader) NetConnecterImpRun() error {
 func (this *SConnecterWithMsgHeader) NetConnecterImpOnClose() error {
 	GSLog.Debugln("NetConnecterImpOnClose")
 	return this.M_INetConnecterWithMsgHeaderImp.NetConnecterWithMsgHeaderImpOnClose()
+}
+
+func (this *SConnecterWithMsgHeader) MsgType() bsn_common.TMsgType {
+	return this.M_SMsgHeader.Type()
 }
