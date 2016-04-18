@@ -117,6 +117,24 @@ func TestMsgHeaderServer2Gate(t *testing.T) {
 
 }
 
+func TestSMsg_Gate2Server_ClientMsg(t *testing.T) {
+	vMsg := new(SMsg_Gate2Server_ClientMsg)
+	GSLog.Mustln("vMsg=", vMsg)
+
+	vSMsgHeader := new(SMsgHeader)
+	vSMsgHeader.Fill(2, 0)
+	vMsg.Fill(1, vSMsgHeader, nil)
+	GSLog.Mustln("vMsg=", vMsg)
+	GSLog.Mustln("vMsg=", vMsg.M_ClientId, vMsg.M_SMsgHeader, vMsg.M_byMsgBody)
+
+	vbyMsg := vMsg.Serialize()
+	GSLog.Mustln("vbyMsg=", vbyMsg)
+
+	vSMsgHeader.DeSerialize(vbyMsg)
+	GSLog.Mustln("vMsg=", vMsg.M_ClientId, vMsg.M_SMsgHeader, vMsg.M_byMsgBody)
+
+}
+
 // go test -test.bench=".*"
 func BenchmarkA(b *testing.B) {
 

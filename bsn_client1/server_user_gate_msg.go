@@ -17,14 +17,14 @@ func (this *SServerUserGate) NetConnecterWithMsgHeaderImpProcMsg() error {
 	GSLog.Debugln("NetConnecterWithMsgHeaderImpProcMsg")
 
 	switch this.MsgType() {
+	case bsn_msg.GMsgDefine_Gate2Client_Ping:
+		return this.ProcMsg_Gate_Ping()
 	case bsn_msg.GMsgDefine_Gate2Client_Pong:
 		return this.ProcMsg_Gate_Pong()
-	case bsn_msg.GMsgDefine_Gate2Client_Echo:
-		return this.ProcMsg_Gate_Echo()
+	case bsn_msg.GMsgDefine_Echo2Client_Ping:
+		return this.ProcMsg_Echo_Ping()
 	case bsn_msg.GMsgDefine_Echo2Client_Pong:
 		return this.ProcMsg_Echo_Pong()
-	case bsn_msg.GMsgDefine_Echo2Client_Echo:
-		return this.ProcMsg_Echo_Echo()
 	}
 
 	strInfo := fmt.Sprintf("nuknown msg type=%u", this.M_SMsgHeader.Type())

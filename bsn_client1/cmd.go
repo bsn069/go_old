@@ -42,13 +42,6 @@ func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 }
 
 func (this *SCmd) GATE_PING(vTInputParams bsn_common.TInputParams) {
-	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.GatePing()
-	if err != nil {
-		GSLog.Errorln(err)
-	}
-}
-
-func (this *SCmd) GATE_ECHO(vTInputParams bsn_common.TInputParams) {
 	if len(vTInputParams) < 1 {
 		GSLog.Errorln("msg strings")
 		return
@@ -56,20 +49,13 @@ func (this *SCmd) GATE_ECHO(vTInputParams bsn_common.TInputParams) {
 
 	strMsg := strings.Join([]string(vTInputParams), " ")
 
-	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.GateEcho(strMsg)
+	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.GatePing(strMsg)
 	if err != nil {
 		GSLog.Errorln(err)
 	}
 }
 
 func (this *SCmd) ECHO_PING(vTInputParams bsn_common.TInputParams) {
-	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.EchoPing()
-	if err != nil {
-		GSLog.Errorln(err)
-	}
-}
-
-func (this *SCmd) ECHO_ECHO(vTInputParams bsn_common.TInputParams) {
 	if len(vTInputParams) < 1 {
 		GSLog.Errorln("msg strings")
 		return
@@ -77,7 +63,7 @@ func (this *SCmd) ECHO_ECHO(vTInputParams bsn_common.TInputParams) {
 
 	strMsg := strings.Join([]string(vTInputParams), " ")
 
-	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.EchoEcho(strMsg)
+	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.EchoPing(strMsg)
 	if err != nil {
 		GSLog.Errorln(err)
 	}

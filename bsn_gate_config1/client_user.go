@@ -32,7 +32,7 @@ func NewSClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
 }
 
 func (this *SClientUser) Ping(strInfo string) error {
-	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Client_Ping, []byte(strInfo))
+	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Server2Gate_Ping, []byte(strInfo))
 }
 
 func (this *SClientUser) UserMgr() *SClientUserMgr {

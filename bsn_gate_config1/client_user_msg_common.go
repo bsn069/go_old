@@ -6,7 +6,7 @@ import (
 
 func (this *SClientUser) ProcMsg_Ping() error {
 	GSLog.Debugln("ProcMsg_Ping")
-	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Client_Pong, this.M_by2MsgBody)
+	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Server2Gate_Pong, this.M_by2MsgBody)
 	return nil
 }
 

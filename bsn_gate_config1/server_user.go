@@ -1,9 +1,9 @@
 package bsn_gate3
 
 import (
-	"github.com/bsn069/go/bsn_common"
+	// "github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_input"
-	"github.com/bsn069/go/bsn_msg"
+	// "github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
 	// "github.com/bsn069/go/bsn_log"
 	// "errors"
@@ -16,10 +16,6 @@ type SServerUser struct {
 	*bsn_net.SConnecterWithMsgHeader
 
 	M_SServerUserMgr *SServerUserMgr
-	M_ServerType     uint8
-
-	M_MsgTypeMin bsn_common.TMsgType
-	M_MsgTypeMax bsn_common.TMsgType
 }
 
 func NewSServerUser(vSServerUserMgr *SServerUserMgr) (*SServerUser, error) {
@@ -37,22 +33,6 @@ func (this *SServerUser) UserMgr() *SServerUserMgr {
 	return this.M_SServerUserMgr
 }
 
-func (this *SServerUser) ServerType() uint8 {
-	return this.M_ServerType
-}
-
-func (this *SServerUser) OnClientMsg(vSClientUser *SClientUser) bool {
-	if vSClientUser.MsgType() < this.M_MsgTypeMin || vSClientUser.MsgType() > this.M_MsgTypeMax {
-		return false
-	}
-
-	vSMsg_Gate2Server_ClientMsg := new(bsn_msg.SMsg_Gate2Server_ClientMsg)
-	vSMsg_Gate2Server_ClientMsg.Fill(uint16(vSClientUser.Id()), vSClientUser.M_SMsgHeader, vSClientUser.M_by2MsgBody)
-	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Server_ClientMsg, vSMsg_Gate2Server_ClientMsg.Serialize())
-
-	return true
-}
-
 func (this *SServerUser) NetConnecterWithMsgHeaderImpOnClose() error {
 	GSLog.Debugln("NetConnecterWithMsgHeaderImpOnClose")
 	return nil
@@ -62,5 +42,6 @@ func (this *SServerUser) ShowInfo() {
 }
 
 func (this *SServerUser) Ping(strInfo string) error {
-	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Server_Ping, []byte(strInfo))
+	// return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Server_Ping, []byte(strInfo))
+	return nil
 }

@@ -8,9 +8,8 @@ type SCmd struct {
 	// *SCmdGate
 	// *SCmdGate2
 	*SCmdGate3
-	*SCmdClient
 	*SCmdClient1
-	*SCmdGateConfig
+	*SCmdGateConfig1
 	*SCmdEcho
 }
 
@@ -19,9 +18,8 @@ func NewCmd() *SCmd {
 	// this.SCmdGate = NewCmdGate()
 	// this.SCmdGate2 = NewCmdGate2()
 	this.SCmdGate3 = NewCmdGate3()
-	this.SCmdClient = NewCmdClient()
 	this.SCmdClient1 = NewCmdClient1()
-	this.SCmdGateConfig = NewSCmdGateConfig()
+	this.SCmdGateConfig1 = NewSCmdGateConfig1()
 	this.SCmdEcho = NewSCmdEcho()
 
 	return this
@@ -42,7 +40,7 @@ func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 	vParams := bsn_common.MakeInputParam("1")
 
 	// this.SCmdEcho.ECHO_RUN(vParams)
-	// this.SCmdGateConfig.GATE_CONFIG_RUN(vParams)
+	this.SCmdGateConfig1.GATE_CONFIG_RUN(vParams)
 	this.SCmdGate3.GATE3_RUN(vParams)
 	this.SCmdClient1.CLIENT1_RUN(vParams)
 }

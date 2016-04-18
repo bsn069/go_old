@@ -1,16 +1,18 @@
 package bsn_gate3
 
 import (
+	// "errors"
+	// "fmt"
 	"github.com/bsn069/go/bsn_msg"
 )
 
-func (this *SClientUser) ProcMsg_Ping() error {
+func (this *SServerUser) ProcMsg_Ping() error {
 	GSLog.Debugln("ProcMsg_Ping")
-	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Client_Pong, this.M_by2MsgBody)
+	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Server_Pong, nil)
 	return nil
 }
 
-func (this *SClientUser) ProcMsg_Pong() error {
+func (this *SServerUser) ProcMsg_Pong() error {
 	GSLog.Debugln("ProcMsg_Pong", string(this.M_by2MsgBody))
 	return nil
 }
