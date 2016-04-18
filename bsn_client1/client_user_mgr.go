@@ -27,11 +27,19 @@ func NewSClientUserMgr(vSUserMgr *SUserMgr) (*SClientUserMgr, error) {
 	this := &SClientUserMgr{
 		M_SUserMgr:  vSUserMgr,
 		M_TClientId: 0,
-		M_TId2User:  make(TId2ClientUser, 100),
+		M_TId2User:  make(TId2ClientUser, 0),
 	}
 	this.SNetServer, _ = bsn_net.NewSNetServer(this)
 
 	return this, nil
+}
+
+func (this *SClientUserMgr) Run() (err error) {
+	return nil
+}
+
+func (this *SClientUserMgr) Close() (err error) {
+	return nil
 }
 
 func (this *SClientUserMgr) UserMgr() *SUserMgr {

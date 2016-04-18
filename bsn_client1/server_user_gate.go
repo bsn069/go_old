@@ -50,10 +50,18 @@ func (this *SServerUserGate) Close() {
 	this.SConnecterWithMsgHeader.Close()
 }
 
-func (this *SServerUserGate) Ping() error {
+func (this *SServerUserGate) GatePing() error {
 	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Client2Gate_Ping, nil)
 }
 
-func (this *SServerUserGate) Echo(strInfo string) error {
+func (this *SServerUserGate) GateEcho(strInfo string) error {
 	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Client2Gate_Echo, []byte(strInfo))
+}
+
+func (this *SServerUserGate) EchoPing() error {
+	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Client2Echo_Ping, nil)
+}
+
+func (this *SServerUserGate) EchoEcho(strInfo string) error {
+	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Client2Echo_Echo, []byte(strInfo))
 }
