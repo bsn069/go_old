@@ -1,0 +1,9 @@
+syntax = "proto2";
+import "bsn_msg_gate2server/common.proto";
+package bsn_msg_gate2server;
+  
+message SMsg_Gate2GateConfig_Reg {
+	required string id 	= 1; // 
+	required SMsg_Gate2Server_Common_Test a	= 2;
+}
+

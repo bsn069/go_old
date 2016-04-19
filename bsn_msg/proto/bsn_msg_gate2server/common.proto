@@ -1,0 +1,20 @@
+syntax = "proto2";
+import "bsn_msg_common/common.proto";
+package bsn_msg_gate2server;
+  
+enum EMsgGate2ServerCommon { 
+	MsgGate2ServerCommon_Null 	= 0;
+
+	MsgGate2ServerCommon_Test 	= 1; // 
+
+	MsgGate2ServerCommon_Counts	= 2;
+}
+ 
+message SMsg_Gate2Server_Common_Test {
+	required string name 	= 1; // 账号
+	required string pwd		= 2; // 密码
+	required bsn_msg_common.SMsg_Common_Test t3		= 3; // 密码
+	//required common.EMsgCommon t4		= 4; // 密码
+	required EMsgGate2ServerCommon a		= 5; // 密码
+}
+

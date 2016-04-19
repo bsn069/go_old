@@ -37,10 +37,12 @@ func (this *SCmd) TEST_help(vTInputParams bsn_common.TInputParams) {
 }
 
 func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
-	vParams := bsn_common.MakeInputParam("1")
-
+	if len(vTInputParams) != 1 {
+		GSLog.Errorln("appid")
+		return
+	}
 	// this.SCmdEcho.ECHO_RUN(vParams)
-	this.SCmdGateConfig1.GATE_CONFIG_RUN(vParams)
-	this.SCmdGate3.GATE3_RUN(vParams)
-	this.SCmdClient1.CLIENT1_RUN(vParams)
+	this.GATE_CONFIG_RUN(vTInputParams)
+	this.GATE3_RUN(vTInputParams)
+	this.CLIENT1_RUN(vTInputParams)
 }

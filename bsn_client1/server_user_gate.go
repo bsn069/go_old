@@ -19,14 +19,13 @@ type SServerUserGate struct {
 	M_SServerUserMgr *SServerUserMgr
 }
 
-func NewSServerUserGate(vSServerUserMgr *SServerUserMgr, strAddr string) (*SServerUserGate, error) {
+func NewSServerUserGate(vSServerUserMgr *SServerUserMgr) (*SServerUserGate, error) {
 	GSLog.Debugln("NewSServerUserGate()")
 
 	this := &SServerUserGate{
 		M_SServerUserMgr: vSServerUserMgr,
 	}
 	this.SConnecterWithMsgHeader, _ = bsn_net.NewSConnecterWithMsgHeader(this)
-	this.SetAddr(strAddr)
 
 	return this, nil
 }

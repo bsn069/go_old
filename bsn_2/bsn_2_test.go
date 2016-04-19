@@ -2,7 +2,8 @@ package bsn_2
 
 import (
 	// "strconv"
-	// "github.com/bsn069/go/bsn_common"
+	_ "bsn_msg_common"
+	_ "bsn_msg_gate2server"
 	"testing"
 )
 

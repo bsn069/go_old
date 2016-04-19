@@ -1,0 +1,19 @@
+syntax = "proto2";
+package bsn_msg_common;
+  
+enum EMsgCommon { 
+	MsgCommon_Null 	= 0;
+
+	MsgCommon_Test 	= 1; // 
+
+	MsgCommon_Counts	= 2;
+}
+ 
+message SMsg_Common_Test {
+	required string name 	= 1; // 账号
+	required string pwd		= 2; // 密码
+	//required common.SMsg_Common_Test t3		= 3; // 密码
+	//required common.EMsgCommon t4		= 4; // 密码
+	required EMsgCommon a		= 5; // 密码
+}
+
