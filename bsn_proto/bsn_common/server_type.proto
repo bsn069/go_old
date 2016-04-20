@@ -1,0 +1,10 @@
+syntax = "proto2";
+package bsn_common;
+  
+enum EServerType { 
+	ServerType_Echo 		= 0; // echo test server
+
+	ServerType_Counts		= 1; // server count
+}
+
+ 

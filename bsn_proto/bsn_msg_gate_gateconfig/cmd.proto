@@ -1,0 +1,20 @@
+syntax = "proto2";
+package bsn_msg_gate_gateconfig;
+
+enum ECmdGate2GateConfig { 
+	CmdGate2GateConfig_Null 				= 0; // 
+
+	CmdGate2GateConfig_GetServerConfigReq 	= 1; // 
+
+	CmdGate2GateConfig_Counts				= 2; // 
+}
+
+
+enum ECmdGateConfig2Gate { 
+	CmdGateConfig2Gate_Null 				= 0; // 
+
+	CmdGateConfig2Gate_GetServerConfigRes 	= 1; // 
+
+	CmdGateConfig2Gate_Counts				= 2; // 
+}
+  

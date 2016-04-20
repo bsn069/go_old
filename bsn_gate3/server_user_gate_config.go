@@ -1,7 +1,7 @@
 package bsn_gate3
 
 import (
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_input"
 	"github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
@@ -10,6 +10,8 @@ import (
 	// "net"
 	// "strconv"
 	// "sync"
+	"bsn_msg_gate_gateconfig"
+	"github.com/golang/protobuf/proto"
 )
 
 type SServerUserGateConfig struct {
@@ -35,7 +37,10 @@ func (this *SServerUserGateConfig) UserMgr() *SServerUserMgr {
 
 func (this *SServerUserGateConfig) Run() {
 	this.SConnecterWithMsgHeader.Run()
-	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2GateConfig_Reg, nil)
+	msg := &bsn_msg_gate_gateconfig.SGate2GateConfig_GetServerConfigReq{
+		Vu32Id: proto.Uint32(1),
+	}
+	this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_gateconfig.ECmdGate2GateConfig_CmdGate2GateConfig_GetServerConfigReq), msg)
 }
 
 func (this *SServerUserGateConfig) NetConnecterWithMsgHeaderImpOnClose() error {

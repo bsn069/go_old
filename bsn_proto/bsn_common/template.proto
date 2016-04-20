@@ -1,0 +1,18 @@
+syntax = "proto2";
+package bsn_common;
+  
+
+enum ETest { 
+	Test_Null 	= 0; // 
+
+	Test_Test 	= 1; // 
+
+	Test_Counts	= 2; // 
+}
+
+
+message STest {
+	required string VstrName 	= 1; // 
+	required string VstrPwd		= 2; // 
+	required ETest  VETest   	= 3; // 
+}

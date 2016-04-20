@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
+	"github.com/golang/protobuf/proto"
 	"net"
 )
 
@@ -37,6 +38,15 @@ func (this *SSession) SendString(strMsg string) error {
 
 func (this *SSession) SendMsgWithSMsgHeader(vTMsgType bsn_common.TMsgType, byMsg []byte) error {
 	return SendMsgWithSMsgHeader(this.Conn(), vTMsgType, byMsg)
+}
+
+func (this *SSession) SendPbMsgWithSMsgHeader(vTMsgType bsn_common.TMsgType, iMessage proto.Message) error {
+	b, err := proto.Marshal(iMessage)
+	if err != nil {
+		GSLog.Errorln(err)
+		return err
+	}
+	return this.SendMsgWithSMsgHeader(vTMsgType, b)
 }
 
 func (this *SSession) Recv(byData []byte) error {

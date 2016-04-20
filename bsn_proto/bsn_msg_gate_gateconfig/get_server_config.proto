@@ -1,0 +1,16 @@
+syntax = "proto2";
+import "bsn_common/server_type.proto";
+package bsn_msg_gate_gateconfig;
+  
+message SServerConfig {
+	required bsn_common.EServerType 	Vcommon_EServerType	= 1 [default = ServerType_Counts]; // server type
+	required string 					VstrAddr 			= 2; // server ip:port addr
+}
+
+message SGate2GateConfig_GetServerConfigReq {
+	required uint32 Vu32Id 	= 1; // gate id
+}
+
+message SGateConfig2Gate_GetServerConfigRes {
+	repeated SServerConfig VSServerConfigs 	= 1; // all server config
+}
