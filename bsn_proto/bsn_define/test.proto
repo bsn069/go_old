@@ -33,7 +33,7 @@
 
 syntax = "proto2";
 
-package bsn_common;
+package bsn_define;
  
 
 enum FOO { FOO1 = 1; };

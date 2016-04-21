@@ -2,19 +2,19 @@ syntax = "proto2";
 package bsn_msg_gate_gateconfig;
 
 enum ECmdGate2GateConfig { 
-	CmdGate2GateConfig_Null 				= 0; // 
+	CmdGate2GateConfig_Min 					= 1000; // 
 
-	CmdGate2GateConfig_GetServerConfigReq 	= 1; // 
+	CmdGate2GateConfig_GetServerConfigReq 	= 1001; // 
 
-	CmdGate2GateConfig_Counts				= 2; // 
+	CmdGate2GateConfig_Max					= 65535; // 
 }
 
 
 enum ECmdGateConfig2Gate { 
-	CmdGateConfig2Gate_Null 				= 0; // 
+	CmdGateConfig2Gate_Min 					= 1000; // 
 
-	CmdGateConfig2Gate_GetServerConfigRes 	= 1; // 
+	CmdGateConfig2Gate_GetServerConfigRes 	= 1001; // 
 
-	CmdGateConfig2Gate_Counts				= 2; // 
+	CmdGateConfig2Gate_Max					= 65535; // 
 }
   

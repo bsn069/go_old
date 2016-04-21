@@ -3,7 +3,7 @@ package bsn_gate3
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
-	"github.com/bsn069/go/bsn_msg"
+	// "github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
 	// "unsafe"
 	// "net"
@@ -29,10 +29,6 @@ func NewSClientUser(vSClientUserMgr *SClientUserMgr) (*SClientUser, error) {
 	this.SState = bsn_common.NewSState()
 	this.SNotifyClose = bsn_common.NewSNotifyClose()
 	return this, nil
-}
-
-func (this *SClientUser) Ping(strInfo string) error {
-	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Server2Gate_Ping, []byte(strInfo))
 }
 
 func (this *SClientUser) UserMgr() *SClientUserMgr {

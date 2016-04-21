@@ -1,7 +1,7 @@
  
-rmdir %GOPATH%\src\bsn_common /s /q
-mkdir %GOPATH%\src\bsn_common
-protoc --go_out=%GOPATH%\src  .\bsn_common\*.proto
+rmdir %GOPATH%\src\bsn_define /s /q
+mkdir %GOPATH%\src\bsn_define
+protoc --go_out=%GOPATH%\src  .\bsn_define\*.proto
  
 rmdir %GOPATH%\src\bsn_msg_common /s /q
 mkdir %GOPATH%\src\bsn_msg_common

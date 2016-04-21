@@ -1,6 +1,7 @@
 package bsn_net
 
 import (
+	"bsn_define"
 	"errors"
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
@@ -38,6 +39,14 @@ func (this *SSession) SendString(strMsg string) error {
 
 func (this *SSession) SendMsgWithSMsgHeader(vTMsgType bsn_common.TMsgType, byMsg []byte) error {
 	return SendMsgWithSMsgHeader(this.Conn(), vTMsgType, byMsg)
+}
+
+func (this *SSession) Ping(byMsg []byte) error {
+	return this.SendMsgWithSMsgHeader(bsn_common.TMsgType(bsn_define.ECmd_Cmd_Ping), byMsg)
+}
+
+func (this *SSession) Pong(byMsg []byte) error {
+	return this.SendMsgWithSMsgHeader(bsn_common.TMsgType(bsn_define.ECmd_Cmd_Pong), byMsg)
 }
 
 func (this *SSession) SendPbMsgWithSMsgHeader(vTMsgType bsn_common.TMsgType, iMessage proto.Message) error {

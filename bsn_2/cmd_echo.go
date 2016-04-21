@@ -39,7 +39,7 @@ func (this *SCmdEcho) ECHO_RUN(vTInputParams bsn_common.TInputParams) {
 
 	this.M_SApp, _ = app.NewSApp(uint32(vu32Id))
 
-	vuClientListenPort := 52000 + uint16(vu32Id)
+	vuClientListenPort := 40000 + uint16(vu32Id%100)
 	err = this.M_SApp.GetClientMgr().SetAddr(":" + strconv.Itoa(int(vuClientListenPort)))
 	if err != nil {
 		GSLog.Errorln(err)

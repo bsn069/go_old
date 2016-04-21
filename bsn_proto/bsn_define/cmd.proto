@@ -1,0 +1,12 @@
+syntax = "proto2";
+package bsn_define;
+
+enum ECmd { 
+	Cmd_Min		= 0; // 
+
+	Cmd_Ping 	= 1; // 
+	Cmd_Pong 	= 2; // 
+
+	Cmd_Max		= 1000; // 
+}
+

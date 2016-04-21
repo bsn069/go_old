@@ -57,7 +57,7 @@ func (this *SClientUserMgr) Ping(strInfo string) error {
 		if vClientUser == nil {
 			continue
 		}
-		vClientUser.Ping(strInfo)
+		vClientUser.Ping([]byte(strInfo))
 	}
 	return nil
 }

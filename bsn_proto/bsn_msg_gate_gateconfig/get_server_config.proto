@@ -1,9 +1,9 @@
 syntax = "proto2";
-import "bsn_common/server_type.proto";
+import "bsn_define/server_type.proto";
 package bsn_msg_gate_gateconfig;
   
 message SServerConfig {
-	required bsn_common.EServerType 	Vcommon_EServerType	= 1 [default = ServerType_Counts]; // server type
+	required bsn_define.EServerType 	Vcommon_EServerType	= 1 [default = ServerType_Counts]; // server type
 	required string 					VstrAddr 			= 2; // server ip:port addr
 }
 

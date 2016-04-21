@@ -42,7 +42,7 @@ func (this *SCmdGate3) GATE3_RUN(vTInputParams bsn_common.TInputParams) {
 		return
 	}
 
-	vuClientListenPort := 40000 + vuAppId
+	vuClientListenPort := 20000 + vuAppId
 	err = vSApp.UserMgr().ClientUserMgr().SetAddr(":" + strconv.Itoa(int(vuClientListenPort)))
 	if err != nil {
 		GSLog.Errorln(err)

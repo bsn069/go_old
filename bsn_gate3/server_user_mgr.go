@@ -27,7 +27,7 @@ func NewSServerUserMgr(vSUserMgr *SUserMgr) (*SServerUserMgr, error) {
 	}
 	this.SState = bsn_common.NewSState()
 	this.M_SServerUserGateConfig, _ = NewSServerUserGateConfig(this)
-	this.M_SServerUserGateConfig.SetAddr("localhost:51001")
+	this.M_SServerUserGateConfig.SetAddr("localhost:30001")
 
 	return this, nil
 }
