@@ -3,7 +3,7 @@ package bsn_2
 import (
 	// "strconv"
 	_ "bsn_msg_common"
-	_ "bsn_msg_gate2server"
+	_ "bsn_msg_gate_server"
 	"testing"
 )
 

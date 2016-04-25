@@ -1,0 +1,19 @@
+syntax = "proto2";
+import "bsn_msg_common/template.proto";
+package bsn_msg_client_server;
+  
+enum ETest { 
+	Test_Null 	= 0; // 
+
+	Test_Test 	= 1; // 
+
+	Test_Counts	= 2; // 
+}
+
+message STest {
+	required string VstrName 	= 1; // 
+	required string VstrPwd		= 2; // 
+	required ETest  VETest   = 3; // 
+	required bsn_msg_common.ETest  Vmsg_common_ETest   = 4; // 
+	required bsn_msg_common.STest  Vmsg_common_STest   = 5; // 
+}

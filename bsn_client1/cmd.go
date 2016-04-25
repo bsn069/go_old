@@ -10,7 +10,7 @@ import (
 	// "math/rand"
 	// "reflect"
 	// "strconv"
-	"strings"
+	// "strings"
 )
 
 type SCmd struct {
@@ -41,30 +41,30 @@ func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 	this.M_SApp.Run()
 }
 
-func (this *SCmd) GATE_PING(vTInputParams bsn_common.TInputParams) {
-	if len(vTInputParams) < 1 {
-		GSLog.Errorln("msg strings")
-		return
-	}
+// func (this *SCmd) GATE_PING(vTInputParams bsn_common.TInputParams) {
+// 	if len(vTInputParams) < 1 {
+// 		GSLog.Errorln("msg strings")
+// 		return
+// 	}
 
-	strMsg := strings.Join([]string(vTInputParams), " ")
+// 	strMsg := strings.Join([]string(vTInputParams), " ")
 
-	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.GatePing(strMsg)
-	if err != nil {
-		GSLog.Errorln(err)
-	}
-}
+// 	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.GatePing(strMsg)
+// 	if err != nil {
+// 		GSLog.Errorln(err)
+// 	}
+// }
 
-func (this *SCmd) ECHO_PING(vTInputParams bsn_common.TInputParams) {
-	if len(vTInputParams) < 1 {
-		GSLog.Errorln("msg strings")
-		return
-	}
+// func (this *SCmd) ECHO_PING(vTInputParams bsn_common.TInputParams) {
+// 	if len(vTInputParams) < 1 {
+// 		GSLog.Errorln("msg strings")
+// 		return
+// 	}
 
-	strMsg := strings.Join([]string(vTInputParams), " ")
+// 	strMsg := strings.Join([]string(vTInputParams), " ")
 
-	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.EchoPing(strMsg)
-	if err != nil {
-		GSLog.Errorln(err)
-	}
-}
+// 	err := this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.EchoPing(strMsg)
+// 	if err != nil {
+// 		GSLog.Errorln(err)
+// 	}
+// }

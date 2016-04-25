@@ -10,6 +10,7 @@ import (
 	// "net"
 	// "strconv"
 	// "sync"
+	"bsn_msg_gate_server"
 )
 
 type SServerUser struct {
@@ -48,7 +49,7 @@ func (this *SServerUser) OnClientMsg(vSClientUser *SClientUser) bool {
 
 	vSMsg_Gate2Server_ClientMsg := new(bsn_msg.SMsg_Gate2Server_ClientMsg)
 	vSMsg_Gate2Server_ClientMsg.Fill(uint16(vSClientUser.Id()), vSClientUser.M_SMsgHeader, vSClientUser.M_by2MsgBody)
-	this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Server_ClientMsg, vSMsg_Gate2Server_ClientMsg.Serialize())
+	this.SendMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_server.ECmdGate2Server_CmdGate2Server_ClientMsg), vSMsg_Gate2Server_ClientMsg.Serialize())
 
 	return true
 }

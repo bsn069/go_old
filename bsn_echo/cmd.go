@@ -10,7 +10,7 @@ import (
 	// "math/rand"
 	// "reflect"
 	// "strconv"
-	// "strings"
+	"strings"
 )
 
 type SCmd struct {
@@ -27,7 +27,7 @@ func (this *SCmd) CLIENT_LISTEN_ADDR(vTInputParams bsn_common.TInputParams) {
 		return
 	}
 
-	err := this.M_SApp.GetClientMgr().SetAddr(vTInputParams[0])
+	err := this.M_SApp.UserMgr().ClientUserMgr().SetAddr(vTInputParams[0])
 	if err != nil {
 		GSLog.Errorln(err)
 	}
@@ -39,4 +39,32 @@ func (this *SCmd) CLOSE(vTInputParams bsn_common.TInputParams) {
 
 func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 	this.M_SApp.Run()
+}
+
+func (this *SCmd) SERVERS_PING(vTInputParams bsn_common.TInputParams) {
+	if len(vTInputParams) < 1 {
+		GSLog.Errorln("msg strings")
+		return
+	}
+
+	strMsg := strings.Join([]string(vTInputParams), " ")
+
+	err := this.M_SApp.UserMgr().ServerUserMgr().Ping(strMsg)
+	if err != nil {
+		GSLog.Errorln(err)
+	}
+}
+
+func (this *SCmd) CLIENTS_PING(vTInputParams bsn_common.TInputParams) {
+	if len(vTInputParams) < 1 {
+		GSLog.Errorln("msg strings")
+		return
+	}
+
+	strMsg := strings.Join([]string(vTInputParams), " ")
+
+	err := this.M_SApp.UserMgr().ClientUserMgr().Ping(strMsg)
+	if err != nil {
+		GSLog.Errorln(err)
+	}
 }

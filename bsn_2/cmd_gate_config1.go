@@ -39,8 +39,7 @@ func (this *SCmdGateConfig1) GATE_CONFIG_RUN(vTInputParams bsn_common.TInputPara
 
 	this.M_SApp, _ = bsn_gate_config.NewSApp(uint32(vu32Id))
 
-	vuClientListenPort := 30000 + uint16(vu32Id%100)
-
+	vuClientListenPort := this.M_SApp.ConfigListenPort()
 	err = this.M_SApp.UserMgr().ClientUserMgr().SetAddr(":" + strconv.Itoa(int(vuClientListenPort)))
 	if err != nil {
 		GSLog.Errorln(err)

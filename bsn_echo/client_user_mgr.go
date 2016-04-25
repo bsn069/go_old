@@ -15,17 +15,17 @@ type TId2ClientUser map[TClientId]*SClientUser
 type SClientUserMgr struct {
 	*bsn_net.SNetServer
 
-	M_SApp *SApp
+	M_SUserMgr *SUserMgr
 
 	M_MutexUser sync.Mutex
 	M_TId2User  TId2ClientUser
 	M_TClientId TClientId
 }
 
-func NewSClientUserMgr(vSApp *SApp) (*SClientUserMgr, error) {
+func NewSClientUserMgr(vSUserMgr *SUserMgr) (*SClientUserMgr, error) {
 	GSLog.Debugln("NewSClientUserMgr")
 	this := &SClientUserMgr{
-		M_SApp:      vSApp,
+		M_SUserMgr:  vSUserMgr,
 		M_TClientId: 0,
 		M_TId2User:  make(TId2ClientUser, 100),
 	}
@@ -34,8 +34,8 @@ func NewSClientUserMgr(vSApp *SApp) (*SClientUserMgr, error) {
 	return this, nil
 }
 
-func (this *SClientUserMgr) App() *SApp {
-	return this.M_SApp
+func (this *SClientUserMgr) UserMgr() *SUserMgr {
+	return this.M_SUserMgr
 }
 
 func (this *SClientUserMgr) ShowInfo() {
@@ -44,6 +44,21 @@ func (this *SClientUserMgr) ShowInfo() {
 }
 
 func (this *SClientUserMgr) Send(vTClientId TClientId, vbyMsg []byte) error {
+	vClient := this.getClient(vTClientId)
+	if vClient == nil {
+		return errors.New("not found client")
+	}
+
+	return vClient.Send(vbyMsg)
+}
+
+func (this *SClientUserMgr) Ping(strInfo string) error {
+	for _, vClientUser := range this.M_TId2User {
+		if vClientUser == nil {
+			continue
+		}
+		vClientUser.Ping([]byte(strInfo))
+	}
 	return nil
 }
 
@@ -57,6 +72,8 @@ func (this *SClientUserMgr) NetServerImpAccept(vConn net.Conn) error {
 	if vTClientId == 0 {
 		return errors.New("genClientId fail")
 	}
+
+	GSLog.Debugln("accept client", vTClientId)
 
 	vSClientUser.SetConn(vConn)
 	vSClientUser.SetId(vTClientId)
@@ -96,6 +113,7 @@ func (this *SClientUserMgr) getClient(vTClientId TClientId) *SClientUser {
 // generate clientid
 // if not generate return 0
 func (this *SClientUserMgr) genClientId() TClientId {
+	GSLog.Debugln("this.M_TClientId ", this.M_TClientId)
 	for i := 0; i < 100; i++ {
 		this.M_TClientId++
 		if this.M_TClientId == 0 {

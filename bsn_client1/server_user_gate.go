@@ -3,7 +3,7 @@ package bsn_client1
 import (
 	// "github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_input"
-	"github.com/bsn069/go/bsn_msg"
+	// "github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
 	// "github.com/bsn069/go/bsn_log"
 	// "errors"
@@ -47,12 +47,4 @@ func (this *SServerUserGate) Run() {
 
 func (this *SServerUserGate) Close() {
 	this.SConnecterWithMsgHeader.Close()
-}
-
-func (this *SServerUserGate) GatePing(strInfo string) error {
-	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Client2Gate_Ping, []byte(strInfo))
-}
-
-func (this *SServerUserGate) EchoPing(strInfo string) error {
-	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Client2Echo_Ping, []byte(strInfo))
 }

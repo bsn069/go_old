@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
+	"strconv"
 )
 
 func (this *SClientUser) procGateMsg(msgType bsn_msg_gate_gateconfig.ECmdGate2GateConfig) error {
@@ -38,7 +39,7 @@ func (this *SClientUser) ProcMsg_CmdGate2GateConfig_GetServerConfigReq() (err er
 		VSServerConfigs: []*bsn_msg_gate_gateconfig.SServerConfig{
 			&bsn_msg_gate_gateconfig.SServerConfig{
 				Vcommon_EServerType: bsn_define.EServerType_ServerType_Echo.Enum(),
-				VstrAddr:            proto.String("localhost:40001"),
+				VstrAddr:            proto.String("localhost:" + strconv.Itoa(int(bsn_common.ServerPort(uint32(bsn_define.EServerType_ServerType_Echo), this.UserMgr().UserMgr().App().Id())))),
 			},
 		},
 	}

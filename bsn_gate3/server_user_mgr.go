@@ -6,6 +6,8 @@ import (
 	// "github.com/bsn069/go/bsn_msg"
 	// "time""
 	// "net"
+	"bsn_msg_gate_gateconfig"
+	"strconv"
 )
 
 type SServerUserMgr struct {
@@ -16,18 +18,20 @@ type SServerUserMgr struct {
 
 	M_SServerUserGateConfig *SServerUserGateConfig
 	M_chanWaitGateConfig    chan bool
+
+	M_SServerConfigs []*bsn_msg_gate_gateconfig.SServerConfig
 }
 
 func NewSServerUserMgr(vSUserMgr *SUserMgr) (*SServerUserMgr, error) {
 	GSLog.Debugln("NewSServerUserMgr")
 	this := &SServerUserMgr{
 		M_SUserMgr:           vSUserMgr,
-		M_Users:              make([]*SServerUser, 1),
+		M_Users:              make([]*SServerUser, 0, 5),
 		M_chanWaitGateConfig: make(chan bool, 1),
 	}
 	this.SState = bsn_common.NewSState()
 	this.M_SServerUserGateConfig, _ = NewSServerUserGateConfig(this)
-	this.M_SServerUserGateConfig.SetAddr("localhost:30001")
+	this.M_SServerUserGateConfig.SetAddr("localhost:" + strconv.Itoa(int(bsn_common.GateConfigPort(1))))
 
 	return this, nil
 }
@@ -51,6 +55,20 @@ func (this *SServerUserMgr) Run() (err error) {
 	this.M_SServerUserGateConfig.Run()
 	<-this.M_chanWaitGateConfig
 
+	for i, a := range this.M_SServerConfigs {
+		GSLog.Debugln(i, a)
+		vServerUser, _ := NewSServerUser(this)
+		vServerUser.SetAddr(a.GetVstrAddr())
+		this.M_Users = append(this.M_Users, vServerUser)
+	}
+
+	GSLog.Debugln(1, this.M_Users)
+	for _, user := range this.M_Users {
+		GSLog.Debugln(2, user)
+		user.Run()
+		GSLog.Debugln(3)
+	}
+
 	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	return nil
 }
@@ -67,6 +85,10 @@ func (this *SServerUserMgr) Close() (err error) {
 		}
 		this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
 	}()
+
+	for _, user := range this.M_Users {
+		user.Close()
+	}
 
 	this.Set(bsn_common.CState_Idle)
 	return nil

@@ -1,16 +1,15 @@
 package bsn_echo
 
 import (
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_input"
 	// "github.com/bsn069/go/bsn_log"
 	"strconv"
 )
 
 type SApp struct {
-	M_SClientUserMgr *SClientUserMgr
-	M_SServerUserMgr *SServerUserMgr
-	M_Id             uint32
+	M_SUserMgr *SUserMgr
+	M_Id       uint32
 }
 
 func NewSApp(vId uint32) (this *SApp, err error) {
@@ -19,15 +18,9 @@ func NewSApp(vId uint32) (this *SApp, err error) {
 		M_Id: vId,
 	}
 
-	this.M_SClientUserMgr, err = NewSClientUserMgr(this)
+	this.M_SUserMgr, err = NewSUserMgr(this)
 	if err != nil {
-		GSLog.Errorln("NewSClientUserMgr fail")
-		return nil, err
-	}
-
-	this.M_SServerUserMgr, err = NewSServerUserMgr(this)
-	if err != nil {
-		GSLog.Errorln("NewSServerUserMgr fail")
+		GSLog.Errorln("NewSUserMgr fail")
 		return nil, err
 	}
 
@@ -37,26 +30,27 @@ func NewSApp(vId uint32) (this *SApp, err error) {
 	return this, nil
 }
 
-func (this *SApp) ShowInfo() {
-	GSLog.Mustln("GAppName=", GAppName)
-	this.GetClientMgr().ShowInfo()
-	this.GetServerMgr().ShowInfo()
+func (this *SApp) Id() uint32 {
+	return this.M_Id
 }
 
-func (this *SApp) GetClientMgr() *SClientUserMgr {
-	return this.M_SClientUserMgr
+func (this *SApp) ConfigListenPort() uint16 {
+	return bsn_common.ServerPort(uint32(GServerType), this.Id())
 }
 
-func (this *SApp) GetServerMgr() *SServerUserMgr {
-	return this.M_SServerUserMgr
-}
-
-func (this *SApp) Close() {
-	this.GetClientMgr().Close()
-	this.GetServerMgr().Close()
+func (this *SApp) UserMgr() *SUserMgr {
+	return this.M_SUserMgr
 }
 
 func (this *SApp) Run() {
-	this.GetServerMgr().Run()
-	this.GetClientMgr().Run()
+	this.M_SUserMgr.Run()
+}
+
+func (this *SApp) Close() {
+	this.M_SUserMgr.Close()
+}
+
+func (this *SApp) ShowInfo() {
+	GSLog.Mustln("GAppName=", GAppName)
+	this.M_SUserMgr.ShowInfo()
 }

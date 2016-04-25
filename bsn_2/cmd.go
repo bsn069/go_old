@@ -41,7 +41,7 @@ func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 		GSLog.Errorln("appid")
 		return
 	}
-	// this.SCmdEcho.ECHO_RUN(vParams)
+	this.ECHO_RUN(vTInputParams)
 	this.GATE_CONFIG_RUN(vTInputParams)
 	this.GATE3_RUN(vTInputParams)
 	this.CLIENT1_RUN(vTInputParams)

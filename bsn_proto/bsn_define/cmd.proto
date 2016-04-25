@@ -10,3 +10,7 @@ enum ECmd {
 	Cmd_Max		= 1000; // 
 }
 
+/* 2Server
+1000-2000 ECmdGate2Server
+3000-4000 ECmdClient2EchoServer 
+*/

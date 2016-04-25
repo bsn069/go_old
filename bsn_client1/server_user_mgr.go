@@ -6,6 +6,7 @@ import (
 	// "github.com/bsn069/go/bsn_msg"
 	// "time""
 	// "net"
+	"strconv"
 )
 
 type SServerUserMgr struct {
@@ -23,7 +24,7 @@ func NewSServerUserMgr(vSUserMgr *SUserMgr) (*SServerUserMgr, error) {
 	}
 	this.SState = bsn_common.NewSState()
 	this.M_SServerUserGate, _ = NewSServerUserGate(this)
-	this.M_SServerUserGate.SetAddr("localhost:40001")
+	this.M_SServerUserGate.SetAddr("localhost:" + strconv.Itoa(int(bsn_common.GateConfigPort(1))))
 
 	return this, nil
 }

@@ -1,7 +1,7 @@
 package bsn_gate3
 
 import (
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_input"
 	// "github.com/bsn069/go/bsn_log"
 	"strconv"
@@ -28,6 +28,14 @@ func NewSApp(vId uint32) (this *SApp, err error) {
 	bsn_input.GSInput.Reg(GAppName+strconv.Itoa(int(vId)), vSCmd)
 
 	return this, nil
+}
+
+func (this *SApp) Id() uint32 {
+	return this.M_Id
+}
+
+func (this *SApp) ConfigListenPort() uint16 {
+	return bsn_common.GateConfigPort(this.Id())
 }
 
 func (this *SApp) UserMgr() *SUserMgr {

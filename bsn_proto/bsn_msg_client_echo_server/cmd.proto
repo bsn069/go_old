@@ -1,0 +1,19 @@
+syntax = "proto2";
+package bsn_msg_client_echo_server;
+
+enum ECmdClient2EchoServer { 
+	CmdClient2EchoServer_Min 					= 3000; // 
+
+	CmdClient2EchoServer_ClientMsg 				= 3001; // 
+
+	CmdClient2EchoServer_Max					= 4000; // 
+}
+
+
+enum ECmdEchoServe2Client { 
+	CmdEchoServer2Client_Min 					= 3000; // 
+
+
+	CmdEchoServer2Client_Max					= 4000; // 
+}
+  
