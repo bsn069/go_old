@@ -24,7 +24,7 @@ func NewSServerUserMgr(vSUserMgr *SUserMgr) (*SServerUserMgr, error) {
 	}
 	this.SState = bsn_common.NewSState()
 	this.M_SServerUserGate, _ = NewSServerUserGate(this)
-	this.M_SServerUserGate.SetAddr("localhost:" + strconv.Itoa(int(bsn_common.GateConfigPort(1))))
+	this.M_SServerUserGate.SetAddr("localhost:" + strconv.Itoa(int(bsn_common.GatePort(1))))
 
 	return this, nil
 }

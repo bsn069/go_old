@@ -2,8 +2,9 @@ package bsn_gate3
 
 import (
 	"bsn_msg_gate_server"
-	"errors"
-	"fmt"
+	// "errors"
+	// "fmt"
+	"bsn_define"
 	"github.com/bsn069/go/bsn_msg"
 )
 

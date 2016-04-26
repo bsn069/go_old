@@ -7,7 +7,9 @@ import (
 	"github.com/bsn069/go/bsn_net"
 	// "unsafe"
 	// "net"
+	"bsn_msg_client_gate"
 	// "sync"
+	"github.com/golang/protobuf/proto"
 )
 
 type SClientUser struct {
@@ -110,4 +112,11 @@ func (this *SClientUser) runImp() {
 			break
 		}
 	}
+}
+
+func (this *SClientUser) TestReq() {
+	sendMsg := &bsn_msg_client_gate.STestReq{
+		VstrInfo: proto.String("gate test req"),
+	}
+	this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_client_gate.ECmdGate2Client_CmdGate2Client_TestReq), sendMsg)
 }

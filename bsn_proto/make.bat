@@ -18,4 +18,8 @@ protoc --go_out=%GOPATH%\src  .\bsn_msg_gate_gateconfig\*.proto
 rmdir %GOPATH%\src\bsn_msg_client_echo_server /s /q
 mkdir %GOPATH%\src\bsn_msg_client_echo_server
 protoc --go_out=%GOPATH%\src  .\bsn_msg_client_echo_server\*.proto
+
+rmdir %GOPATH%\src\bsn_msg_client_gate /s /q
+mkdir %GOPATH%\src\bsn_msg_client_gate
+protoc --go_out=%GOPATH%\src  .\bsn_msg_client_gate\*.proto
  

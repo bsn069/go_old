@@ -29,7 +29,7 @@ func (this *SServerUserGate) ProcMsg_CmdEchoServer2Client_TestReq() (err error) 
 	if err = proto.Unmarshal(this.M_by2MsgBody, recvMsg); err != nil {
 		return
 	}
-	GSLog.Debugln(recvMsg.VstrInfo)
+	GSLog.Debugln(*recvMsg.VstrInfo)
 
 	sendMsg := &bsn_msg_client_echo_server.STestRes{
 		VstrInfo: proto.String("client test res"),
@@ -46,7 +46,7 @@ func (this *SServerUserGate) ProcMsg_CmdEchoServer2Client_TestRes() (err error) 
 	if err = proto.Unmarshal(this.M_by2MsgBody, recvMsg); err != nil {
 		return
 	}
-	GSLog.Debugln(recvMsg.VstrInfo)
+	GSLog.Debugln(*recvMsg.VstrInfo)
 
 	return
 }

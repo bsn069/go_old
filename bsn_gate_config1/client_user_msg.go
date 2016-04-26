@@ -5,7 +5,7 @@ import (
 	"bsn_msg_gate_gateconfig"
 	"errors"
 	"fmt"
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
 )
 
@@ -24,4 +24,14 @@ func (this *SClientUser) procMsg() error {
 	}
 
 	return errors.New(fmt.Sprintf("unknown msg type = %v", msgType))
+}
+
+func IsMsgGate(vTMsgType bsn_common.TMsgType) bool {
+	if vTMsgType < bsn_common.TMsgType(bsn_msg_gate_gateconfig.ECmdGate2GateConfig_CmdGate2GateConfig_Min) {
+		return false
+	}
+	if vTMsgType > bsn_common.TMsgType(bsn_msg_gate_gateconfig.ECmdGate2GateConfig_CmdGate2GateConfig_Max) {
+		return false
+	}
+	return true
 }

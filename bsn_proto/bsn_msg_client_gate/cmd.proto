@@ -11,7 +11,7 @@ enum ECmdClient2Gate {
 }
 
 
-enum ECmdGateClient { 
+enum ECmdGate2Client { 
 	CmdGate2Client_Min 					= 2000; // 
 
 	CmdGate2Client_TestReq 				= 2001; // 

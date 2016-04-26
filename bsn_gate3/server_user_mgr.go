@@ -116,7 +116,7 @@ func (this *SServerUserMgr) Ping(strInfo string) error {
 		if vServerUser == nil {
 			continue
 		}
-		vServerUser.Ping(strInfo)
+		vServerUser.Ping([]byte(strInfo))
 	}
 	return nil
 }

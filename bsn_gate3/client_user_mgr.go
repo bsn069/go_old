@@ -124,3 +124,13 @@ func (this *SClientUserMgr) genClientId() TClientId {
 	}
 	return 0
 }
+
+func (this *SClientUserMgr) TestReq() error {
+	for _, vClientUser := range this.M_TId2User {
+		if vClientUser == nil {
+			continue
+		}
+		vClientUser.TestReq()
+	}
+	return nil
+}

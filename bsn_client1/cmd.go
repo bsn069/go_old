@@ -58,3 +58,7 @@ func (this *SCmd) PING(vTInputParams bsn_common.TInputParams) {
 func (this *SCmd) TEST_REQ(vTInputParams bsn_common.TInputParams) {
 	this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.TestReq()
 }
+
+func (this *SCmd) TEST_REQ_ECHO_SERVER(vTInputParams bsn_common.TInputParams) {
+	this.M_SApp.UserMgr().ServerUserMgr().M_SServerUserGate.TestReq2EchoServer()
+}

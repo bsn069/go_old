@@ -12,6 +12,7 @@ import (
 	// "sync"
 	// "fmt"
 	"bsn_msg_client_echo_server"
+	"bsn_msg_client_gate"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -52,6 +53,13 @@ func (this *SServerUserGate) Close() {
 }
 
 func (this *SServerUserGate) TestReq() {
+	sendMsg := &bsn_msg_client_gate.STestReq{
+		VstrInfo: proto.String("client test req"),
+	}
+	this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_client_gate.ECmdClient2Gate_CmdClient2Gate_TestReq), sendMsg)
+}
+
+func (this *SServerUserGate) TestReq2EchoServer() {
 	sendMsg := &bsn_msg_client_echo_server.STestReq{
 		VstrInfo: proto.String("client test req"),
 	}

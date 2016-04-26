@@ -29,6 +29,6 @@ func (this *SClientUser) ProcMsg_Cmd_Ping() (err error) {
 }
 
 func (this *SClientUser) ProcMsg_Cmd_Pong() (err error) {
-	GSLog.Debugln("ProcMsg_Cmd_Pong")
+	GSLog.Debugln("ProcMsg_Cmd_Pong ", string(this.M_by2MsgBody))
 	return nil
 }

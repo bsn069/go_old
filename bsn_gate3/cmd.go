@@ -68,3 +68,10 @@ func (this *SCmd) CLIENTS_PING(vTInputParams bsn_common.TInputParams) {
 		GSLog.Errorln(err)
 	}
 }
+
+func (this *SCmd) CLIENTS_TEST_REQ(vTInputParams bsn_common.TInputParams) {
+	err := this.M_SApp.UserMgr().ClientUserMgr().TestReq()
+	if err != nil {
+		GSLog.Errorln(err)
+	}
+}
