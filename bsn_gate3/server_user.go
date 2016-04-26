@@ -61,7 +61,3 @@ func (this *SServerUser) NetConnecterWithMsgHeaderImpOnClose() error {
 
 func (this *SServerUser) ShowInfo() {
 }
-
-func (this *SServerUser) Ping(strInfo string) error {
-	return this.SendMsgWithSMsgHeader(bsn_msg.GMsgDefine_Gate2Server_Ping, []byte(strInfo))
-}

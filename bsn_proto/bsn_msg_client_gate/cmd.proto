@@ -1,0 +1,22 @@
+syntax = "proto2";
+package bsn_msg_client_gate;
+
+enum ECmdClient2Gate { 
+	CmdClient2Gate_Min 					= 2000; // 
+
+	CmdClient2Gate_TestReq 				= 2001; // 
+	CmdClient2Gate_TestRes 				= 2002; // 
+
+	CmdClient2Gate_Max					= 3000; // 
+}
+
+
+enum ECmdGateClient { 
+	CmdGate2Client_Min 					= 2000; // 
+
+	CmdGate2Client_TestReq 				= 2001; // 
+	CmdGate2Client_TestRes 				= 2002; // 
+
+	CmdGate2Client_Max					= 3000; // 
+}
+  

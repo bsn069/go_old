@@ -41,19 +41,19 @@ func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 	this.M_SApp.Run()
 }
 
-func (this *SCmd) SERVERS_PING(vTInputParams bsn_common.TInputParams) {
-	if len(vTInputParams) < 1 {
-		GSLog.Errorln("msg strings")
-		return
-	}
+// func (this *SCmd) SERVERS_PING(vTInputParams bsn_common.TInputParams) {
+// 	if len(vTInputParams) < 1 {
+// 		GSLog.Errorln("msg strings")
+// 		return
+// 	}
 
-	strMsg := strings.Join([]string(vTInputParams), " ")
+// 	strMsg := strings.Join([]string(vTInputParams), " ")
 
-	err := this.M_SApp.UserMgr().ServerUserMgr().Ping(strMsg)
-	if err != nil {
-		GSLog.Errorln(err)
-	}
-}
+// 	err := this.M_SApp.UserMgr().ServerUserMgr().Ping(strMsg)
+// 	if err != nil {
+// 		GSLog.Errorln(err)
+// 	}
+// }
 
 func (this *SCmd) CLIENTS_PING(vTInputParams bsn_common.TInputParams) {
 	if len(vTInputParams) < 1 {

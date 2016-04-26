@@ -1,0 +1,4 @@
+syntax = "proto2";
+package bsn_msg_client_gate;
+  
+ 

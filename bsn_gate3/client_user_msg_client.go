@@ -1,4 +1,4 @@
-package bsn_echo
+package bsn_gate3
 
 import (
 	"bsn_define"
@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-func (this *SClientUser) procSysMsg(msgType bsn_define.ECmd) error {
+func (this *SClientUser) procClientMsg(msgType bsn_define.ECmd) error {
 	GSLog.Debugln("msgType=", msgType)
 
 	switch msgType {

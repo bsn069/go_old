@@ -1,32 +1,28 @@
 package bsn_client1
 
 import (
-	// "github.com/bsn069/go/bsn_common"
-	// "github.com/bsn069/go/bsn_input"
-	"github.com/bsn069/go/bsn_msg"
-	// "github.com/bsn069/go/bsn_net"
-	// "github.com/bsn069/go/bsn_log"
+	"bsn_define"
+	"bsn_msg_client_echo_server"
 	"errors"
-	// "net"
-	// "strconv"
-	// "sync"
 	"fmt"
+	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_msg"
 )
 
 func (this *SServerUserGate) NetConnecterWithMsgHeaderImpProcMsg() error {
 	GSLog.Debugln("NetConnecterWithMsgHeaderImpProcMsg")
+	GSLog.Debugln(this.M_SMsgHeader)
+	GSLog.Debugln(this.M_by2MsgBody)
 
-	switch this.MsgType() {
-	case bsn_msg.GMsgDefine_Gate2Client_Ping:
-		return this.ProcMsg_Gate_Ping()
-	case bsn_msg.GMsgDefine_Gate2Client_Pong:
-		return this.ProcMsg_Gate_Pong()
-	case bsn_msg.GMsgDefine_Echo2Client_Ping:
-		return this.ProcMsg_Echo_Ping()
-	case bsn_msg.GMsgDefine_Echo2Client_Pong:
-		return this.ProcMsg_Echo_Pong()
+	msgType := this.MsgType()
+
+	if bsn_msg.IsMsgSys(msgType) {
+		return this.procSysMsg(bsn_define.ECmd(msgType))
 	}
 
-	strInfo := fmt.Sprintf("nuknown msg type=%u", this.M_SMsgHeader.Type())
-	return errors.New(strInfo)
+	if IsMsgEchoServer(msgType) {
+		return this.procEchoServerMsg(bsn_msg_client_echo_server.ECmdEchoServe2Client(msgType))
+	}
+
+	return errors.New(fmt.Sprintf("unknown msg type = %v", msgType))
 }

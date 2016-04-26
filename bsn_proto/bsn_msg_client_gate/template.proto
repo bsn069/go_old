@@ -1,6 +1,6 @@
 syntax = "proto2";
 import "bsn_msg_common/template.proto";
-package bsn_msg_client_echo_server;
+package bsn_msg_client_gate;
   
 enum ETest { 
 	Test_Null 	= 0; // 

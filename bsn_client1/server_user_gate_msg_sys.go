@@ -1,4 +1,4 @@
-package bsn_echo
+package bsn_client1
 
 import (
 	"bsn_define"
@@ -9,7 +9,7 @@ import (
 	"fmt"
 )
 
-func (this *SClientUser) procSysMsg(msgType bsn_define.ECmd) error {
+func (this *SServerUserGate) procSysMsg(msgType bsn_define.ECmd) error {
 	GSLog.Debugln("msgType=", msgType)
 
 	switch msgType {
@@ -22,13 +22,13 @@ func (this *SClientUser) procSysMsg(msgType bsn_define.ECmd) error {
 	return errors.New(fmt.Sprintf("unknown msg type = %v", msgType))
 }
 
-func (this *SClientUser) ProcMsg_Cmd_Ping() (err error) {
+func (this *SServerUserGate) ProcMsg_Cmd_Ping() (err error) {
 	GSLog.Debugln("ProcMsg_Cmd_Ping")
 
 	return this.Pong(this.M_by2MsgBody)
 }
 
-func (this *SClientUser) ProcMsg_Cmd_Pong() (err error) {
+func (this *SServerUserGate) ProcMsg_Cmd_Pong() (err error) {
 	GSLog.Debugln("ProcMsg_Cmd_Pong")
 	return nil
 }

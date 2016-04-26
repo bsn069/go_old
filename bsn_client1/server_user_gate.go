@@ -1,7 +1,7 @@
 package bsn_client1
 
 import (
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_input"
 	// "github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
@@ -11,6 +11,8 @@ import (
 	// "strconv"
 	// "sync"
 	// "fmt"
+	"bsn_msg_client_echo_server"
+	"github.com/golang/protobuf/proto"
 )
 
 type SServerUserGate struct {
@@ -47,4 +49,11 @@ func (this *SServerUserGate) Run() {
 
 func (this *SServerUserGate) Close() {
 	this.SConnecterWithMsgHeader.Close()
+}
+
+func (this *SServerUserGate) TestReq() {
+	sendMsg := &bsn_msg_client_echo_server.STestReq{
+		VstrInfo: proto.String("client test req"),
+	}
+	this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_client_echo_server.ECmdClient2EchoServer_CmdClient2EchoServer_TestReq), sendMsg)
 }

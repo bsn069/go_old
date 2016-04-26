@@ -1,6 +1,7 @@
 package bsn_gate3
 
 import (
+	"bsn_msg_gate_server"
 	"errors"
 	"fmt"
 	"github.com/bsn069/go/bsn_msg"
@@ -8,17 +9,14 @@ import (
 
 func (this *SServerUser) NetConnecterWithMsgHeaderImpProcMsg() error {
 	GSLog.Debugln("NetConnecterWithMsgHeaderImpProcMsg")
+	GSLog.Debugln(this.M_SMsgHeader)
+	GSLog.Debugln(this.M_by2MsgBody)
 
 	msgType := this.MsgType()
-	switch msgType {
-	case bsn_msg.GMsgDefine_Server2Gate_Ping:
-		return this.ProcMsg_Ping()
-	case bsn_msg.GMsgDefine_Server2Gate_Pong:
-		return this.ProcMsg_Pong()
-	case bsn_msg.GMsgDefine_Server2Gate_ClientMsg:
-		return this.ProcMsg_ClientMsg()
+
+	if bsn_msg.IsMsgSys(msgType) {
+		return this.procSysMsg(bsn_define.ECmd(msgType))
 	}
 
-	strInfo := fmt.Sprintf("nuknown msg type=%u", msgType)
-	return errors.New(strInfo)
+	return this.procServerMsg(bsn_msg_gate_server.ECmdServe2Gate(msgType))
 }
