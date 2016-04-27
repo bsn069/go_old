@@ -61,3 +61,13 @@ func (this *SServerUser) NetConnecterWithMsgHeaderImpOnClose() error {
 
 func (this *SServerUser) ShowInfo() {
 }
+
+func (this *SServerUser) Run() (err error) {
+	err = this.SConnecterWithMsgHeader.Run()
+	if err != nil {
+		return
+	}
+
+	this.SendMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_server.ECmdGate2Server_CmdGate2Server_GetClientMsgRangeReq), nil)
+	return
+}

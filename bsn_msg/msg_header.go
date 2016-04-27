@@ -24,6 +24,19 @@ func NewMsgHeader(vTMsgType bsn_common.TMsgType, vTMsgLen bsn_common.TMsgLen) *S
 	return this
 }
 
+func NewMsgWithMsgHeader(vTMsgType bsn_common.TMsgType, byMsg []byte) []byte {
+	vLen := len(byMsg)
+	vMsg := NewMsgHeader(vTMsgType, bsn_common.TMsgLen(vLen))
+
+	byData := make([]byte, vLen+int(CSMsgHeader_Size))
+	vLen = int(vMsg.Serialize2Byte(byData))
+	if byMsg != nil {
+		copy(byData[vLen:], byMsg)
+	}
+
+	return byData
+}
+
 func NewMsgHeaderFromBytes(byDatas []byte) *SMsgHeader {
 	this := &SMsgHeader{}
 	this.DeSerialize(byDatas)

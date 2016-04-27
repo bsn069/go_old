@@ -44,7 +44,7 @@ func (this *SMsg_Gate2Server_ClientMsg) DeSerialize(byDatas []byte) bsn_common.T
 	this.M_ClientId = binary.LittleEndian.Uint16(byDatas[vTMsgLen:])
 	vTMsgLen += 2
 
-	vTMsgLen += this.M_SMsgHeader.DeSerialize(byDatas)
+	vTMsgLen += this.M_SMsgHeader.DeSerialize(byDatas[vTMsgLen:])
 
 	this.M_byMsgBody = byDatas[vTMsgLen:]
 	vTMsgLen += bsn_common.TMsgLen(len(this.M_byMsgBody))

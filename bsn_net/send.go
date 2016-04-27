@@ -28,14 +28,7 @@ func SendString(vnetConn net.Conn, strMsg string) error {
 }
 
 func SendMsgWithSMsgHeader(vnetConn net.Conn, vTMsgType bsn_common.TMsgType, byMsg []byte) error {
-	vLen := len(byMsg)
-	vMsg := bsn_msg.NewMsgHeader(vTMsgType, bsn_common.TMsgLen(vLen))
-
-	byData := make([]byte, vLen+int(bsn_msg.CSMsgHeader_Size))
-	vLen = int(vMsg.Serialize2Byte(byData))
-	if byMsg != nil {
-		copy(byData[vLen:], byMsg)
-	}
+	byData := bsn_msg.NewMsgWithMsgHeader(vTMsgType, byMsg)
 
 	err := Send(vnetConn, byData)
 	if err != nil {

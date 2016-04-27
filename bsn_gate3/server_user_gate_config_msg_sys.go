@@ -14,11 +14,6 @@ func (this *SServerUserGateConfig) procSysMsg(msgType bsn_define.ECmd) error {
 	GSLog.Debugln("msgType=", msgType)
 
 	switch msgType {
-	// case bsn_msg.GMsgDefine_Client2Gate_Ping:
-	// 	return this.ProcMsg_Ping()
-	// case bsn_msg.GMsgDefine_Client2Gate_Pong:
-	// 	return this.ProcMsg_Pong()
-
 	case bsn_define.ECmd_Cmd_Ping:
 		return this.ProcMsg_Cmd_Ping()
 	case bsn_define.ECmd_Cmd_Pong:

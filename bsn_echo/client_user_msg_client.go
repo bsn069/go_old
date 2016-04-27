@@ -32,14 +32,12 @@ func (this *SClientUser) ProcMsg_CmdClient2EchoServer_TestReq(vMsg *bsn_msg.SMsg
 	if err = proto.Unmarshal(vMsg.M_byMsgBody, recvMsg); err != nil {
 		return
 	}
-	GSLog.Debugln(recvMsg.VstrInfo)
+	GSLog.Debugln(*recvMsg.VstrInfo)
 
-	// sendMsg := &bsn_msg_client_echo_server.STestRes{
-	// 	VstrInfo: proto.String("echo server test res"),
-	// }
-	// this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_client_echo_server.ECmdEchoServe2Client_CmdClient2EchoServer_TestRes), sendMsg)
-
-	return
+	sendMsg := &bsn_msg_client_echo_server.STestRes{
+		VstrInfo: proto.String("echo server test res"),
+	}
+	return this.SendPb2Client(TClientId(vMsg.M_ClientId), bsn_msg_client_echo_server.ECmdEchoServe2Client_CmdEchoServer2Client_TestRes, sendMsg)
 }
 
 func (this *SClientUser) ProcMsg_CmdClient2EchoServer_TestRes(vMsg *bsn_msg.SMsg_Gate2Server_ClientMsg) (err error) {
@@ -49,7 +47,7 @@ func (this *SClientUser) ProcMsg_CmdClient2EchoServer_TestRes(vMsg *bsn_msg.SMsg
 	if err = proto.Unmarshal(vMsg.M_byMsgBody, recvMsg); err != nil {
 		return
 	}
-	GSLog.Debugln(recvMsg.VstrInfo)
+	GSLog.Debugln(*recvMsg.VstrInfo)
 
 	return
 }

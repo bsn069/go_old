@@ -4,7 +4,11 @@ package bsn_msg_gate_server;
 enum ECmdGate2Server { 
 	CmdGate2Server_Min 					= 1000; // 
 
-	CmdGate2Server_ClientMsg 			= 1001; // 
+	CmdGate2Server_TestReq 				= 1001; // 
+	CmdGate2Server_TestRes 				= 1002; // 
+
+	CmdGate2Server_ClientMsg 			= 1100; // 
+	CmdGate2Server_GetClientMsgRangeReq		= 1101; // can proc client msg range
 
 	CmdGate2Server_Max					= 2000; // 
 }
@@ -13,7 +17,11 @@ enum ECmdGate2Server {
 enum ECmdServe2Gate { 
 	CmdServer2Gate_Min 					= 1000; // 
 
-	CmdServer2Gate_ClientMsg 			= 1001; // 
+	CmdServer2Gate_TestReq 				= 1001; // 
+	CmdServer2Gate_TestRes 				= 1002; // 
+
+	CmdServer2Gate_ClientMsg 			= 1100; // 
+	CmdServer2Gate_GetClientMsgRangeRes		= 1101; // 
 
 	CmdServer2Gate_Max					= 2000; // 
 }

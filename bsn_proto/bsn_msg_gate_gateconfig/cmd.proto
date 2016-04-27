@@ -4,17 +4,23 @@ package bsn_msg_gate_gateconfig;
 enum ECmdGate2GateConfig { 
 	CmdGate2GateConfig_Min 					= 1000; // 
 
-	CmdGate2GateConfig_GetServerConfigReq 	= 1001; // 
+	CmdGate2GateConfig_TestReq 				= 1001; // 
+	CmdGate2GateConfig_TestRes 				= 1002; // 
 
-	CmdGate2GateConfig_Max					= 65535; // 
+	CmdGate2GateConfig_GetServerConfigReq 	= 1100; // 
+
+	CmdGate2GateConfig_Max					= 2000; // 
 }
 
 
 enum ECmdGateConfig2Gate { 
 	CmdGateConfig2Gate_Min 					= 1000; // 
 
-	CmdGateConfig2Gate_GetServerConfigRes 	= 1001; // 
+	CmdGateConfig2Gate_TestReq 				= 1001; // 
+	CmdGateConfig2Gate_TestRes 				= 1002; // 
 
-	CmdGateConfig2Gate_Max					= 65535; // 
+	CmdGateConfig2Gate_GetServerConfigRes 	= 1100; // 
+
+	CmdGateConfig2Gate_Max					= 2000; // 
 }
   

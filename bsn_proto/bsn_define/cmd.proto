@@ -14,12 +14,16 @@ enum ECmd {
 0-1000 ECmd
 */
 
-
-/* 2Server
-1000-2000 ECmdGate2Server
-*/
-
-/* client2Server
+/* client2XXX 1000-65535
 1000-2000 ECmdClient2EchoServer 
 2000-3000 ECmdClient2Gate
 */
+
+/* XXX2Server 1000-65535
+1000-2000 ECmdGate2Server
+*/
+
+/* XXX2gateconfig 1000-65535
+1000-2000 ECmdGate2GateConfig
+*/
+

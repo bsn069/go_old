@@ -3,11 +3,14 @@ package bsn_echo
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
-	// "github.com/bsn069/go/bsn_msg"
+	"github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
 	// "unsafe"
 	// "net"
 	// "sync"
+	"bsn_msg_client_echo_server"
+	"bsn_msg_gate_server"
+	"github.com/golang/protobuf/proto"
 )
 
 type SClientUser struct {
@@ -111,4 +114,21 @@ func (this *SClientUser) runImp() {
 			break
 		}
 	}
+}
+
+func (this *SClientUser) Send2Client(vTClientId TClientId, byMsg []byte) error {
+	vSMsg_Server2Gate_ClientMsg := new(bsn_msg.SMsg_Server2Gate_ClientMsg)
+	vSMsg_Server2Gate_ClientMsg.Fill(uint16(vTClientId), byMsg)
+	return this.SendMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_server.ECmdServe2Gate_CmdServer2Gate_ClientMsg), vSMsg_Server2Gate_ClientMsg.Serialize())
+}
+
+func (this *SClientUser) SendPb2Client(vTClientId TClientId, msgType bsn_msg_client_echo_server.ECmdEchoServe2Client, iMessage proto.Message) error {
+	byMsg, err := proto.Marshal(iMessage)
+	if err != nil {
+		GSLog.Errorln(err)
+		return err
+	}
+
+	byData := bsn_msg.NewMsgWithMsgHeader(bsn_common.TMsgType(msgType), byMsg)
+	return this.Send2Client(vTClientId, byData)
 }
