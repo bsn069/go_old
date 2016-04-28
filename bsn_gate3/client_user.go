@@ -9,6 +9,7 @@ import (
 	// "net"
 	"bsn_msg_client_gate"
 	// "sync"
+	"fmt"
 	"github.com/golang/protobuf/proto"
 )
 
@@ -47,8 +48,9 @@ func (this *SClientUser) Id() TClientId {
 }
 
 func (this *SClientUser) Run() (err error) {
+	this.makeCLSecret()
 	if !this.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
-		return errors.New("had listen")
+		return errors.New("had run")
 	}
 
 	defer func() {
@@ -119,4 +121,10 @@ func (this *SClientUser) TestReq() {
 		VstrInfo: proto.String("gate test req"),
 	}
 	this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_client_gate.ECmdGate2Client_CmdGate2Client_TestReq), sendMsg)
+}
+
+func (this *SClientUser) makeCLSecret() string {
+	vstrSecret := fmt.Sprintf("appid:%v ip:%v connectId:%v this:%p", this.UserMgr().UserMgr().App().Id(), this.Addr(), this.Id(), this)
+	GSLog.Debugln("vstrSecret= ", vstrSecret)
+	return vstrSecret
 }

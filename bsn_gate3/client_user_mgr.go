@@ -8,6 +8,7 @@ import (
 	// "time"
 	// "math"
 	"net"
+	"strings"
 	"sync"
 )
 
@@ -73,8 +74,13 @@ func (this *SClientUserMgr) NetServerImpAccept(vConn net.Conn) error {
 		return errors.New("genClientId fail")
 	}
 
-	vSClientUser.SetConn(vConn)
+	vstrAddr := vConn.RemoteAddr().String()
+	GSLog.Debugf("client connect id=%v addr=%v", vTClientId, vstrAddr)
+	vstrArrIP := strings.Split(vstrAddr, ":")
+
 	vSClientUser.SetId(vTClientId)
+	vSClientUser.SetConn(vConn)
+	vSClientUser.SetAddr(vstrArrIP[0])
 	this.addClient(vSClientUser)
 
 	vSClientUser.Run()

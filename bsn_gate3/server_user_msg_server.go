@@ -17,6 +17,8 @@ func (this *SServerUser) procServerMsg(msgType bsn_msg_gate_server.ECmdServe2Gat
 		return this.ProcMsg_CmdServer2Gate_TestReq()
 	case bsn_msg_gate_server.ECmdServe2Gate_CmdServer2Gate_TestRes:
 		return this.ProcMsg_CmdServer2Gate_TestRes()
+	case bsn_msg_gate_server.ECmdServe2Gate_CmdServer2Gate_LoginRes:
+		return this.ProcMsg_CmdServer2Gate_LoginRes()
 
 	case bsn_msg_gate_server.ECmdServe2Gate_CmdServer2Gate_ClientMsg:
 		return this.ProcMsg_CmdServer2Gate_ClientMsg()
@@ -74,6 +76,20 @@ func (this *SServerUser) ProcMsg_CmdServer2Gate_GetClientMsgRangeRes() (err erro
 
 	this.M_MsgTypeMin = bsn_common.TMsgType(recvMsg.GetVu32MsgTypeMin())
 	this.M_MsgTypeMax = bsn_common.TMsgType(recvMsg.GetVu32MsgTypeMax())
+
+	return
+}
+
+func (this *SServerUser) ProcMsg_CmdServer2Gate_LoginRes() (err error) {
+	GSLog.Debugln("ProcMsg_CmdServer2Gate_LoginRes")
+
+	recvMsg := new(bsn_msg_gate_server.SLoginRes)
+	if err = proto.Unmarshal(this.M_by2MsgBody, recvMsg); err != nil {
+		return
+	}
+	GSLog.Debugln(recvMsg.GetResult())
+
+	this.UserMgr().UserMgr().ClientUserMgr().Run()
 
 	return
 }

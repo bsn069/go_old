@@ -1,0 +1,18 @@
+syntax = "proto2";
+//import "bsn_msg_common/template.proto";
+package bsn_msg_gate_server;
+ 
+
+message SLoginReq {
+	required uint32 id 	= 1; // 
+}
+
+message SLoginRes {
+	enum EResult { 
+		Success 		= 0;
+		SelfHadLogin 	= 1;
+	}
+	required EResult result 	= 1; // 
+}
+
+ 

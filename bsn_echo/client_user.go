@@ -11,6 +11,7 @@ import (
 	"bsn_msg_client_echo_server"
 	"bsn_msg_gate_server"
 	"github.com/golang/protobuf/proto"
+	"time"
 )
 
 type SClientUser struct {
@@ -63,7 +64,16 @@ func (this *SClientUser) Run() (err error) {
 	this.SNotifyClose.Clear()
 
 	go this.runImp()
+	go this.waitLogin()
 	return nil
+}
+
+func (this *SClientUser) waitLogin() {
+	time.Sleep(time.Duration(5) * time.Second)
+	if this.Id() == 0 {
+		GSLog.Debugln("wait login fail, close")
+		this.Close()
+	}
 }
 
 func (this *SClientUser) Close() (err error) {

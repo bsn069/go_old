@@ -8,7 +8,7 @@ import (
 )
 
 type SSessionWithMsgHeader struct {
-	*SSession
+	*SSessionAddr
 
 	M_byRecvBuff []byte
 	M_SMsgHeader *bsn_msg.SMsgHeader
@@ -22,7 +22,7 @@ func NewSSessionWithMsgHeader() (*SSessionWithMsgHeader, error) {
 		M_byRecvBuff: make([]byte, 4),
 		M_SMsgHeader: new(bsn_msg.SMsgHeader),
 	}
-	this.SSession, _ = NewSSession()
+	this.SSessionAddr, _ = NewSSessionAddr()
 
 	return this, nil
 }

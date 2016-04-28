@@ -3,14 +3,15 @@ package bsn_gate3
 import (
 	"github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_input"
-	"github.com/bsn069/go/bsn_msg"
+	// "github.com/bsn069/go/bsn_msg"
 	"github.com/bsn069/go/bsn_net"
 	// "github.com/bsn069/go/bsn_log"
 	// "errors"
 	// "net"
 	// "strconv"
 	// "sync"
-	"bsn_msg_gate_server"
+	// "bsn_msg_gate_server"
+	// "github.com/golang/protobuf/proto"
 )
 
 type SServerUser struct {
@@ -47,11 +48,7 @@ func (this *SServerUser) OnClientMsg(vSClientUser *SClientUser) bool {
 		return false
 	}
 
-	vSMsg_Gate2Server_ClientMsg := new(bsn_msg.SMsg_Gate2Server_ClientMsg)
-	vSMsg_Gate2Server_ClientMsg.Fill(uint16(vSClientUser.Id()), vSClientUser.M_SMsgHeader, vSClientUser.M_by2MsgBody)
-	this.SendMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_server.ECmdGate2Server_CmdGate2Server_ClientMsg), vSMsg_Gate2Server_ClientMsg.Serialize())
-
-	return true
+	return this.send_CmdGate2Server_ClientMsg(vSClientUser)
 }
 
 func (this *SServerUser) NetConnecterWithMsgHeaderImpOnClose() error {
@@ -68,6 +65,5 @@ func (this *SServerUser) Run() (err error) {
 		return
 	}
 
-	this.SendMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_server.ECmdGate2Server_CmdGate2Server_GetClientMsgRangeReq), nil)
-	return
+	return this.send_CmdGate2Server_LoginReq()
 }

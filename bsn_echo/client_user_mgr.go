@@ -63,22 +63,14 @@ func (this *SClientUserMgr) Ping(strInfo string) error {
 }
 
 func (this *SClientUserMgr) NetServerImpAccept(vConn net.Conn) error {
+	GSLog.Debugln("gate connect")
+
 	vSClientUser, err := NewSClientUser(this)
 	if err != nil {
 		return err
 	}
 
-	vTClientId := this.genClientId()
-	if vTClientId == 0 {
-		return errors.New("genClientId fail")
-	}
-
-	GSLog.Debugln("accept client", vTClientId)
-
 	vSClientUser.SetConn(vConn)
-	vSClientUser.SetId(vTClientId)
-	this.addClient(vSClientUser)
-
 	vSClientUser.Run()
 	return nil
 }
@@ -90,6 +82,10 @@ func (this *SClientUserMgr) NetServerImpOnClose() error {
 func (this *SClientUserMgr) addClient(vSClientUser *SClientUser) error {
 	this.M_MutexUser.Lock()
 	defer this.M_MutexUser.Unlock()
+
+	if _, ok := this.M_TId2User[vSClientUser.Id()]; ok {
+		return errors.New("had exist client ")
+	}
 
 	this.M_TId2User[vSClientUser.Id()] = vSClientUser
 	return nil
@@ -108,22 +104,4 @@ func (this *SClientUserMgr) getClient(vTClientId TClientId) *SClientUser {
 	defer this.M_MutexUser.Unlock()
 
 	return this.M_TId2User[vTClientId]
-}
-
-// generate clientid
-// if not generate return 0
-func (this *SClientUserMgr) genClientId() TClientId {
-	GSLog.Debugln("this.M_TClientId ", this.M_TClientId)
-	for i := 0; i < 100; i++ {
-		this.M_TClientId++
-		if this.M_TClientId == 0 {
-			continue
-		}
-
-		vSClientUser := this.getClient(this.M_TClientId)
-		if vSClientUser == nil {
-			return this.M_TClientId
-		}
-	}
-	return 0
 }

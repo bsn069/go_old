@@ -9,6 +9,7 @@ enum ECmdGate2Server {
 
 	CmdGate2Server_ClientMsg 			= 1100; // 
 	CmdGate2Server_GetClientMsgRangeReq		= 1101; // can proc client msg range
+	CmdGate2Server_LoginReq					= 1102; //  
 
 	CmdGate2Server_Max					= 2000; // 
 }
@@ -22,6 +23,7 @@ enum ECmdServe2Gate {
 
 	CmdServer2Gate_ClientMsg 			= 1100; // 
 	CmdServer2Gate_GetClientMsgRangeRes		= 1101; // 
+	CmdServer2Gate_LoginRes					= 1102; //  
 
 	CmdServer2Gate_Max					= 2000; // 
 }

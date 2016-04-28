@@ -2,6 +2,7 @@ package bsn_2
 
 import (
 	"github.com/bsn069/go/bsn_common"
+	"strconv"
 )
 
 type SCmd struct {
@@ -45,4 +46,17 @@ func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 	this.GATE_CONFIG_RUN(vTInputParams)
 	this.GATE3_RUN(vTInputParams)
 	this.CLIENT1_RUN(vTInputParams)
+}
+
+func (this *SCmd) TEST1(vTInputParams bsn_common.TInputParams) {
+	vParam := make(bsn_common.TInputParams, 1)
+
+	vParam[0] = "1"
+	this.ECHO_RUN(vParam)
+	this.GATE_CONFIG_RUN(vParam)
+
+	for i := 1; i < 10; i++ {
+		vParam[0] = strconv.Itoa(i)
+		this.GATE3_RUN(vParam)
+	}
 }

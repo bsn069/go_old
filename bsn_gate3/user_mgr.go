@@ -59,5 +59,6 @@ func (this *SUserMgr) Close() {
 
 func (this *SUserMgr) Run() {
 	this.ServerUserMgr().Run()
-	this.ClientUserMgr().Run()
+	// wait login server res then run
+	// this.ClientUserMgr().Run()
 }
