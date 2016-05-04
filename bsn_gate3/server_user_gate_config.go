@@ -35,19 +35,17 @@ func (this *SServerUserGateConfig) UserMgr() *SServerUserMgr {
 	return this.M_SServerUserMgr
 }
 
-func (this *SServerUserGateConfig) Run() {
-	this.SConnecterWithMsgHeader.Run()
-
-	sendMsg := &bsn_msg_gate_gateconfig.SGate2GateConfig_GetServerConfigReq{
-		Vu32Id: proto.Uint32(1),
-	}
-	this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_gateconfig.ECmdGate2GateConfig_CmdGate2GateConfig_GetServerConfigReq), sendMsg)
-}
-
 func (this *SServerUserGateConfig) NetConnecterWithMsgHeaderImpOnClose() error {
 	GSLog.Debugln("NetConnecterWithMsgHeaderImpOnClose")
 	return nil
 }
 
 func (this *SServerUserGateConfig) ShowInfo() {
+}
+
+func (this *SServerUserGateConfig) send_CmdGate2GateConfig_GetServerConfigReq() error {
+	sendMsg := &bsn_msg_gate_gateconfig.SGate2GateConfig_GetServerConfigReq{
+		Vu32Id: proto.Uint32(1),
+	}
+	return this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_gateconfig.ECmdGate2GateConfig_CmdGate2GateConfig_GetServerConfigReq), sendMsg)
 }

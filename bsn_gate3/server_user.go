@@ -12,13 +12,14 @@ import (
 	// "sync"
 	// "bsn_msg_gate_server"
 	// "github.com/golang/protobuf/proto"
+	"bsn_define"
 )
 
 type SServerUser struct {
 	*bsn_net.SConnecterWithMsgHeader
 
 	M_SServerUserMgr *SServerUserMgr
-	M_ServerType     uint8
+	M_ServerType     bsn_define.EServerType
 
 	M_MsgTypeMin bsn_common.TMsgType
 	M_MsgTypeMax bsn_common.TMsgType
@@ -29,17 +30,22 @@ func NewSServerUser(vSServerUserMgr *SServerUserMgr) (*SServerUser, error) {
 
 	this := &SServerUser{
 		M_SServerUserMgr: vSServerUserMgr,
+		M_ServerType:     bsn_define.EServerType_ServerType_Counts,
 	}
 	this.SConnecterWithMsgHeader, _ = bsn_net.NewSConnecterWithMsgHeader(this)
 
 	return this, nil
 }
 
+func (this *SServerUser) HadLogin() bool {
+	return this.M_ServerType != bsn_define.EServerType_ServerType_Counts
+}
+
 func (this *SServerUser) UserMgr() *SServerUserMgr {
 	return this.M_SServerUserMgr
 }
 
-func (this *SServerUser) ServerType() uint8 {
+func (this *SServerUser) ServerType() bsn_define.EServerType {
 	return this.M_ServerType
 }
 
@@ -57,13 +63,4 @@ func (this *SServerUser) NetConnecterWithMsgHeaderImpOnClose() error {
 }
 
 func (this *SServerUser) ShowInfo() {
-}
-
-func (this *SServerUser) Run() (err error) {
-	err = this.SConnecterWithMsgHeader.Run()
-	if err != nil {
-		return
-	}
-
-	return this.send_CmdGate2Server_LoginReq()
 }

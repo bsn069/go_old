@@ -64,7 +64,7 @@ func (this *SServerUserGateConfig) ProcMsg_CmdGateConfig2Gate_GetServerConfigRes
 	}
 
 	this.UserMgr().M_SServerConfigs = recvMsg.VSServerConfigs
-	this.UserMgr().M_chanWaitGateConfig <- true
+	this.UserMgr().M_WaitGroup.Done()
 
 	return
 }

@@ -89,7 +89,11 @@ func (this *SServerUser) ProcMsg_CmdServer2Gate_LoginRes() (err error) {
 	}
 	GSLog.Debugln(recvMsg.GetResult())
 
-	this.UserMgr().UserMgr().ClientUserMgr().Run()
+	if recvMsg.GetResult() != bsn_msg_gate_server.SLoginRes_Success {
+		err = errors.New("login fail")
+		return
+	}
 
+	this.UserMgr().M_WaitGroup.Done()
 	return
 }
