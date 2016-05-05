@@ -10,6 +10,7 @@ import (
 	// "net"
 	// "strconv"
 	// "sync"
+	"bsn_define"
 	"bsn_msg_gate_server"
 	"github.com/golang/protobuf/proto"
 )
@@ -22,11 +23,12 @@ func (this *SServerUser) send_CmdGate2Server_ClientMsg(vSClientUser *SClientUser
 	return true
 }
 
-func (this *SServerUser) send_CmdGate2Server_LoginReq() (err error) {
+func (this *SServerUser) send_CmdGate2Server_LoginReq(vEServerType bsn_define.EServerType) (err error) {
 	vSApp := this.UserMgr().UserMgr().App()
 
 	sendMsg := &bsn_msg_gate_server.SLoginReq{
-		Id: proto.Uint32(vSApp.Id()),
+		Id:         proto.Uint32(vSApp.Id()),
+		ServerType: vEServerType.Enum(),
 	}
 
 	return this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_server.ECmdGate2Server_CmdGate2Server_LoginReq), sendMsg)

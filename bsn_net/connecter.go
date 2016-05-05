@@ -83,6 +83,7 @@ func (this *SNetConnecter) runImp() {
 	defer func() {
 		GSLog.Debugln("close connect")
 		this.Conn().Close()
+		this.SetConn(nil)
 
 		this.M_INetConnecterImp.NetConnecterImpOnClose()
 		this.SNotifyClose.Close()

@@ -94,6 +94,7 @@ func (this *SServerUser) ProcMsg_CmdServer2Gate_LoginRes() (err error) {
 		return
 	}
 
-	this.UserMgr().M_WaitGroup.Done()
+	this.SetServerType(recvMsg.GetServerType())
+
 	return
 }

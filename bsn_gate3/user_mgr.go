@@ -58,7 +58,13 @@ func (this *SUserMgr) Close() {
 }
 
 func (this *SUserMgr) Run() {
-	this.ServerUserMgr().Run()
-	// wait login server res then run
-	// this.ClientUserMgr().Run()
+	err := this.ServerUserMgr().Run()
+	if err != nil {
+		panic(err)
+	}
+
+	err = this.ClientUserMgr().Run()
+	if err != nil {
+		panic(err)
+	}
 }

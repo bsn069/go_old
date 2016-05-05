@@ -9,6 +9,7 @@ type SCmd struct {
 	// *SCmdGate
 	// *SCmdGate2
 	*SCmdGate3
+	*SCmdGate
 	*SCmdClient1
 	*SCmdGateConfig1
 	*SCmdEcho
@@ -18,6 +19,7 @@ func NewCmd() *SCmd {
 	this := &SCmd{}
 	// this.SCmdGate = NewCmdGate()
 	// this.SCmdGate2 = NewCmdGate2()
+	this.SCmdGate = NewCmdGate()
 	this.SCmdGate3 = NewCmdGate3()
 	this.SCmdClient1 = NewCmdClient1()
 	this.SCmdGateConfig1 = NewSCmdGateConfig1()
@@ -55,7 +57,7 @@ func (this *SCmd) TEST1(vTInputParams bsn_common.TInputParams) {
 	this.ECHO_RUN(vParam)
 	this.GATE_CONFIG_RUN(vParam)
 
-	for i := 1; i < 10; i++ {
+	for i := 1; i <= 1; i++ {
 		vParam[0] = strconv.Itoa(i)
 		this.GATE3_RUN(vParam)
 	}

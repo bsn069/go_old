@@ -67,6 +67,21 @@ func (this *SInput) Reg(strMod string, vICmd interface{}) error {
 	return nil
 }
 
+// unreg module
+func (this *SInput) UnReg(strMod string) error {
+	this.M_Mutex.Lock()
+	defer this.M_Mutex.Unlock()
+
+	strModUpper := strings.ToUpper(strMod)
+	if _, ok := this.M_TInputUpperName2RegName[strModUpper]; !ok {
+		return nil
+	}
+	delete(this.M_TInputUpperName2RegName, strModUpper)
+	delete(this.M_TInputUpperName2CmdStruct, strModUpper)
+
+	return nil
+}
+
 // call in bin file, don`t in lib will block
 func (this *SInput) Run() error {
 	this.M_Mutex.Lock()

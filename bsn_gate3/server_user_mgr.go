@@ -8,7 +8,7 @@ import (
 	// "net"
 	"bsn_msg_gate_gateconfig"
 	"strconv"
-	"sync"
+	// "sync"
 )
 
 type SServerUserMgr struct {
@@ -20,15 +20,12 @@ type SServerUserMgr struct {
 	M_SServerUserGateConfig *SServerUserGateConfig
 
 	M_SServerConfigs []*bsn_msg_gate_gateconfig.SServerConfig
-	M_WaitGroup      *sync.WaitGroup
 }
 
 func NewSServerUserMgr(vSUserMgr *SUserMgr) (*SServerUserMgr, error) {
 	GSLog.Debugln("NewSServerUserMgr")
 	this := &SServerUserMgr{
-		M_SUserMgr:  vSUserMgr,
-		M_Users:     make([]*SServerUser, 0, 5),
-		M_WaitGroup: new(sync.WaitGroup),
+		M_SUserMgr: vSUserMgr,
 	}
 	this.SState = bsn_common.NewSState()
 
@@ -51,26 +48,6 @@ func (this *SServerUserMgr) Run() (err error) {
 		this.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
 	}()
 
-	err = this.run_do_1()
-	if err != nil {
-		return
-	}
-
-	err = this.run_do_2()
-	if err != nil {
-		return
-	}
-
-	err = this.run_do_3()
-	if err != nil {
-		return
-	}
-
-	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
-	return nil
-}
-
-func (this *SServerUserMgr) run_do_1() (err error) {
 	defer func() {
 		if err == nil {
 			return
@@ -79,13 +56,42 @@ func (this *SServerUserMgr) run_do_1() (err error) {
 		this.M_SServerUserGateConfig = nil
 	}()
 
+	err = this.run_do_1()
+	if err != nil {
+		return
+	}
+
+	defer func() {
+		if err == nil {
+			return
+		}
+		this.closeAllUser()
+		this.M_Users = nil
+	}()
+
+	err = this.run_do_2()
+	if err != nil {
+		return
+	}
+
+	this.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
+	GSLog.Debugln("run complete")
+	return nil
+}
+
+func (this *SServerUserMgr) run_do_1() (err error) {
 	this.M_SServerUserGateConfig, _ = NewSServerUserGateConfig(this)
 	this.M_SServerUserGateConfig.SetAddr("localhost:" + strconv.Itoa(int(bsn_common.GateConfigPort(1))))
 
 	this.M_SServerConfigs = nil
-	err = this.M_SServerUserGateConfig.Run()
-	if err != nil {
-		return
+
+	for {
+		err = this.M_SServerUserGateConfig.Run()
+		if err == nil {
+			break
+		}
+		GSLog.Errorln(err)
+		time.Sleep(time.Duration(5) * time.Second)
 	}
 
 	err = this.M_SServerUserGateConfig.send_CmdGate2GateConfig_GetServerConfigReq()
@@ -105,54 +111,24 @@ func (this *SServerUserMgr) run_do_1() (err error) {
 }
 
 func (this *SServerUserMgr) run_do_2() (err error) {
-	defer func() {
-		if err == nil {
-			return
-		}
-		this.closeAllUser()
-		this.M_Users = nil
-	}()
-
 	this.M_Users = make([]*SServerUser, len(this.M_SServerConfigs))
 	for i, a := range this.M_SServerConfigs {
 		GSLog.Debugln(i, a)
 
-		vServerUser, _ := NewSServerUser(this)
-		this.M_Users[i] = vServerUser
-		vServerUser.SetAddr(a.GetVstrAddr())
-		err = vServerUser.Run()
-		if err != nil {
-			return
-		}
-	}
+		vSServerUser, _ := NewSServerUser(this)
+		this.M_Users[i] = vSServerUser
+		vSServerUser.SetAddr(a.GetVstrAddr())
 
-	this.MapAllUser(func(vSServerUser *SServerUser) {
-		vSServerUser.send_CmdGate2Server_LoginReq()
-	})
-
-	bTimeOut := false
-	this.MapOneUser(func(vSServerUser *SServerUser) bool {
-		for i := 0; i < 10; i++ {
-			if vSServerUser.HadLogin() {
-				return false
+		for {
+			err = vSServerUser.Run()
+			if err == nil {
+				break
 			}
-			time.Sleep(time.Duration(1) * time.Second)
+			GSLog.Errorln(err)
+			time.Sleep(time.Duration(5) * time.Second)
 		}
-
-		GSLog.Debugln("time out")
-		bTimeOut = true
-		return true
-	})
-	if bTimeOut {
-		err = errors.New("time out")
-		return
 	}
 
-	return
-}
-
-func (this *SServerUserMgr) run_do_3() (err error) {
-	this.UserMgr().ClientUserMgr().Run()
 	return
 }
 
@@ -177,6 +153,7 @@ func (this *SServerUserMgr) Close() (err error) {
 
 	this.M_SServerUserGateConfig.Close()
 	this.M_SServerUserGateConfig = nil
+
 	this.closeAllUser()
 	this.M_Users = nil
 

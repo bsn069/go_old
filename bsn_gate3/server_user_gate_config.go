@@ -12,12 +12,14 @@ import (
 	// "sync"
 	"bsn_msg_gate_gateconfig"
 	"github.com/golang/protobuf/proto"
+	"time"
 )
 
 type SServerUserGateConfig struct {
 	*bsn_net.SConnecterWithMsgHeader
 
 	M_SServerUserMgr *SServerUserMgr
+	M_Close          bool
 }
 
 func NewSServerUserGateConfig(vSServerUserMgr *SServerUserMgr) (*SServerUserGateConfig, error) {
@@ -25,6 +27,7 @@ func NewSServerUserGateConfig(vSServerUserMgr *SServerUserMgr) (*SServerUserGate
 
 	this := &SServerUserGateConfig{
 		M_SServerUserMgr: vSServerUserMgr,
+		M_Close:          false,
 	}
 	this.SConnecterWithMsgHeader, _ = bsn_net.NewSConnecterWithMsgHeader(this)
 
@@ -37,6 +40,19 @@ func (this *SServerUserGateConfig) UserMgr() *SServerUserMgr {
 
 func (this *SServerUserGateConfig) NetConnecterWithMsgHeaderImpOnClose() error {
 	GSLog.Debugln("NetConnecterWithMsgHeaderImpOnClose")
+	if !this.M_Close {
+		GSLog.Debugln("reconnect")
+		go func() {
+			for {
+				time.Sleep(time.Duration(3) * time.Second)
+				err := this.Run()
+				if err == nil {
+					break
+				}
+				GSLog.Debugln(err)
+			}
+		}()
+	}
 	return nil
 }
 

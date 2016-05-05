@@ -1,0 +1,36 @@
+package bsn_gate
+
+import (
+	"github.com/bsn069/go/bsn_common"
+	// "errors"
+	// "bufio"
+	// "fmt"
+	// "log"
+	// "os"
+	// "math/rand"
+	// "reflect"
+	// "strconv"
+	// "strings"
+)
+
+type SCmd struct {
+	M_SApp *SApp
+}
+
+func NewSCmd(vSApp *SApp) (this *SCmd, err error) {
+	GSLog.Debugln("NewSCmd()")
+
+	this = &SCmd{
+		M_SApp: vSApp,
+	}
+
+	return this, nil
+}
+
+func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
+	this.M_SApp.Run()
+}
+
+func (this *SCmd) CLOSE(vTInputParams bsn_common.TInputParams) {
+	this.M_SApp.Close()
+}

@@ -1,10 +1,11 @@
 syntax = "proto2";
-//import "bsn_msg_common/template.proto";
+import "bsn_define/server_type.proto";
 package bsn_msg_gate_server;
  
 
 message SLoginReq {
-	required uint32 id 	= 1; // 
+	required uint32 id 							= 1; // 
+	required bsn_define.EServerType serverType 	= 2; //
 }
 
 message SLoginRes {
@@ -13,6 +14,7 @@ message SLoginRes {
 		SelfHadLogin 	= 1;
 	}
 	required EResult result 	= 1; // 
+	required bsn_define.EServerType serverType 	= 2 [default = ServerType_Counts]; //
 }
 
  

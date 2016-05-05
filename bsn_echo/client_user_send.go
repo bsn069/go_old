@@ -5,6 +5,7 @@ import (
 	// "unsafe"
 	// "net"
 	// "sync"
+	"bsn_define"
 	"bsn_msg_client_echo_server"
 	"bsn_msg_gate_server"
 	"github.com/golang/protobuf/proto"
@@ -20,7 +21,8 @@ func (this *SClientUser) send_CmdServer2Gate_GetClientMsgRangeRes() error {
 
 func (this *SClientUser) send_CmdServer2Gate_LoginRes(vResult bsn_msg_gate_server.SLoginRes_EResult) error {
 	sendMsg := &bsn_msg_gate_server.SLoginRes{
-		Result: vResult.Enum(),
+		Result:     vResult.Enum(),
+		ServerType: bsn_define.EServerType_ServerType_Echo.Enum(),
 	}
 	return this.SendPbMsgWithSMsgHeader(bsn_common.TMsgType(bsn_msg_gate_server.ECmdServe2Gate_CmdServer2Gate_LoginRes), sendMsg)
 }
