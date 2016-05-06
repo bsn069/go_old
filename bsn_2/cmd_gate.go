@@ -34,6 +34,7 @@ func (this *SCmdGate) createApp(vAppId uint32) (*bsn_app.SApp, error) {
 	}
 
 	vSApp.M_TFuncAppClose = func() {
+		GSLog.Debugln("on app close")
 		delete(this.M_TId2App, vAppId)
 		bsn_input.GSInput.SetUseMod("Main")
 	}

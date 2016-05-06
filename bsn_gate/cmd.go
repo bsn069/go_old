@@ -34,3 +34,11 @@ func (this *SCmd) RUN(vTInputParams bsn_common.TInputParams) {
 func (this *SCmd) CLOSE(vTInputParams bsn_common.TInputParams) {
 	this.M_SApp.Close()
 }
+
+func (this *SCmd) CLIENT_START_TCP_LISTEN(vTInputParams bsn_common.TInputParams) {
+	this.M_SApp.ClientStartTCPListen()
+}
+
+func (this *SCmd) CLIENT_STOP_TCP_LISTEN(vTInputParams bsn_common.TInputParams) {
+	this.M_SApp.ClientStopTCPListen()
+}
