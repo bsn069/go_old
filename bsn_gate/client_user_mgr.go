@@ -38,12 +38,41 @@ func NewSClientUserMgr(vSApp *SApp) (this *SClientUserMgr, err error) {
 	return
 }
 
-func (this *SClientUserMgr) run() (err error) {
+func (this *SClientUserMgr) start() (err error) {
+	defer func() {
+		if err != nil {
+			GSLog.Errorln(err)
+		}
+	}()
+
+	err = this.startTCPListen()
+	if err != nil {
+		return
+	}
+
 	return
 }
 
-func (this *SClientUserMgr) close() (err error) {
-	this.stopTCPListen()
+func (this *SClientUserMgr) stop() (err error) {
+	defer func() {
+		if err != nil {
+			GSLog.Errorln(err)
+		}
+	}()
+
+	err = this.stopTCPListen()
+	if err != nil {
+		return
+	}
+
+	GSLog.Mustln("close all user")
+	for _, vClientUser := range this.M_TId2User {
+		err = vClientUser.close()
+		if err != nil {
+			return
+		}
+	}
+	this.M_TId2User = nil
 
 	return
 }
@@ -56,7 +85,7 @@ func (this *SClientUserMgr) stopTCPListen() (err error) {
 	}()
 
 	if !this.M_TCPSState.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
-		GSLog.Errorln("not listen")
+		GSLog.Debugln("not listen")
 		return
 	}
 
@@ -143,7 +172,7 @@ func (this *SClientUserMgr) onTCPClient(vConn net.Conn) (err error) {
 	}
 
 	vstrAddr := vConn.RemoteAddr().String()
-	GSLog.Debugf("client connect ClientId=%v addr=%v", vClientId, vstrAddr)
+	GSLog.Debugf("client connect ClientId=%v addr=%v\n", vClientId, vstrAddr)
 
 	vSClientUser, err := NewSClientUser(this, vConn, vClientId)
 	if err != nil {
@@ -187,5 +216,13 @@ func (this *SClientUserMgr) addClient(vSClientUser *SClientUser) error {
 	defer this.M_MutexUser.Unlock()
 
 	this.M_TId2User[vSClientUser.ClientId()] = vSClientUser
+	return nil
+}
+
+func (this *SClientUserMgr) delClient(vTClientId uint16) error {
+	this.M_MutexUser.Lock()
+	defer this.M_MutexUser.Unlock()
+
+	delete(this.M_TId2User, vTClientId)
 	return nil
 }

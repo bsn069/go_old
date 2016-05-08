@@ -1,9 +1,9 @@
-package bsn_gate
+package bsn_client
 
 import (
 	"github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_log"
-	"errors"
+	// "errors"
 	"github.com/bsn069/go/bsn_input"
 	"strconv"
 	// "sync"
@@ -16,11 +16,10 @@ type SApp struct {
 	M_Id   uint32
 	M_Name string
 
-	M_SServerUserMgr *SServerUserMgr
-	M_SClientUserMgr *SClientUserMgr
-
 	M_HadStart       bool
 	M_TAppFuncOnQuit TAppFuncOnQuit
+
+	M_SGate *SGate
 }
 
 func NewSApp(vu32Id uint32) (this *SApp, err error) {
@@ -30,18 +29,9 @@ func NewSApp(vu32Id uint32) (this *SApp, err error) {
 	}
 	this.M_Name = GAppName + strconv.Itoa(int(this.Id()))
 	this.SRunCmd, _ = bsn_common.NewSRunCmd(this.runCmdFuncOnQuit, GSLog)
+	this.M_SGate, _ = NewSGate(this)
 
 	vSCmd, err := NewSCmd(this)
-	if err != nil {
-		return nil, err
-	}
-
-	this.M_SServerUserMgr, err = NewSServerUserMgr(this)
-	if err != nil {
-		return nil, err
-	}
-
-	this.M_SClientUserMgr, err = NewSClientUserMgr(this)
 	if err != nil {
 		return nil, err
 	}
@@ -49,8 +39,6 @@ func NewSApp(vu32Id uint32) (this *SApp, err error) {
 	GSLog.Mustln("reg all cmd")
 	this.RegCmd("start", this.start)
 	this.RegCmd("stop", this.stop)
-	this.RegCmd("clientStartTCPListen", this.clientStartTCPListen)
-	this.RegCmd("clientStopTCPListen", this.clientStopTCPListen)
 
 	bsn_input.GSInput.Reg(this.Name(), vSCmd)
 	return this, nil
@@ -89,19 +77,20 @@ func (this *SApp) runCmdFuncOnQuit() (err error) {
 }
 
 func (this *SApp) start() (err error) {
+	defer func() {
+		if err != nil {
+			GSLog.Errorln(err)
+		}
+	}()
+
 	if this.M_HadStart {
 		GSLog.Errorln("had start")
 		return
 	}
 
-	err = this.M_SServerUserMgr.run()
+	err = this.M_SGate.start()
 	if err != nil {
-		panic(err)
-	}
-
-	err = this.M_SClientUserMgr.start()
-	if err != nil {
-		panic(err)
+		return
 	}
 
 	GSLog.Debugln("start")
@@ -121,57 +110,12 @@ func (this *SApp) stop() (err error) {
 		return
 	}
 
-	err = this.M_SClientUserMgr.stop()
+	err = this.M_SGate.stop()
 	if err != nil {
-		panic(err)
-	}
-
-	err = this.M_SServerUserMgr.close()
-	if err != nil {
-		panic(err)
+		return
 	}
 
 	GSLog.Debugln("stop")
 	this.M_HadStart = false
 	return
-}
-
-func (this *SApp) clientStartTCPListen() (err error) {
-	defer func() {
-		if err != nil {
-			GSLog.Errorln(err)
-		}
-	}()
-
-	if !this.M_HadStart {
-		err = errors.New("not start")
-		return
-	}
-
-	err = this.clientUserMgr().startTCPListen()
-	return
-}
-
-func (this *SApp) clientStopTCPListen() (err error) {
-	defer func() {
-		if err != nil {
-			GSLog.Errorln(err)
-		}
-	}()
-
-	if !this.M_HadStart {
-		err = errors.New("not start")
-		return
-	}
-
-	err = this.clientUserMgr().stopTCPListen()
-	return
-}
-
-func (this *SApp) serverUserMgr() *SServerUserMgr {
-	return this.M_SServerUserMgr
-}
-
-func (this *SApp) clientUserMgr() *SClientUserMgr {
-	return this.M_SClientUserMgr
 }

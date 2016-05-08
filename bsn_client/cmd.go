@@ -1,4 +1,4 @@
-package bsn_gate
+package bsn_client
 
 import (
 	"github.com/bsn069/go/bsn_common"

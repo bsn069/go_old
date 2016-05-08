@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/bsn069/go/bsn_common"
 	"runtime"
+	"sync"
 	"time"
 )
 
@@ -20,6 +21,8 @@ type SLog struct {
 	M_outFmtFunc   bsn_common.TLogOutFmtFunc
 	M_debugFmtFunc bsn_common.TLogDebugFmtFunc
 	M_depth        int
+
+	M_Mutex sync.Mutex
 }
 
 func (this *SLog) SetOutMask(u32Mask uint32) {
@@ -50,7 +53,7 @@ func (this *SLog) FuncGuard() {
 	}
 }
 
-func (this *SLog) Output(level bsn_common.TLogLevel, strInfo string) {
+func (this *SLog) output(level bsn_common.TLogLevel, strInfo string) {
 	defer bsn_common.FuncGuard()
 	fl_u32Id++
 	this.M_depth++
@@ -68,64 +71,85 @@ func (this *SLog) Output(level bsn_common.TLogLevel, strInfo string) {
 }
 
 func (this *SLog) Debug(v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprint(v...)
-	this.Output(bsn_common.ELogLevel_Debug, strInfo)
+	this.output(bsn_common.ELogLevel_Debug, strInfo)
 }
 
 func (this *SLog) Debugln(v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	v = append(v, "\n")
-	this.Debug(v...)
+	strInfo := fmt.Sprint(v...)
+	this.output(bsn_common.ELogLevel_Debug, strInfo)
 }
 
 func (this *SLog) Debugf(format string, v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprintf(format, v...)
-	this.Output(bsn_common.ELogLevel_Debug, strInfo)
+	this.output(bsn_common.ELogLevel_Debug, strInfo)
 }
 
 func (this *SLog) Error(v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprint(v...)
-	this.Output(bsn_common.ELogLevel_Error, strInfo)
+	this.output(bsn_common.ELogLevel_Error, strInfo)
 }
 
 func (this *SLog) Errorln(v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	v = append(v, "\n")
-	this.Error(v...)
+	strInfo := fmt.Sprint(v...)
+	this.output(bsn_common.ELogLevel_Error, strInfo)
 }
 
 func (this *SLog) Errorf(format string, v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprintf(format, v...)
-	this.Output(bsn_common.ELogLevel_Error, strInfo)
+	this.output(bsn_common.ELogLevel_Error, strInfo)
 }
 
 func (this *SLog) Must(v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprint(v...)
-	this.Output(bsn_common.ELogLevel_Must, strInfo)
+	this.output(bsn_common.ELogLevel_Must, strInfo)
 }
 
 func (this *SLog) Mustln(v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	v = append(v, "\n")
-	this.Must(v...)
+	strInfo := fmt.Sprint(v...)
+	this.output(bsn_common.ELogLevel_Must, strInfo)
 }
 
 func (this *SLog) Mustf(format string, v ...interface{}) {
+	defer this.M_Mutex.Unlock()
+	this.M_Mutex.Lock()
 	defer bsn_common.FuncGuard()
 	this.M_depth++
 	strInfo := fmt.Sprintf(format, v...)
-	this.Output(bsn_common.ELogLevel_Must, strInfo)
+	this.output(bsn_common.ELogLevel_Must, strInfo)
 }

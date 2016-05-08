@@ -32,3 +32,11 @@ func NewSClientUser(vSClientUserMgr *SClientUserMgr, vConn net.Conn, vClientId u
 func (this *SClientUser) ClientId() uint16 {
 	return this.M_TClientId
 }
+
+func (this *SClientUser) close() (err error) {
+	if this.M_Conn != nil {
+		this.M_Conn.Close()
+		this.M_Conn = nil
+	}
+	return
+}
