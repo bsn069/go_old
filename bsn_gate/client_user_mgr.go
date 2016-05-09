@@ -183,6 +183,7 @@ func (this *SClientUserMgr) onTCPClient(vConn net.Conn) (err error) {
 	if err != nil {
 		return
 	}
+	vSClientUser.run()
 
 	return
 }
