@@ -43,6 +43,7 @@ func (this *SClientUser) run() (err error) {
 }
 
 func (this *SClientUser) close() (err error) {
+	GSLog.Debugln("close ", this.ClientId())
 	vConn := this.conn()
 	if vConn == nil {
 		err = errors.New("not run")
@@ -61,8 +62,9 @@ func (this *SClientUser) workerRecvMsg() (err error) {
 
 	byMsgHeader := make([]byte, bsn_msg.CSMsgHeader_Size)
 	vConn := this.conn()
+	readLen := 0
 	for {
-		readLen, err := vConn.Read(byMsgHeader)
+		readLen, err = vConn.Read(byMsgHeader)
 		if err != nil {
 			break
 		}
@@ -90,8 +92,9 @@ func (this *SClientUser) workerRecvMsg() (err error) {
 	}
 
 	if err != nil {
-		GSLog.Debugln(err)
+		GSLog.Debugln("err=", err)
 	}
+	GSLog.Debugln("workerRecvMsg end")
 
 	vConn.Close()
 	this.M_Conn = nil

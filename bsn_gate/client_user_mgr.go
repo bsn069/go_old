@@ -32,7 +32,6 @@ func NewSClientUserMgr(vSApp *SApp) (this *SClientUserMgr, err error) {
 		M_TCPSNotifyClose:  bsn_common.NewSNotifyClose(),
 		M_TCPSState:        bsn_common.NewSState(),
 		M_TCPstrListenAddr: fmt.Sprintf(":%v", vSApp.ListenPort()),
-		M_TId2User:         make(map[uint16]*SClientUser, 10),
 	}
 
 	return
@@ -49,6 +48,7 @@ func (this *SClientUserMgr) start() (err error) {
 	if err != nil {
 		return
 	}
+	this.M_TId2User = make(map[uint16]*SClientUser, 10)
 
 	return
 }
