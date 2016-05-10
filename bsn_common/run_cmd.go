@@ -32,6 +32,11 @@ func NewSRunCmd(vTRunCmdFuncOnQuit TRunCmdFuncOnQuit, vILog ILog) (this *SRunCmd
 	return this, nil
 }
 
+func (this *SRunCmd) DoFunc(vFunc func() error) (err error) {
+	this.M_chanFunc <- vFunc
+	return
+}
+
 func (this *SRunCmd) Do(vstrCmd string) (err error) {
 	defer func() {
 		if err != nil {
@@ -40,7 +45,7 @@ func (this *SRunCmd) Do(vstrCmd string) (err error) {
 	}()
 
 	if vFunc, ok := this.M_str2Func[vstrCmd]; ok {
-		this.M_chanFunc <- vFunc
+		this.DoFunc(vFunc)
 	} else {
 		this.Do("help")
 		err = errors.New("not found cmd")

@@ -51,6 +51,7 @@ func NewSApp(vu32Id uint32) (this *SApp, err error) {
 	this.RegCmd("stop", this.stop)
 	this.RegCmd("clientStartTCPListen", this.clientStartTCPListen)
 	this.RegCmd("clientStopTCPListen", this.clientStopTCPListen)
+	this.RegCmd("clientCloseAllClient", this.clientCloseAllClient)
 
 	bsn_input.GSInput.Reg(this.Name(), vSCmd)
 	return this, nil
@@ -165,6 +166,22 @@ func (this *SApp) clientStopTCPListen() (err error) {
 	}
 
 	err = this.clientUserMgr().stopTCPListen()
+	return
+}
+
+func (this *SApp) clientCloseAllClient() (err error) {
+	defer func() {
+		if err != nil {
+			GSLog.Errorln(err)
+		}
+	}()
+
+	if !this.M_HadStart {
+		err = errors.New("not start")
+		return
+	}
+
+	err = this.clientUserMgr().closeAllClient()
 	return
 }
 

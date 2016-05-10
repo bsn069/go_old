@@ -2,28 +2,30 @@ package bsn_gate
 
 import (
 	"errors"
-	// "github.com/bsn069/go/bsn_common"
+	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
 	// "github.com/bsn069/go/bsn_net"
 	// "time"
 	// "math"
 	// "fmt"
 	"net"
-	// "sync"
+	// "sync/atomic"
 )
 
 type SClientUser struct {
-	M_SClientUserMgr *SClientUserMgr
-	M_Conn           net.Conn
-	M_TClientId      uint16
+	M_SClientUserMgr    *SClientUserMgr
+	M_Conn              net.Conn
+	M_TClientId         uint16
+	M_SStateCloseReason *bsn_common.SState // 0 1conenct disconnect 1usermgr close
 }
 
 func NewSClientUser(vSClientUserMgr *SClientUserMgr, vConn net.Conn, vClientId uint16) (*SClientUser, error) {
 	GSLog.Debugln("NewSClientUser")
 	this := &SClientUser{
-		M_SClientUserMgr: vSClientUserMgr,
-		M_Conn:           vConn,
-		M_TClientId:      vClientId,
+		M_SClientUserMgr:    vSClientUserMgr,
+		M_Conn:              vConn,
+		M_TClientId:         vClientId,
+		M_SStateCloseReason: bsn_common.NewSState(),
 	}
 
 	return this, nil
@@ -40,6 +42,10 @@ func (this *SClientUser) conn() net.Conn {
 func (this *SClientUser) run() (err error) {
 	go this.workerRecvMsg()
 	return
+}
+
+func (this *SClientUser) setCloseReason(vState bsn_common.TState) bool {
+	return this.M_SStateCloseReason.Change(bsn_common.CState_Idle, vState)
 }
 
 func (this *SClientUser) close() (err error) {
@@ -90,15 +96,16 @@ func (this *SClientUser) workerRecvMsg() (err error) {
 			break
 		}
 	}
+	this.setCloseReason(bsn_common.CState_CloseReasonDisconnect)
 
 	if err != nil {
 		GSLog.Debugln("err=", err)
 	}
-	GSLog.Debugln("workerRecvMsg end")
 
 	vConn.Close()
 	this.M_Conn = nil
 
 	this.M_SClientUserMgr.delClient(this.ClientId())
+	GSLog.Debugln("workerRecvMsg end", this.M_SStateCloseReason)
 	return
 }

@@ -1,6 +1,7 @@
 package bsn_common
 
 import (
+	"strconv"
 	"sync/atomic"
 )
 
@@ -14,6 +15,10 @@ const (
 	CState_StopFromStopListen
 	CState_StopFromAcceptClose
 	CState_Op
+
+	CState_CloseReasonDisconnect
+	CState_CloseReasonKickOut
+	CState_CloseReasonLeave
 )
 
 func (this TState) String() string {
@@ -25,7 +30,7 @@ func (this TState) String() string {
 	case CState_Stoping:
 		return "Stoping"
 	}
-	return "unknown"
+	return strconv.Itoa(int(this))
 }
 
 type SState struct {

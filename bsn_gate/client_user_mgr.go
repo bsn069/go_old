@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"net"
 	"sync"
+	// "sync/atomic"
 )
 
 type SClientUserMgr struct {
@@ -22,6 +23,7 @@ type SClientUserMgr struct {
 
 	M_TId2User  map[uint16]*SClientUser
 	M_TClientId uint16
+	M_SState    *bsn_common.SState
 	M_MutexUser sync.Mutex
 }
 
@@ -32,6 +34,7 @@ func NewSClientUserMgr(vSApp *SApp) (this *SClientUserMgr, err error) {
 		M_TCPSNotifyClose:  bsn_common.NewSNotifyClose(),
 		M_TCPSState:        bsn_common.NewSState(),
 		M_TCPstrListenAddr: fmt.Sprintf(":%v", vSApp.ListenPort()),
+		M_SState:           bsn_common.NewSState(),
 	}
 
 	return
@@ -44,12 +47,24 @@ func (this *SClientUserMgr) start() (err error) {
 		}
 	}()
 
+	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
+		err = errors.New("error state")
+		return
+	}
+
+	defer func() {
+		if err != nil {
+			this.M_SState.Set(bsn_common.CState_Idle)
+		}
+	}()
+
 	err = this.startTCPListen()
 	if err != nil {
 		return
 	}
 	this.M_TId2User = make(map[uint16]*SClientUser, 10)
 
+	this.M_SState.Set(bsn_common.CState_Runing)
 	return
 }
 
@@ -60,20 +75,24 @@ func (this *SClientUserMgr) stop() (err error) {
 		}
 	}()
 
+	if !this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
+		err = errors.New("error state")
+		return
+	}
+
+	defer func() {
+		if err != nil {
+			this.M_SState.Set(bsn_common.CState_Runing)
+		}
+	}()
+
 	err = this.stopTCPListen()
 	if err != nil {
 		return
 	}
+	this.closeAllClient()
 
-	GSLog.Mustln("close all user")
-	for _, vClientUser := range this.M_TId2User {
-		err = vClientUser.close()
-		if err != nil {
-			return
-		}
-	}
-	this.M_TId2User = nil
-
+	this.M_SState.Set(bsn_common.CState_Idle)
 	return
 }
 
@@ -197,7 +216,7 @@ func (this *SClientUserMgr) genClientId() uint16 {
 			continue
 		}
 
-		vSClientUser := this.getClient(this.M_TClientId)
+		vSClientUser, _ := this.getClient(this.M_TClientId)
 		if vSClientUser == nil {
 			return this.M_TClientId
 		}
@@ -205,25 +224,49 @@ func (this *SClientUserMgr) genClientId() uint16 {
 	return 0
 }
 
-func (this *SClientUserMgr) getClient(vClientId uint16) *SClientUser {
+func (this *SClientUserMgr) getClient(vClientId uint16) (vSClientUser *SClientUser, err error) {
 	this.M_MutexUser.Lock()
 	defer this.M_MutexUser.Unlock()
 
-	return this.M_TId2User[vClientId]
+	vSClientUser = this.M_TId2User[vClientId]
+	return
 }
 
-func (this *SClientUserMgr) addClient(vSClientUser *SClientUser) error {
+func (this *SClientUserMgr) addClient(vSClientUser *SClientUser) (err error) {
 	this.M_MutexUser.Lock()
 	defer this.M_MutexUser.Unlock()
+
+	if !this.M_SState.Is(bsn_common.CState_Runing) {
+		err = errors.New("not run")
+		return
+	}
 
 	this.M_TId2User[vSClientUser.ClientId()] = vSClientUser
 	return nil
 }
 
-func (this *SClientUserMgr) delClient(vTClientId uint16) error {
+func (this *SClientUserMgr) delClient(vTClientId uint16) (err error) {
 	this.M_MutexUser.Lock()
 	defer this.M_MutexUser.Unlock()
 
 	delete(this.M_TId2User, vTClientId)
 	return nil
+}
+
+func (this *SClientUserMgr) closeAllClient() (err error) {
+	GSLog.Mustln("closeAllClient")
+
+	this.M_MutexUser.Lock()
+	defer this.M_MutexUser.Unlock()
+
+	for _, vClientUser := range this.M_TId2User {
+		if vClientUser.setCloseReason(bsn_common.CState_CloseReasonKickOut) {
+			err = vClientUser.close()
+			if err != nil {
+				GSLog.Errorln(err)
+			}
+		}
+	}
+
+	return
 }
