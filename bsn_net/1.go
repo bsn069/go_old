@@ -59,7 +59,7 @@ func (this *STCPRecver) Reset() (err error) {
 	return nil
 }
 
-func (this *STCPRecver) SetIListenerCB(vIRecverCB IRecverCB) (err error) {
+func (this *STCPRecver) SetIRecverCB(vIRecverCB IRecverCB) (err error) {
 	this.M_RWMutex.Lock()
 	defer this.M_RWMutex.Unlock()
 
@@ -133,4 +133,112 @@ func (this *STCPRecver) Id() (id uint16) {
 	defer this.M_RWMutex.RUnlock()
 
 	return this.M_Id
+}
+
+func (this *STCPRecver) Start() (err error) {
+	this.M_RWMutex.Lock()
+	defer this.M_RWMutex.Unlock()
+
+	defer func() {
+		if err != nil {
+			GSLog.Errorln(err)
+		}
+	}()
+
+	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
+		return errors.New("error state")
+	}
+
+	defer func() {
+		if err != nil {
+			this.M_SState.Set(bsn_common.CState_Idle)
+		}
+	}()
+
+	if this.M_Conn == nil {
+		return errors.New("this.M_Conn is nil")
+	}
+
+	if this.M_IRecverCB == nil {
+		return errors.New("this.M_IRecverCB is nil")
+	}
+
+	this.M_SNotifyClose.Clear()
+	go this.workerTCPRecver()
+	return nil
+}
+
+func (this *STCPRecver) workerTCPRecver() {
+	defer bsn_common.FuncGuard()
+
+	byMsgHeader := make([]byte, bsn_msg.CSMsgHeader_Size)
+	vConn := this.M_Conn
+	readLen := 0
+	for {
+		readLen, err = vConn.Read(byMsgHeader)
+		if err != nil {
+			break
+		}
+		if readLen != int(bsn_msg.CSMsgHeader_Size) {
+			err = errors.New("not read all header data")
+			break
+		}
+
+		vSMsg := bsn_msg.NewSMsg()
+		byMsgBody := vSMsg.MsgBodyBuffer(byMsgHeader)
+
+		readLen, err = vConn.Read(byMsgBody)
+		if err != nil {
+			break
+		}
+		if readLen != int(vSMsg.M_SMsgHeader.Len()) {
+			err = errors.New("not read all body data")
+			break
+		}
+
+		// err = this.procMsg(vSMsg)
+		if err != nil {
+			break
+		}
+	}
+	// this.setCloseReason(bsn_common.CState_CloseReasonDisconnect)
+
+	if err != nil {
+		GSLog.Debugln("err=", err)
+	}
+
+	vConn.Close()
+	this.M_Conn = nil
+
+	this.M_IRecverCB.LRecverCBOnClose()
+}
+
+func (this *STCPRecver) Stop() (err error) {
+	this.M_RWMutex.Lock()
+	defer this.M_RWMutex.Unlock()
+
+	defer func() {
+		if err != nil {
+			GSLog.Errorln(err)
+		}
+	}()
+
+	if !this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
+		return errors.New("error state")
+	}
+
+	defer func() {
+		if err != nil {
+			this.M_SState.Set(bsn_common.CState_Runing)
+		}
+	}()
+
+	err = this.M_Conn.Close()
+	if err != nil {
+		return err
+	}
+
+	this.M_SNotifyClose.WaitClose()
+
+	return nil
 }
