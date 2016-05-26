@@ -29,6 +29,8 @@ func (this TState) String() string {
 		return "Runing"
 	case CState_Stoping:
 		return "Stoping"
+	case CState_Op:
+		return "Op"
 	}
 	return strconv.Itoa(int(this))
 }
@@ -37,11 +39,14 @@ type SState struct {
 	M_TState TState
 }
 
-func NewSState() *SState {
-	this := &SState{
-		M_TState: CState_Idle,
-	}
+func NewSState() (this *SState) {
+	this = &SState{}
+	this.Reset()
 	return this
+}
+
+func (this *SState) Reset() {
+	this.M_TState = CState_Idle
 }
 
 func (this *SState) Change(from, to TState) bool {

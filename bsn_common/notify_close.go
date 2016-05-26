@@ -10,11 +10,14 @@ type SNotifyClose struct {
 }
 
 func NewSNotifyClose() *SNotifyClose {
-	this := &SNotifyClose{
-		M_chanNotifyClose: make(chan bool, 1),
-		M_chanWaitClose:   make(chan bool, 1),
-	}
+	this := &SNotifyClose{}
+	this.Reset()
 	return this
+}
+
+func (this *SNotifyClose) Reset() {
+	this.M_chanNotifyClose = make(chan bool, 1)
+	this.M_chanWaitClose = make(chan bool, 1)
 }
 
 func (this *SNotifyClose) NotifyClose() {

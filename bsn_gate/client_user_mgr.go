@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
 	// "github.com/bsn069/go/bsn_msg"
-	// "github.com/bsn069/go/bsn_net"
+	"github.com/bsn069/go/bsn_net"
 	// "time"
 	// "math"
 	"fmt"
@@ -16,10 +16,7 @@ import (
 type SClientUserMgr struct {
 	M_SApp *SApp
 
-	M_TCPListener      net.Listener
-	M_TCPstrListenAddr string
-	M_TCPSNotifyClose  *bsn_common.SNotifyClose
-	M_TCPSState        *bsn_common.SState
+	M_TCPListener bsn_net.STCPListener
 
 	M_TId2User  map[uint16]*SClientUser
 	M_TClientId uint16
@@ -30,181 +27,61 @@ type SClientUserMgr struct {
 func NewSClientUserMgr(vSApp *SApp) (this *SClientUserMgr, err error) {
 	GSLog.Debugln("NewSClientUserMgr")
 	this = &SClientUserMgr{
-		M_SApp:             vSApp,
-		M_TCPSNotifyClose:  bsn_common.NewSNotifyClose(),
-		M_TCPSState:        bsn_common.NewSState(),
-		M_TCPstrListenAddr: fmt.Sprintf(":%v", vSApp.ListenPort()),
-		M_SState:           bsn_common.NewSState(),
+		M_SApp:   vSApp,
+		M_SState: bsn_common.NewSState(),
 	}
+	this.M_TCPListener.Reset()
+	this.M_TCPListener.SetAddr(fmt.Sprintf(":%v", vSApp.ListenPort()))
+	this.M_TCPListener.SetIListenerCB(this)
 
 	return
 }
 
-func (this *SClientUserMgr) start() (err error) {
-	defer func() {
-		if err != nil {
-			GSLog.Errorln(err)
-		}
-	}()
-
-	if !this.M_SState.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
-		err = errors.New("error state")
-		return
-	}
-
-	defer func() {
-		if err != nil {
-			this.M_SState.Set(bsn_common.CState_Idle)
-		}
-	}()
-
-	err = this.startTCPListen()
-	if err != nil {
-		return
-	}
-	this.M_TId2User = make(map[uint16]*SClientUser, 10)
-
-	this.M_SState.Set(bsn_common.CState_Runing)
-	return
-}
-
-func (this *SClientUserMgr) stop() (err error) {
-	defer func() {
-		if err != nil {
-			GSLog.Errorln(err)
-		}
-	}()
-
-	if !this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
-		err = errors.New("error state")
-		return
-	}
-
-	defer func() {
-		if err != nil {
-			this.M_SState.Set(bsn_common.CState_Runing)
-		}
-	}()
-
-	err = this.stopTCPListen()
-	if err != nil {
-		return
-	}
-	this.closeAllClient()
-
-	this.M_SState.Set(bsn_common.CState_Idle)
-	return
-}
-
-func (this *SClientUserMgr) stopTCPListen() (err error) {
-	defer func() {
-		if err != nil {
-			GSLog.Errorln(err)
-		}
-	}()
-
-	if !this.M_TCPSState.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
-		GSLog.Debugln("not listen")
-		return
-	}
-
-	defer func() {
-		if err == nil {
-			return
-		}
-		this.M_TCPSState.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
-	}()
-
-	err = this.M_TCPListener.Close()
-	if err != nil {
-		return
-	}
-
-	this.M_TCPSNotifyClose.WaitClose()
-	return
-}
-
-func (this *SClientUserMgr) startTCPListen() (err error) {
-	defer func() {
-		if err != nil {
-			GSLog.Errorln(err)
-		}
-	}()
-
-	if !this.M_TCPSState.Change(bsn_common.CState_Idle, bsn_common.CState_Op) {
-		GSLog.Errorln("had listen")
-		return
-	}
-
-	defer func() {
-		if err == nil {
-			return
-		}
-		this.M_TCPSState.Change(bsn_common.CState_Op, bsn_common.CState_Idle)
-	}()
-
-	GSLog.Mustln("listenTCP ", this.M_TCPstrListenAddr)
-	this.M_TCPListener, err = net.Listen("tcp", this.M_TCPstrListenAddr)
-	if err != nil {
-		return
-	}
-
-	this.M_TCPSNotifyClose.Clear()
-	go this.workerTCPListen()
-	return
-}
-
-func (this *SClientUserMgr) workerTCPListen() {
-	defer bsn_common.FuncGuard()
-	defer func() {
-		this.M_TCPSNotifyClose.Close()
-		this.M_TCPListener = nil
-		this.M_TCPSState.Set(bsn_common.CState_Idle)
-	}()
-
-	this.M_TCPSState.Change(bsn_common.CState_Op, bsn_common.CState_Runing)
-
-	vbQuit := false
-	for !vbQuit {
-		vConn, err := this.M_TCPListener.Accept()
-		if err != nil {
-			GSLog.Errorln(err)
-			vbQuit = true
-			continue
-		}
-		this.onTCPClient(vConn)
-	}
-}
-
-func (this *SClientUserMgr) onTCPClient(vConn net.Conn) (err error) {
-	defer func() {
-		if err != nil {
-			GSLog.Errorln(err)
-			vConn.Close()
-		}
-	}()
-
+func (this *SClientUserMgr) ListenerCBOnAcceptNetConn(vConn net.Conn) (err error) {
 	vClientId := this.genClientId()
 	if vClientId == 0 {
-		err = errors.New("genClientId fail")
-		return
+		return errors.New("genClientId fail")
 	}
 
-	vstrAddr := vConn.RemoteAddr().String()
-	GSLog.Debugf("client connect ClientId=%v addr=%v\n", vClientId, vstrAddr)
+	GSLog.Debugf("client connect ClientId=%v \n", vClientId)
 
 	vSClientUser, err := NewSClientUser(this, vConn, vClientId)
 	if err != nil {
-		return
+		return err
 	}
 
 	err = this.addClient(vSClientUser)
 	if err != nil {
-		return
+		return err
 	}
 	vSClientUser.run()
+	return nil
+}
 
-	return
+func (this *SClientUserMgr) ListenerCBOnClose() (err error) {
+	GSLog.Mustln("ListenerCBOnClose")
+	return nil
+}
+
+func (this *SClientUserMgr) start() (err error) {
+	return this.M_TCPListener.Start()
+}
+
+func (this *SClientUserMgr) stop() (err error) {
+	err = this.M_TCPListener.Stop()
+	if err != nil {
+		return err
+	}
+	this.closeAllClient()
+	return nil
+}
+
+func (this *SClientUserMgr) startTCPListen() (err error) {
+	return this.M_TCPListener.Start()
+}
+
+func (this *SClientUserMgr) stopTCPListen() (err error) {
+	return this.M_TCPListener.Stop()
 }
 
 // generate clientid
