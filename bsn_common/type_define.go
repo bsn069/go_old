@@ -5,6 +5,14 @@ import (
 	"time"
 )
 
+const (
+	CCloseReason_Idle int32 = iota
+
+	CCloseReason_Disconnect
+	CCloseReason_KickOut
+	CCloseReason_Leave
+)
+
 type TVoid interface{}
 
 type TMsgType uint16

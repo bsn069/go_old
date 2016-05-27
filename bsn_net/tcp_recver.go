@@ -3,20 +3,23 @@ package bsn_net
 import (
 	"errors"
 	"github.com/bsn069/go/bsn_common"
-	// "github.com/bsn069/go/bsn_msg"
+	"github.com/bsn069/go/bsn_msg"
 	// "github.com/bsn069/go/bsn_net"
 	// "time"
 	// "math"
 	// "fmt"
 	"net"
 	// "sync/atomic"
+	"io"
 	"sync"
 )
 
 type IRecverCB interface {
-	RecverCBOnAcceptNetConn(vConn net.Conn) error
-	LRecverCBOnClose() error
+	RecverCBOnMsg(vSMsg *bsn_msg.SMsg) error
+	RecverCBOnClose() error
 }
+
+var gSTCPRecverPool sync.Pool
 
 type STCPRecver struct {
 	M_RWMutex      sync.RWMutex
@@ -30,10 +33,15 @@ type STCPRecver struct {
 
 func NewSTCPRecver() (this *STCPRecver, err error) {
 	GSLog.Debugln("NewSTCPRecver")
-	this = &STCPRecver{}
-	this.Reset()
 
+	poolObj := gSTCPRecverPool.Get()
+	this = poolObj.(*STCPRecver)
+	this.Reset()
 	return this, nil
+}
+
+func (this *STCPRecver) Del() {
+	gSTCPRecverPool.Put(this)
 }
 
 func (this *STCPRecver) Reset() (err error) {
@@ -165,6 +173,8 @@ func (this *STCPRecver) Start() (err error) {
 
 	this.M_SNotifyClose.Clear()
 	go this.workerTCPRecver()
+	this.M_SState.Set(bsn_common.CState_Runing)
+
 	return nil
 }
 
@@ -172,10 +182,10 @@ func (this *STCPRecver) workerTCPRecver() {
 	defer bsn_common.FuncGuard()
 
 	byMsgHeader := make([]byte, bsn_msg.CSMsgHeader_Size)
-	vConn := this.M_Conn
 	readLen := 0
+	var err error
 	for {
-		readLen, err = vConn.Read(byMsgHeader)
+		readLen, err = io.ReadFull(this.M_Conn, byMsgHeader)
 		if err != nil {
 			break
 		}
@@ -185,32 +195,32 @@ func (this *STCPRecver) workerTCPRecver() {
 		}
 
 		vSMsg := bsn_msg.NewSMsg()
-		byMsgBody := vSMsg.MsgBodyBuffer(byMsgHeader)
+		vSMsg.Init(byMsgHeader)
+		byMsgBody := vSMsg.MsgBodyBuffer()
 
-		readLen, err = vConn.Read(byMsgBody)
+		readLen, err = io.ReadFull(this.M_Conn, byMsgBody)
 		if err != nil {
 			break
 		}
-		if readLen != int(vSMsg.M_SMsgHeader.Len()) {
+		if readLen != int(vSMsg.Len()) {
 			err = errors.New("not read all body data")
 			break
 		}
 
-		// err = this.procMsg(vSMsg)
+		err = this.M_IRecverCB.RecverCBOnMsg(vSMsg)
 		if err != nil {
 			break
 		}
 	}
-	// this.setCloseReason(bsn_common.CState_CloseReasonDisconnect)
 
 	if err != nil {
 		GSLog.Debugln("err=", err)
 	}
 
-	vConn.Close()
+	this.M_Conn.Close()
 	this.M_Conn = nil
 
-	this.M_IRecverCB.LRecverCBOnClose()
+	this.M_IRecverCB.RecverCBOnClose()
 }
 
 func (this *STCPRecver) Stop() (err error) {

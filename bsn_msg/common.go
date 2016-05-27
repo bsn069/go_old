@@ -5,9 +5,16 @@ import (
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_log"
 	// "unsafe"
+	"sync"
 )
 
 func init() {
+	gSMsgPool = sync.Pool{
+		New: func() interface{} {
+			return &SMsg{}
+		},
+	}
+
 	GSLog = bsn_log.GSLog
 }
 

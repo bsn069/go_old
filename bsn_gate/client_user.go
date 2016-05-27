@@ -1,111 +1,76 @@
 package bsn_gate
 
 import (
-	"errors"
+	// "errors"
 	"github.com/bsn069/go/bsn_common"
 	"github.com/bsn069/go/bsn_msg"
-	// "github.com/bsn069/go/bsn_net"
+	"github.com/bsn069/go/bsn_net"
 	// "time"
 	// "math"
 	// "fmt"
 	"net"
 	// "sync/atomic"
+	"sync/atomic"
 )
 
 type SClientUser struct {
-	M_SClientUserMgr    *SClientUserMgr
-	M_Conn              net.Conn
-	M_TClientId         uint16
-	M_SStateCloseReason *bsn_common.SState // 0 1conenct disconnect 1usermgr close
+	M_SClientUserMgr *SClientUserMgr
+	M_TClientId      uint16
+	M_Recver         bsn_net.STCPRecver
+	M_CloseReason    int32
 }
 
 func NewSClientUser(vSClientUserMgr *SClientUserMgr, vConn net.Conn, vClientId uint16) (*SClientUser, error) {
 	GSLog.Debugln("NewSClientUser")
 	this := &SClientUser{
-		M_SClientUserMgr:    vSClientUserMgr,
-		M_Conn:              vConn,
-		M_TClientId:         vClientId,
-		M_SStateCloseReason: bsn_common.NewSState(),
+		M_SClientUserMgr: vSClientUserMgr,
+		M_TClientId:      vClientId,
 	}
 
+	this.M_Recver.Reset()
+	this.M_Recver.SetIRecverCB(this)
+	this.M_Recver.SetConn(vConn)
+
 	return this, nil
+}
+
+func (this *SClientUser) RecverCBOnMsg(vSMsg *bsn_msg.SMsg) (err error) {
+	GSLog.Debugln("RecverCBOnMsg ", vSMsg.Type())
+	err = this.procMsg(vSMsg)
+	vSMsg.Del()
+	return err
+}
+
+func (this *SClientUser) RecverCBOnClose() (err error) {
+	GSLog.Debugln("RecverCBOnClose ", this.ClientId())
+	this.setCloseReason(bsn_common.CCloseReason_Disconnect)
+	// save data
+	GSLog.Debugln("this.M_CloseReason= ", this.M_CloseReason)
+	return nil
 }
 
 func (this *SClientUser) ClientId() uint16 {
 	return this.M_TClientId
 }
 
-func (this *SClientUser) conn() net.Conn {
-	return this.M_Conn
+// CCloseReason_Idle
+func (this *SClientUser) setCloseReason(vCCloseReason int32) bool {
+	return atomic.CompareAndSwapInt32((*int32)(&this.M_CloseReason), bsn_common.CCloseReason_Idle, vCCloseReason)
 }
 
 func (this *SClientUser) run() (err error) {
-	go this.workerRecvMsg()
-	return
-}
-
-func (this *SClientUser) setCloseReason(vState bsn_common.TState) bool {
-	return this.M_SStateCloseReason.Change(bsn_common.CState_Idle, vState)
+	err = this.M_Recver.Start()
+	return err
 }
 
 func (this *SClientUser) close() (err error) {
 	GSLog.Debugln("close ", this.ClientId())
-	vConn := this.conn()
-	if vConn == nil {
-		err = errors.New("not run")
-		return
-	}
-	vConn.Close()
-	return
+
+	this.M_Recver.Stop()
+
+	return nil
 }
 
 func (this *SClientUser) procMsg(vMsg *bsn_msg.SMsg) (err error) {
-	return
-}
-
-func (this *SClientUser) workerRecvMsg() (err error) {
-	GSLog.Debugln("workerRecvMsg")
-
-	byMsgHeader := make([]byte, bsn_msg.CSMsgHeader_Size)
-	vConn := this.conn()
-	readLen := 0
-	for {
-		readLen, err = vConn.Read(byMsgHeader)
-		if err != nil {
-			break
-		}
-		if readLen != int(bsn_msg.CSMsgHeader_Size) {
-			err = errors.New("not read all header data")
-			break
-		}
-
-		vSMsg := bsn_msg.NewSMsg()
-		byMsgBody := vSMsg.MsgBodyBuffer(byMsgHeader)
-
-		readLen, err = vConn.Read(byMsgBody)
-		if err != nil {
-			break
-		}
-		if readLen != int(vSMsg.M_SMsgHeader.Len()) {
-			err = errors.New("not read all body data")
-			break
-		}
-
-		err = this.procMsg(vSMsg)
-		if err != nil {
-			break
-		}
-	}
-	this.setCloseReason(bsn_common.CState_CloseReasonDisconnect)
-
-	if err != nil {
-		GSLog.Debugln("err=", err)
-	}
-
-	vConn.Close()
-	this.M_Conn = nil
-
-	this.M_SClientUserMgr.delClient(this.ClientId())
-	GSLog.Debugln("workerRecvMsg end", this.M_SStateCloseReason)
-	return
+	return nil
 }

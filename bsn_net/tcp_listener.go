@@ -34,6 +34,10 @@ func NewSTCPListener() (this *STCPListener, err error) {
 	return
 }
 
+func (this *STCPListener) Del() {
+
+}
+
 func (this *STCPListener) Reset() (err error) {
 	this.M_RWMutex.Lock()
 	defer this.M_RWMutex.Unlock()
@@ -164,7 +168,7 @@ func (this *STCPListener) workerTCPListen() {
 	for !vbQuit {
 		vConn, err := this.M_Listener.Accept()
 		if err != nil {
-			GSLog.Errorln(err)
+			GSLog.Errorln("11111", err)
 			vbQuit = true
 			continue
 		}
@@ -183,7 +187,11 @@ func (this *STCPListener) onTCPClient(vConn net.Conn) (err error) {
 	vstrAddr := vConn.RemoteAddr().String()
 	GSLog.Debugf("client connect addr=%v\n", vstrAddr)
 
-	return this.M_IListenerCB.ListenerCBOnAcceptNetConn(vConn)
+	err = this.M_IListenerCB.ListenerCBOnAcceptNetConn(vConn)
+	if err != nil {
+		GSLog.Errorln(err)
+	}
+	return err
 }
 
 func (this *STCPListener) Stop() (err error) {
@@ -197,7 +205,8 @@ func (this *STCPListener) Stop() (err error) {
 	}()
 
 	if !this.M_SState.Change(bsn_common.CState_Runing, bsn_common.CState_Op) {
-		return errors.New("error state")
+		GSLog.Errorln("error state")
+		return nil
 	}
 
 	defer func() {

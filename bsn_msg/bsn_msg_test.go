@@ -11,6 +11,13 @@ func TestBase(t *testing.T) {
 
 }
 
+func TestSMsg(t *testing.T) {
+	vSMsg := NewSMsg()
+	msgHeader := NewMsgHeader(1, 2)
+	vSMsg.Init(msgHeader.Serialize())
+	vSMsg.Del()
+}
+
 func TestMsgHeader(t *testing.T) {
 	msgHeader := NewMsgHeader(1, 2)
 	if msgHeader.Type() != 1 {

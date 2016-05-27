@@ -1,27 +1,44 @@
 package bsn_msg
 
 import (
-// "fmt"
-// "github.com/bsn069/go/bsn_common"
-// "runtime"
-// "time"
+	// "fmt"
+	// "github.com/bsn069/go/bsn_common"
+	// "runtime"
+	// "time"
+	"sync"
 )
 
+var gSMsgPool sync.Pool
+
 type SMsg struct {
-	M_byMsg      []byte
-	M_SMsgHeader SMsgHeader
+	SMsgHeader
+	M_byMsg []byte
 }
 
 func NewSMsg() (this *SMsg) {
-	this = &SMsg{}
-	return
+	poolObj := gSMsgPool.Get()
+	this = poolObj.(*SMsg)
+	return this
 }
 
-func (this *SMsg) MsgBodyBuffer(byMsgHeader []byte) (byMsgBody []byte) {
-	this.M_SMsgHeader.DeSerialize(byMsgHeader)
-	vLen := this.M_SMsgHeader.Len()
-	this.M_byMsg = make([]byte, vLen+CSMsgHeader_Size)
+func (this *SMsg) Del() {
+	gSMsgPool.Put(this)
+}
+
+func (this *SMsg) Init(byMsgHeader []byte) {
+	this.DeSerialize(byMsgHeader)
+
+	vLen := this.Len() + CSMsgHeader_Size
+	if int(vLen) > cap(this.M_byMsg) {
+		this.M_byMsg = make([]byte, vLen)
+	} else {
+		this.M_byMsg = this.M_byMsg[0:vLen]
+	}
+
 	copy(this.M_byMsg, byMsgHeader)
+}
+
+func (this *SMsg) MsgBodyBuffer() (byMsgBody []byte) {
 	byMsgBody = this.M_byMsg[CSMsgHeader_Size:]
-	return
+	return byMsgBody
 }
